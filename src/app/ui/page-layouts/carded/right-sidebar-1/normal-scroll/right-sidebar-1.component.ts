@@ -1,0 +1,18 @@
+import { Component, ViewEncapsulation } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'carded-right-sidebar-1-normal-scroll',
+  templateUrl: './right-sidebar-1.component.html',
+  encapsulation: ViewEncapsulation.None,
+  imports: [MatSidenavModule, MatIconModule, RouterLink, MatButtonModule],
+})
+export class CardedRightSidebar1NormalScrollComponent {
+  /**
+   * Constructor
+   */
+  constructor() {}
+}

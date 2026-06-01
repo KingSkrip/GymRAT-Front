@@ -1,0 +1,89 @@
+import { RoleEnum, SubRoleEnum } from '../../../../../../modules/auth/roles/dataroles';
+import { NavItem } from '../nav.type';
+
+// =====================
+// ROLES
+// =====================
+
+export const menuSeniorCoach: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
+  },
+];
+
+export const menuBranchManager: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
+  },
+];
+
+export const menuSuAdmin: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
+  },
+];
+
+export const menuAdmin: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
+  },
+];
+
+export const menuColaborador: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
+  },
+];
+
+export const menuClientes: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
+  },
+  
+   {
+    id: 'app.asistencias',
+    title: 'Mis asistencias',
+    type: 'basic',
+    icon: 'heroicons_outline:qr-code',
+    link: '/asistencias',
+  },
+  {
+    id: 'app.rutina',
+    title: 'Mi rutina',
+    type: 'basic',
+    icon: 'heroicons_outline:biceps-flexed',
+    link: '/rutina',
+  },
+  {
+    id: 'mi.membresia',
+    title: 'Mi membresia',
+    type: 'basic',
+    icon: 'heroicons_outline:credit-card',
+    link: '/membresia',
+  },
+   
+];

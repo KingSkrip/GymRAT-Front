@@ -1,0 +1,276 @@
+<div
+  class="h-[100dvh] bg-white dark:bg-black transition-colors w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-5 overflow-hidden flex flex-col"
+>
+  <!-- QR CARD HERO -->
+  <div
+    #qrCard
+    class="relative overflow-hidden rounded-3xl border bg-secondary-400/30 dark:border-white/10 dark:bg-black p-6 text-center shadow-2xl"
+  >
+    <!-- Top glow -->
+    <div
+      class="pointer-events-none absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full blur-3xl"
+      [ngClass]="clQrValid ? 'bg-primary-500/25' : 'bg-accent-500/20'"
+    ></div>
+
+    <!-- User info header -->
+    <div class="relative mb-5">
+      <p class="text-base font-bold text-primary-500 dark:text-white">{{ userName }}</p>
+      <p class="text-xs text-accent-500">{{ branchName || 'Gym Demo' }} · {{ clMembershipType }}</p>
+    </div>
+
+    <!-- QR CODE -->
+    <div
+      #qrCard
+      class="relative mx-auto mb-4 inline-block cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
+    >
+      <div class="rounded-2xl p-4 shadow-inner" [ngClass]="clQrValid ? 'bg-white' : 'bg-white/60'">
+        <qrcode
+          [qrdata]="clQrToken"
+          [width]="160"
+          [errorCorrectionLevel]="'M'"
+          [margin]="1"
+          [colorDark]="'#111111'"
+          [colorLight]="'#ffffff'"
+          [style.opacity]="clQrValid ? '1' : '0.4'"
+        ></qrcode>
+      </div>
+
+      <!-- Valid/Invalid overlay badge -->
+      @if (showQrOverlay) {
+        <div
+          class="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm"
+        >
+          <div class="text-center">
+            <i class="ti ti-lock text-3xl text-red-400" aria-hidden="true"></i>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Status pill -->
+    <div
+      class="mx-auto mb-5 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold"
+      [ngClass]="
+        clQrValid
+          ? 'bg-secondary-500/15 text-primary-400 border border-primary-500/30'
+          : 'bg-secondary-500/15 text-accent-400 border border-accent-500/30'
+      "
+    >
+      <span
+        class="h-1.5 w-1.5 rounded-full"
+        [ngClass]="clQrValid ? 'bg-primary-400 animate-pulse' : 'bg-accent-400'"
+      ></span>
+      {{
+        clQrValid ? 'QR válido — listo para escanear' : 'QR usado o vencido — solicita uno nuevo'
+      }}
+    </div>
+
+    <!-- Action buttons -->
+    <div class="flex justify-center gap-3">
+      <button
+        (click)="saveQr()"
+        class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/8 px-4 py-2.5 text-xs font-semibold text-black dark:text-white transition hover:bg-white/15 active:scale-95"
+      >
+        <i class="ti ti-download text-sm" aria-hidden="true"></i>
+        Guardar
+      </button>
+      <button
+        (click)="openQrFullscreen()"
+        class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary-500 to-indigo-600 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-primary-900/40 transition hover:opacity-90 active:scale-95"
+      >
+        <i class="ti ti-scan text-sm" aria-hidden="true"></i>
+        Escanear
+      </button>
+    </div>
+  </div>
+
+  @if (showQrFullscreen) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-md bg-black/70"
+      (click)="closeQrFullscreen()"
+    >
+      <div class="relative p-6 bg-white rounded-3xl shadow-2xl" (click)="$event.stopPropagation()">
+        <qrcode
+          [qrdata]="clQrToken"
+          [width]="260"
+          [errorCorrectionLevel]="'M'"
+          [margin]="2"
+          [colorDark]="'#111111'"
+          [colorLight]="'#ffffff'"
+        ></qrcode>
+      </div>
+    </div>
+  }
+
+  <!-- ACCESS METHODS -->
+  <div class="flex-1 overflow-y-auto min-h-0 pr-1 space-y-4">
+    <!-- ACCESS METHODS -->
+    <!-- <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+    Métodos de acceso vinculados
+  </p> -->
+    <!-- Estado QR + huella (fijo) -->
+    <!-- <div class="space-y-2">
+   
+      <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+        <span
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary-500/20 text-primary-400"
+        >
+        
+          <mat-icon svgIcon="heroicons_outline:qr-code" class="icon-size-4"></mat-icon>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-white">QR Code</p>
+          <p class="truncate text-xs text-gray-400">
+            Generado:
+            {{
+              clQrGeneratedAt ? (clQrGeneratedAt | date: 'dd/MM/yyyy, h:mm:ss a') : 'Sin generar'
+            }}
+          </p>
+        </div>
+        <span
+          class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold"
+          [ngClass]="
+            clQrValid ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'
+          "
+        >
+          {{ clQrValid ? 'Activo' : 'Inválido' }}
+        </span>
+      </div>
+
+      <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+        <span
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gray-500/20 text-gray-400"
+        >
+          <mat-icon svgIcon="heroicons_outline:finger-print" class="icon-size-4"></mat-icon>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold text-white">Huella digital</p>
+          <p class="text-xs text-gray-400">
+            {{ clBiometricsRegistered ? clBiometricsTotal + ' registrada(s)' : 'No registrada' }}
+          </p>
+        </div>
+        <span
+          class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold"
+          [ngClass]="
+            clBiometricsRegistered
+              ? 'bg-emerald-500/15 text-emerald-400'
+              : 'bg-gray-500/15 text-gray-400'
+          "
+        >
+          {{ clBiometricsRegistered ? 'Registrada' : 'Pendiente' }}
+        </span>
+      </div>
+    </div> -->
+    @if (showQrOverlay) {
+      <!-- <div
+        class="absolute inset-0 flex flex-col items-center justify-center rounded-2xl bg-black/75 backdrop-blur-sm gap-2"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-8 w-8 text-red-400"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+          />
+        </svg>
+        <p class="text-xs font-semibold text-red-300 text-center px-4">
+          {{ !clMembershipActive ? 'Membresía inactiva' : 'Cuenta deshabilitada' }}
+        </p>
+        <p class="text-[10px] text-gray-400 text-center px-6">
+          Contacta a tu gimnasio para reactivarla
+        </p>
+      </div> -->
+    }
+    <!-- LOG DE ENTRADAS Y SALIDAS -->
+    @if (clAccessSessions.length > 0) {
+      <p class="text-sm font-semibold text-secondary-400 dark:text-white mt-4">
+        Historial de accesos
+      </p>
+      <div class="space-y-2">
+        @for (session of clAccessSessions; track session.entrada?.at) {
+          <div
+            class="rounded-2xl border px-4 py-3 space-y-2.5"
+            [ngClass]="
+              session.date === (today | date: 'dd/MM/yyyy')
+                ? 'border-primary-500 dark:border-primary-500 bg-secondary-400/30 dark:bg-primary-500/10'
+                : 'border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5'
+            "
+          >
+            <!-- Fecha -->
+            <p class="text-sm text-black dark:text-white">
+              {{ session.date }}
+            </p>
+
+            <!-- Entrada -->
+            @if (session.entrada) {
+              <div class="flex items-center gap-3">
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary-500 text-white"
+                >
+                  <mat-icon
+                    svgIcon="heroicons_outline:arrow-left-end-on-rectangle"
+                    class="icon-size-4"
+                  ></mat-icon>
+                </span>
+                <div class="flex-1">
+                  <p class="text-xs md:text-sm text-primary-500">Entrada</p>
+                  <p class="text-xs md:text-sm text-black dark:text-white">
+                    {{ session.entrada.at | date: 'h:mm:ss a' }} · vía
+                    {{ session.entrada.method === 'qr' ? 'QR' : 'Huella' }}
+                  </p>
+                </div>
+              </div>
+            }
+
+            <!-- Divisor si hay ambos -->
+            @if (session.entrada && session.salida) {
+              <div class="ml-4 border-l border-dashed border-white/10 pl-3 h-3"></div>
+            }
+
+            <!-- Salida -->
+            @if (session.salida) {
+              <div class="flex items-center gap-3">
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-500 text-white"
+                >
+                  <mat-icon
+                    svgIcon="heroicons_outline:arrow-left-start-on-rectangle"
+                    class="icon-size-4"
+                  ></mat-icon>
+                </span>
+                <div class="flex-1">
+                  <p class="text-xs md:text-sm text-accent-500">Salida</p>
+                  <p class="text-xs md:text-sm text-black dark:text-white">
+                    {{ session.salida.at | date: 'h:mm:ss a' }} · vía
+                    {{ session.salida.method === 'qr' ? 'QR' : 'Huella' }}
+                  </p>
+                </div>
+              </div>
+            } @else {
+              <!-- Sin salida registrada aún -->
+              <div class="flex items-center gap-3 opacity-40">
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-secondary-500 text-white"
+                >
+                  <mat-icon svgIcon="heroicons_outline:clock" class="icon-size-4"></mat-icon>
+                </span>
+                <div class="flex-1">
+                  <p class="text-xs md:text-sm text-secondary-500">Salida</p>
+                  <p class="text-xs md:text-sm text-black dark:text-white">
+                    Aún dentro del gimnasio
+                  </p>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

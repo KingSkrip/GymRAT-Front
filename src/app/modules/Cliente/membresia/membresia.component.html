@@ -1,0 +1,299 @@
+<div
+  class="min-h-screen bg-white dark:bg-black transition-colors duration-300 absolute inset-0 flex flex-col overflow-hidden max-w-2xl mx-auto w-full px-4 sm:px-6 lg:px-8"
+>
+  <div class="px-4 py-5 space-y-4">
+    <!-- ══════════ TAB: MEMBRESÍA ══════════ -->
+
+    <!-- MEMBERSHIP CARD + PLANES -->
+    <div
+      class="relative overflow-hidden rounded-3xl bg-secondary-400/30 dark:bg-secondary-400/5 p-5 cursor-pointer"
+    >
+      <!-- Blobs decorativos -->
+      <div
+        class="pointer-events-none absolute -top-10 -right-10 h-40 w-40 rounded-full bg-accent-400/20 blur-2xl"
+      ></div>
+      <div
+        class="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-secondary-400/20 blur-2xl"
+      ></div>
+
+      <!-- Header: ícono + tipo + badge -->
+      <div class="relative mb-4 flex items-center gap-3">
+        <span
+          class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-secondary-300/90"
+        >
+          <mat-icon
+            svgIcon="heroicons_outline:credit-card"
+            class="icon-size-4 text-black"
+          ></mat-icon>
+        </span>
+        <div>
+          <p class="text-[11px] text-black dark:text-white">Tipo de membresía</p>
+          <p class="text-lg font-medium text-black dark:text-white">{{ clMembershipType }}</p>
+        </div>
+        <span
+          class="ml-auto shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold"
+          [ngClass]="{
+            'bg-accent-300 text-primary-500': getMembershipAlertClass() === 'alert-ok',
+            'bg-[#FAC775] text-[#633806]': getMembershipAlertClass() === 'alert-warn',
+            'bg-[#F7C1C1] text-[#791F1F]': getMembershipAlertClass() === 'alert-inactive',
+            'bg-[#F5C4B3] text-[#4A1B0C]': getMembershipAlertClass() === 'alert-danger',
+          }"
+        >
+          @if (getMembershipAlertClass() === 'alert-ok') {
+            Activa
+          } @else if (getMembershipAlertClass() === 'alert-warn') {
+            Por vencer
+          } @else if (getMembershipAlertClass() === 'alert-inactive') {
+            Inactiva
+          } @else {
+            Urgente
+          }
+        </span>
+      </div>
+
+      <!-- Progress bar -->
+      <div
+        class="relative mb-2 h-2 w-full overflow-hidden rounded-full bg-secondary-300 dark:bg-white/10"
+      >
+        <div
+          class="h-full rounded-full bg-gradient-to-r from-accent-300 to-accent-200 dark:from-accent-300 dark:to-white transition-all duration-700"
+          [style.width.%]="clMembershipPercent"
+        ></div>
+      </div>
+
+      <!-- Fechas -->
+      <div class="flex items-center justify-between text-primary-500 dark:text-primary-200">
+        <span
+          >Inicio:
+          <span class="text-xs md:text-sm text-black dark:text-white">{{
+            clMembershipStart
+          }}</span></span
+        >
+        <span class="text-xs md:text-sm text-black dark:text-white"
+          >Restan {{ clMembershipDaysLeft }} días</span
+        >
+        <span
+          >Vence:
+          <span class="text-xs md:text-sm text-black dark:text-white">{{
+            clMembershipEnd
+          }}</span></span
+        >
+      </div>
+
+      <!-- Separador -->
+      <div class="my-4 border-t border-primary-500"></div>
+
+      <div
+        class="flex items-center gap-3 relative"
+        [ngClass]="{
+          'text-secondary-500': getMembershipAlertClass() === 'alert-ok',
+          'text-[#633806]': getMembershipAlertClass() === 'alert-warn',
+          'text-[#791F1F]': getMembershipAlertClass() === 'alert-inactive',
+          'text-[#4A1B0C]': getMembershipAlertClass() === 'alert-danger',
+        }"
+      >
+        <!-- Accent bar -->
+        <span
+          class="absolute -left-5 top-0 bottom-0 w-[3px]"
+          [ngClass]="{
+            'bg-secondary-500': getMembershipAlertClass() === 'alert-ok',
+            'bg-[#BA7517]': getMembershipAlertClass() === 'alert-warn',
+            'bg-[#E24B4A]': getMembershipAlertClass() === 'alert-inactive',
+            'bg-[#D85A30]': getMembershipAlertClass() === 'alert-danger',
+          }"
+        ></span>
+
+        <!-- Ícono -->
+        <span
+          class="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg"
+          [ngClass]="{
+            'bg-secondary-500 text-black': getMembershipAlertClass() === 'alert-ok',
+            'bg-[#FAC775] text-[#854F0B]': getMembershipAlertClass() === 'alert-warn',
+            'bg-[#F7C1C1] text-[#A32D2D]': getMembershipAlertClass() === 'alert-inactive',
+            'bg-[#F5C4B3] text-[#993C1D]': getMembershipAlertClass() === 'alert-danger',
+          }"
+        >
+          @if (getMembershipAlertClass() === 'alert-ok') {
+            <mat-icon svgIcon="heroicons_outline:check-circle" class="icon-size-4"></mat-icon>
+          } @else if (getMembershipAlertClass() === 'alert-inactive') {
+            <mat-icon svgIcon="heroicons_outline:lock-closed" class="icon-size-4"></mat-icon>
+          } @else if (getMembershipAlertClass() === 'alert-danger') {
+            <mat-icon
+              svgIcon="heroicons_outline:exclamation-triangle"
+              class="icon-size-4"
+            ></mat-icon>
+          } @else {
+            <mat-icon svgIcon="heroicons_outline:clock" class="icon-size-4"></mat-icon>
+          }
+        </span>
+
+        <!-- Texto -->
+        <div class="flex flex-col leading-tight ml-1 flex-1">
+          <span class="text-xs md:text-sm mb-0.5 text-secondary-500">
+            @if (getMembershipAlertClass() === 'alert-ok') {
+              Estado de membresía
+            } @else if (getMembershipAlertClass() === 'alert-warn') {
+              Aviso de renovación
+            } @else if (getMembershipAlertClass() === 'alert-inactive') {
+              Acceso restringido
+            } @else {
+              Último aviso
+            }
+          </span>
+          <span class="text-xs font-medium text-secondary-500">
+            @if (getMembershipAlertClass() === 'alert-ok') {
+              Membresía activa — acceso permitido hoy
+            } @else if (getMembershipAlertClass() === 'alert-warn') {
+              Próxima a vencer — renueva para seguir accediendo
+            } @else if (getMembershipAlertClass() === 'alert-inactive') {
+              Vencida — renueva tu plan para continuar
+            } @else {
+              Por vencer — último aviso antes de perder acceso
+            }
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLANES -->
+    <p class="text-xs md:text-sm text-secondary-400 mt-1 mb-1 px-1">Elige tu plan</p>
+
+    <div class="flex flex-col gap-2">
+      @for (plan of membershipPlans; track plan.id) {
+        <div
+          class="relative rounded-2xl border px-4 py-3 flex items-center gap-3 cursor-pointer transition-all bg-secondary-400/30 dark:bg-secondary-400/5"
+          [ngClass]="{
+            'border-2 border-accent-500': selectedPlan === plan.id,
+            'border-secondary-200/30 dark:border-secondary-700/30': selectedPlan !== plan.id,
+          }"
+          (click)="selectPlan(plan.id)"
+        >
+          @if (plan.popular) {
+            <span
+              class="absolute -top-2.5 left-3 rounded-full bg-accent-500 px-2 py-0.5 text-[9px] text-white tracking-wide"
+            >
+              Más popular
+            </span>
+          }
+
+          <span
+            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+            [ngClass]="
+              selectedPlan === plan.id
+                ? 'bg-primary-500 text-white'
+                : 'bg-secondary-300 dark:bg-secondary-800 text-black dark:text-white'
+            "
+          >
+            <mat-icon [svgIcon]="plan.icon" class="icon-size-4"></mat-icon>
+          </span>
+
+          <div class="flex-1 min-w-0">
+            <p
+              class="text-sm font-medium"
+              [ngClass]="
+                selectedPlan === plan.id ? 'text-accent-500' : 'text-black dark:text-white'
+              "
+            >
+              {{ plan.name }}
+            </p>
+            <p class="text-xs md:text-sm text-black dark:text-white">{{ plan.description }}</p>
+          </div>
+
+          <div class="text-right shrink-0">
+            <p
+              class="text-base font-medium"
+              [ngClass]="
+                selectedPlan === plan.id
+                  ? 'text-accent-500 dark:text-accent-500'
+                  : 'text-secondary-500'
+              "
+            >
+              {{ plan.price }}
+            </p>
+            <p class="text-[10px] text-accent-500 dark:text-secondary-400">{{ plan.period }}</p>
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- CTA -->
+    <button
+      class="mt-2 w-full rounded-2xl py-3.5 flex items-center justify-center gap-2 text-sm font-medium text-white transition-all"
+      [ngClass]="{
+        'bg-primary-500 hover:bg-accent-500': getMembershipAlertClass() !== 'alert-inactive',
+        'bg-[#E24B4A] hover:bg-[#A32D2D]': getMembershipAlertClass() === 'alert-inactive',
+      }"
+      (click)="onRenewMembership()"
+    >
+      <mat-icon
+        [svgIcon]="
+          getMembershipAlertClass() === 'alert-inactive'
+            ? 'heroicons_outline:lock-open'
+            : 'heroicons_outline:arrow-path'
+        "
+        class="icon-size-4"
+      ></mat-icon>
+      @if (getMembershipAlertClass() === 'alert-inactive') {
+        Reactivar membresía
+      } @else {
+        Renovar membresía
+      }
+    </button>
+
+    <button
+      class="w-full rounded-2xl border border-accent-500 py-3 text-sm text-secondary-500 hover:bg-primary-500/30 transition-all"
+      (click)="onViewHistory()"
+    >
+      Ver historial de pagos
+    </button>
+
+    <!-- STATS GRID
+    <div class="grid grid-cols-2 gap-3">
+      @for (m of clStats; track m.label) {
+        <div
+          class="rounded-2xl border border-white/8 bg-white/5 p-4 backdrop-blur-sm dark:bg-white/5 dark:border-white/10"
+        >
+          <div class="mb-2 flex items-center gap-2">
+            <span
+              class="flex h-7 w-7 items-center justify-center rounded-xl text-xs"
+              [ngClass]="{
+                'bg-blue-500/20 text-blue-400': m.color === 'info',
+                'bg-emerald-500/20 text-emerald-400': m.color === 'success',
+                'bg-amber-500/20 text-amber-400': m.color === 'warning',
+                'bg-red-500/20 text-red-400': m.color === 'danger',
+                'bg-white/10 text-gray-400': !m.color || m.color === 'default',
+              }"
+            >
+              <i
+                class="ti text-sm"
+                [ngClass]="{
+                  'ti-clock': m.label.toLowerCase().includes('acceso'),
+                  'ti-fingerprint': m.label.toLowerCase().includes('bio'),
+                  'ti-chart-bar':
+                    !m.label.toLowerCase().includes('acceso') &&
+                    !m.label.toLowerCase().includes('bio'),
+                }"
+                aria-hidden="true"
+              ></i>
+            </span>
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+              {{ m.label }}
+            </p>
+          </div>
+          <p
+            class="text-sm font-bold leading-tight"
+            [ngClass]="{
+              'text-blue-400': m.color === 'info',
+              'text-emerald-400': m.color === 'success',
+              'text-amber-400': m.color === 'warning',
+              'text-red-400': m.color === 'danger',
+              'text-gray-300': !m.color || m.color === 'default',
+            }"
+          >
+            {{ m.value }}
+          </p>
+        </div>
+      }
+    </div> -->
+  </div>
+</div>

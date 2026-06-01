@@ -1,0 +1,118 @@
+<header
+  class="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-accent-500 dark:border-secondary-500 bg-white px-5 dark:bg-black"
+>
+  <!-- Left -->
+  <div class="flex items-center gap-3">
+    <!-- Logo/System -->
+    <div class="flex items-center gap-3">
+      <div class="flex flex-col leading-tight">
+        <span class="md:text-sm text-xs text-black dark:text-white">
+          @switch (userRole()) {
+            @case ('superadmin') {
+              Sistema global
+            }
+            @case ('gym_owner') {
+              FitZone MX
+            }
+            @case ('admin') {
+              FitZone Norte
+            }
+            @case ('coach') {
+              Mis clientes
+            }
+            @case ('client') {
+              Mi membresía
+            }
+          }
+        </span>
+
+        <span class="md:text-sm text-xs text-gray-500 dark:text-gray-400"> {{ appName }} • Platform </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right -->
+  <div class="flex items-center gap-2">
+    <!-- Search -->
+    <button
+      class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-600 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5"
+      (click)="toggleSearch()"
+    >
+      <mat-icon svgIcon="heroicons_outline:magnifying-glass"></mat-icon>
+    </button>
+
+    <!-- Notifications -->
+    <button
+      class="relative flex h-10 w-10 items-center justify-center rounded-xl text-gray-600 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5"
+    >
+      <mat-icon svgIcon="heroicons_outline:bell-alert"></mat-icon>
+
+      @if (notifications() > 0) {
+        <span
+          class="absolute -right-1 -top-1 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-red-500 text-[10px] font-semibold text-white"
+        >
+          {{ notifications() }}
+        </span>
+      }
+    </button>
+
+    <!-- Dark mode -->
+    <!-- <button
+      class="flex h-10 w-10 items-center justify-center rounded-xl text-gray-600 transition hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5"
+      (click)="toggleDarkMode()"
+    >
+      @if (isDarkMode()) {
+       <mat-icon
+        svgIcon="heroicons_outline:sun"
+        class="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400"
+      ></mat-icon>
+      } @else {
+          <mat-icon
+        svgIcon="heroicons_outline:moon"
+        class="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400"
+      ></mat-icon>
+      }
+    </button> -->
+
+    <!-- Role badge -->
+    <span
+      class="hidden rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider md:flex"
+      [ngClass]="{
+        'border-red-300 bg-red-50 text-red-600 dark:border-red-800/40 dark:bg-red-950/40 dark:text-red-400':
+          userRole() === 'superadmin',
+
+        'border-amber-300 bg-amber-50 text-amber-600 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-400':
+          userRole() === 'gym_owner',
+
+        'border-blue-300 bg-blue-50 text-blue-600 dark:border-blue-800/40 dark:bg-blue-950/40 dark:text-blue-400':
+          userRole() === 'admin',
+
+        'border-emerald-300 bg-emerald-50 text-emerald-600 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-400':
+          userRole() === 'coach',
+
+        'border-gray-300 bg-gray-100 text-gray-500 dark:border-white/10 dark:bg-white/5 dark:text-gray-400':
+          userRole() === 'client',
+      }"
+    >
+      {{ userRole() }}
+    </span>
+
+    <!-- User -->
+    <div
+      class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-secondary-500 to-accent-300 text-sm font-semibold dark:bg-gradient-to-r dark:from-primary-500 dark:to-secondary-500 dark:text-white"
+    >
+      {{ userInitials() }}
+    </div>
+  </div>
+</header>
+
+<!-- Search -->
+@if (isSearchOpen()) {
+  <div class="border-b border-gray-200 bg-white px-5 py-3 dark:border-white/10 dark:bg-black">
+    <input
+      type="text"
+      placeholder="Buscar..."
+      class="h-11 w-full rounded-xl border border-gray-300 bg-transparent px-4 outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 dark:border-white/10 dark:text-white"
+    />
+  </div>
+}

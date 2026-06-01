@@ -1,0 +1,38 @@
+.footer {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    height: 50px;
+
+    padding: 0 24px;
+
+    background: white;
+
+    border-top: 1px solid #e5e7eb;
+
+    font-size: 14px;
+
+    color: #6b7280;
+}
+
+/* Left */
+.footer-left {
+
+    display: flex;
+
+    align-items: center;
+}
+
+/* Right */
+.footer-right {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}

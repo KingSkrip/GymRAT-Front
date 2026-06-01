@@ -1,0 +1,350 @@
+<div
+  class="min-h-screen w-full flex flex-col md:flex-row bg-white dark:bg-black transition-colors duration-500"
+>
+  <!-- ─── LEFT / TOP panel (form) ─── -->
+  <div
+    class="relative flex flex-col items-center justify-center w-full md:w-1/2 min-h-screen px-6 py-12 sm:px-12"
+  >
+    <!-- Ambient glow blob – light theme -->
+    <div
+      class="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary-500/30 blur-3xl dark:hidden"
+    ></div>
+    <div
+      class="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-accent-300/20 blur-2xl dark:hidden"
+    ></div>
+
+    <!-- Ambient glow blob – dark theme -->
+    <div
+      class="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-primary-900/40 blur-3xl hidden dark:block"
+    ></div>
+    <div
+      class="pointer-events-none absolute bottom-0 right-0 h-64 w-64 rounded-full bg-secondary-900/30 blur-2xl hidden dark:block"
+    ></div>
+
+    <div class="relative z-10 w-full max-w-sm mx-auto">
+      <!-- Logo -->
+      <div class="mb-8 flex items-center gap-3">
+        <div class="h-15 w-15 bg-transparent flex items-center justify-center">
+          <img src="images/icono.png" class="h-16" alt="logo" />
+        </div>
+
+        <img src="images/icono-text.png" class="h-44 object-contain" alt="{{ appName }}" />
+      </div>
+
+      <!-- Heading -->
+      <h1 class="text-4xl font-black tracking-tight leading-none">
+        <span
+          class="bg-gradient-to-r from-indigo-300 dark:from-white dark:to-primary-500 to-primary-500 bg-clip-text text-transparent"
+        >
+          Bienvenido
+        </span>
+      </h1>
+      <p class="mt-3 text-sm text-black dark:text-white font-medium">
+        Inicia sesión para continuar.
+      </p>
+
+      <!-- Alert -->
+      @if (showAlert) {
+        <div
+          class="mt-6 flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 dark:border-red-800/40 dark:bg-red-950/40"
+        >
+          <svg class="h-4 w-4 flex-shrink-0 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span class="text-sm font-medium text-red-600 dark:text-red-400">
+            {{ alert.message }}
+          </span>
+        </div>
+      }
+
+      <!-- Form -->
+      <form
+        class="mt-8 space-y-4"
+        [formGroup]="signInForm"
+        #signInNgForm="ngForm"
+        (ngSubmit)="signIn($event)"
+      >
+        <!-- Email -->
+        <div class="group">
+          <label
+            class="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-black dark:text-white"
+          >
+            Correo electrónico
+          </label>
+
+          <div class="relative">
+            <mat-icon
+              svgIcon="heroicons_solid:envelope"
+              class="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400"
+            ></mat-icon>
+
+            <input
+              id="email"
+              type="email"
+              [formControlName]="'email'"
+              placeholder="tu@correo.com"
+              class="w-full rounded-2xl border border-gray-200 bg-white/80 py-3.5 pl-12 pr-4 text-sm text-gray-900 placeholder-gray-400 backdrop-blur-sm transition-all focus:border-primary-400 focus:outline-none focus:ring-4 focus:ring-primary-400/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-primary-500 dark:focus:ring-primary-500/20"
+            />
+          </div>
+
+          @if (signInForm.get('email')?.hasError('required') && signInForm.get('email')?.touched) {
+            <p class="mt-1.5 text-xs text-red-500">Correo electrónico es requerido</p>
+          }
+
+          @if (signInForm.get('email')?.hasError('email') && signInForm.get('email')?.touched) {
+            <p class="mt-1.5 text-xs text-red-500">Por favor ingresa un correo válido</p>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="group">
+          <label
+            class="mb-1.5 block text-xs font-semibold uppercase tracking-widest text-black dark:text-white"
+          >
+            Contraseña
+          </label>
+
+          <div class="relative">
+            <!-- ICONO IZQUIERDO -->
+            <mat-icon
+              svgIcon="heroicons_solid:lock-closed"
+              class="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-gray-400"
+            ></mat-icon>
+
+            <!-- INPUT -->
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              [formControlName]="'password'"
+              placeholder="••••••••"
+              class="w-full rounded-2xl border border-gray-200 bg-white/80 py-3.5 pl-12 pr-12 text-sm text-gray-900 placeholder-gray-400 backdrop-blur-sm transition-all focus:border-primary-400 focus:outline-none focus:ring-4 focus:ring-primary-400/20 dark:border-white/10 dark:bg-white/5 dark:text-white dark:placeholder-gray-500 dark:focus:border-primary-500 dark:focus:ring-primary-500/20"
+              #passwordField
+            />
+
+            <!-- BOTON OJO -->
+            <button
+              type="button"
+              (click)="showPassword = !showPassword"
+              class="absolute right-4 top-1/2 z-10 flex -translate-y-1/2 items-center justify-center transition-colors dark:hover:text-gray-300"
+            >
+              @if (!showPassword) {
+                <mat-icon
+                  svgIcon="heroicons_solid:eye"
+                  class="text-black dark:!text-gray-400"
+                ></mat-icon>
+              }
+
+              @if (showPassword) {
+                <mat-icon
+                  svgIcon="heroicons_solid:eye-slash"
+                  class="text-black dark:!text-gray-400"
+                ></mat-icon>
+              }
+            </button>
+          </div>
+
+          @if (
+            signInForm.get('password')?.hasError('required') && signInForm.get('password')?.touched
+          ) {
+            <p class="mt-1.5 text-xs text-red-500">La contraseña es requerida</p>
+          }
+        </div>
+
+        <!-- Remember + Forgot -->
+        <div class="flex items-center justify-between">
+          <label class="flex cursor-pointer items-center gap-2.5">
+            <input
+              type="checkbox"
+              [formControlName]="'rememberMe'"
+              class="h-4 w-4 rounded-md border-gray-300 accent-primary-500 dark:border-gray-600"
+            />
+            <span class="text-sm text-black dark:text-white">Recordar sesión</span>
+          </label>
+          <a
+            [routerLink]="['/forgot-password']"
+            class="text-sm font-semibold text-primary-500 transition-colors hover:text-primary-600 dark:text-primary-400 dark:hover:text-primary-300"
+          >
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+
+        <!-- Submit -->
+        <button
+          type="button"
+          (click)="signIn()"
+          [disabled]="signInForm.disabled"
+          class="relative mt-2 w-full overflow-hidden rounded-2xl bg-gradient-to-r from-primary-500 to-indigo-600 py-3.5 text-sm font-bold text-white shadow-lg shadow-primary-500/30 transition-all hover:shadow-xl hover:shadow-primary-500/40 hover:-translate-y-0.5 active:translate-y-0 active:shadow-md disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+        >
+          <!-- shimmer -->
+          <span
+            class="pointer-events-none absolute inset-0 -translate-x-full animate-[shimmer_2s_infinite] bg-gradient-to-r from-transparent via-white/20 to-transparent"
+          ></span>
+
+          @if (!signInForm.disabled) {
+            <span class="relative">Iniciar Sesión</span>
+          }
+          @if (signInForm.disabled) {
+            <span class="relative flex items-center justify-center gap-2">
+              <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                />
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                />
+              </svg>
+              Verificando...
+            </span>
+          }
+        </button>
+      </form>
+
+      <!-- Footer -->
+      <p class="mt-8 text-center text-xs text-gray-400 dark:text-gray-600">
+        © {{ currentYear }} {{ appName }} · Hecho en México 🇲🇽
+      </p>
+    </div>
+  </div>
+
+  <!-- ─── RIGHT / BOTTOM panel (branding) ─── -->
+  <div
+    class="relative hidden md:flex w-1/2 flex-col items-center justify-center overflow-hidden bg-secondary-400/30 dark:bg-secondary-400/5 p-16"
+  >
+    <!-- Background rings -->
+    <svg
+      class="absolute inset-0 h-full w-full pointer-events-none"
+      viewBox="0 0 800 800"
+      preserveAspectRatio="xMidYMid slice"
+      fill="none"
+    >
+      <circle cx="200" cy="150" r="300" stroke="url(#ring1)" stroke-width="1" opacity="0.6" />
+      <circle cx="600" cy="650" r="300" stroke="url(#ring2)" stroke-width="1" opacity="0.6" />
+      <defs>
+        <linearGradient id="ring1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#7c3aed" />
+          <stop offset="100%" stop-color="#4f46e5" stop-opacity="0" />
+        </linearGradient>
+        <linearGradient id="ring2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#4f46e5" />
+          <stop offset="100%" stop-color="#7c3aed" stop-opacity="0" />
+        </linearGradient>
+      </defs>
+    </svg>
+
+    <!-- Dot grid top-right -->
+    <svg
+      class="absolute top-0 right-0 opacity-20 pointer-events-none"
+      width="200"
+      height="200"
+      fill="none"
+    >
+      <defs>
+        <pattern id="dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+          <rect x="0" y="0" width="3" height="3" rx="1" fill="#a78bfa" />
+        </pattern>
+      </defs>
+      <rect width="200" height="200" fill="url(#dots)" />
+    </svg>
+
+    <!-- Floating icon tiles -->
+    <div class="relative z-10 mb-12 grid grid-cols-3 gap-4 w-56">
+      <!-- tile 1 -->
+      <div
+        class="aspect-square rounded-3xl bg-gradient-to-br from-primary-600/80 to-indigo-700/80 backdrop-blur flex items-center justify-center shadow-lg shadow-primary-900/50 border border-white/10 animate-[float_3s_ease-in-out_infinite]"
+      >
+        <mat-icon svgIcon="heroicons_outline:dumbbell" class="!text-white !fill-white icon-size-8">
+        </mat-icon>
+      </div>
+      <!-- tile 2 -->
+      <div
+        class="aspect-square rounded-3xl bg-gradient-to-br from-pink-600/70 to-rose-700/70 backdrop-blur flex items-center justify-center shadow-lg shadow-pink-900/50 border border-white/10 animate-[float_3s_ease-in-out_0.5s_infinite]"
+      >
+        <mat-icon
+          svgIcon="heroicons_outline:biceps-flexed"
+          class="!text-white !fill-white icon-size-8"
+        >
+        </mat-icon>
+      </div>
+      <!-- tile 3 -->
+      <div
+        class="aspect-square rounded-3xl bg-gradient-to-br from-amber-500/70 to-orange-600/70 backdrop-blur flex items-center justify-center shadow-lg shadow-orange-900/50 border border-white/10 animate-[float_3s_ease-in-out_1s_infinite]"
+      >
+        <svg
+          class="h-8 w-8 text-white"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          viewBox="0 0 24 24"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      </div>
+      <!-- tile 4 -->
+      <div
+        class="aspect-square rounded-3xl bg-gradient-to-br from-teal-500/70 to-cyan-600/70 backdrop-blur flex items-center justify-center shadow-lg shadow-teal-900/50 border border-white/10 animate-[float_3s_ease-in-out_1.5s_infinite]"
+      >
+        <mat-icon svgIcon="heroicons_outline:heart" class="!text-white !fill-white icon-size-8">
+        </mat-icon>
+      </div>
+      <!-- tile 5 (center, bigger) -->
+      <div
+        class="aspect-square rounded-3xl bg-gradient-to-br from-primary-500 to-indigo-600 backdrop-blur flex items-center justify-center shadow-xl shadow-primary-900/60 border border-white/20 animate-[float_3s_ease-in-out_0.25s_infinite] col-start-2 row-start-2 scale-110"
+      >
+        <mat-icon svgIcon="heroicons_outline:clock" class="!text-white !fill-white icon-size-8">
+        </mat-icon>
+      </div>
+      <!-- tile 6 -->
+      <div
+        class="aspect-square rounded-3xl bg-gradient-to-br from-secondary-600/70 to-sky-700/70 backdrop-blur flex items-center justify-center shadow-lg shadow-secondary-900/50 border border-white/10 animate-[float_3s_ease-in-out_2s_infinite]"
+      >
+        <mat-icon svgIcon="heroicons_outline:calendar" class="!text-white !fill-white icon-size-8">
+        </mat-icon>
+      </div>
+    </div>
+
+    <!-- Text content -->
+    <div class="relative z-10 text-center max-w-md">
+      <h2 class="text-5xl font-black leading-tight text-white tracking-tight">
+        Controla tu<br />
+        <span class="bg-gradient-to-r from-primary-400 to-indigo-400 bg-clip-text text-transparent"
+          >mente. Optimiza</span
+        ><br />
+        cuerpo, sin límites.
+      </h2>
+      <p class="mt-5 text-base leading-relaxed text-black dark:text-white">
+        Lleva el control de tus entrenamientos, progreso y disciplina desde una sola plataforma.<br />
+        <span class="text-black dark:text-white text-sm"
+          >{{ appName }} · Fuerza · Constancia · Evolución
+        </span>
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+  @keyframes shimmer {
+    100% {
+      transform: translateX(200%);
+    }
+  }
+</style>

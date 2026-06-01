@@ -1,0 +1,20 @@
+<div class="flex h-screen w-full overflow-hidden bg-white dark:bg-black">
+
+  <!-- Sidebar: solo desktop -->
+  <app-sidebar class="shrink-0" />
+
+  <!-- Wrapper -->
+  <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+    <app-toolbar />
+    
+    <!-- Padding bottom en móvil para que el contenido no quede bajo el bottom nav -->
+    <main class="flex-1 overflow-y-hidden overflow-x-hidden pb-16 md:pb-0">
+      <router-outlet />
+    </main>
+
+    <app-footer />
+  </div>
+</div>
+
+<!-- Bottom nav: fuera del sidebar, siempre en el DOM -->
+<app-mobile-nav />

@@ -1,0 +1,623 @@
+<div class="min-h-screen w-full bg-white dark:bg-black transition-colors duration-300">
+  <!-- ═══════════════ SUPERADMIN ═══════════════ -->
+  @if (userRole === 'superadmin') {
+    <ng-container
+      *ngTemplateOutlet="
+        tabBar;
+        context: {
+          tabs: [
+            { id: 'overview', icon: 'ti-layout-dashboard', label: 'Resumen' },
+            { id: 'gyms', icon: 'ti-buildings', label: 'Gyms' },
+            { id: 'billing', icon: 'ti-credit-card', label: 'Facturación' },
+            { id: 'roles', icon: 'ti-users-group', label: 'Roles' },
+          ],
+        }
+      "
+    ></ng-container>
+
+    <div class="p-5">
+      <!-- overview -->
+      @if (activeTab === 'overview') {
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          @for (m of saMetrics; track m.label) {
+            <div
+              class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+            >
+              <div
+                class="mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+              >
+                {{ m.label }}
+              </div>
+              <div [ngClass]="getMetricClass(m.color)" class="text-xl font-semibold">
+                {{ m.value }}
+              </div>
+              @if (m.sub) {
+                <div class="mt-0.5 text-[10px] text-gray-400 dark:text-gray-600">{{ m.sub }}</div>
+              }
+            </div>
+          }
+        </div>
+
+        <p
+          class="mb-2 mt-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+        >
+          Ingresos últimos 6 meses
+        </p>
+        <div
+          class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+        >
+          <div class="flex h-16 items-end gap-1.5">
+            @for (bar of saChartBars; track $index) {
+              <div
+                class="flex-1 rounded-t-sm transition-all"
+                [style.height.%]="bar"
+                [style.background]="getBarColor($index, saChartBars.length)"
+                [style.opacity]="getBarOpacity($index, saChartBars.length)"
+              ></div>
+            }
+          </div>
+          <div class="mt-1 flex justify-between">
+            @for (l of saChartLabels; track l) {
+              <span class="flex-1 text-center text-[9px] text-gray-400 dark:text-gray-600">{{
+                l
+              }}</span>
+            }
+          </div>
+        </div>
+
+        <p
+          class="mb-2 mt-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+        >
+          Gyms con renta próxima a vencer
+        </p>
+        <ng-container
+          *ngTemplateOutlet="listCard; context: { items: saExpiringGyms, showIcon: true }"
+        ></ng-container>
+      }
+
+      <!-- gyms -->
+      @if (activeTab === 'gyms') {
+        <ng-container
+          *ngTemplateOutlet="listCard; context: { items: saGyms, showIcon: true }"
+        ></ng-container>
+      }
+
+      <!-- billing -->
+      @if (activeTab === 'billing') {
+        <div class="mb-3 grid grid-cols-3 gap-3">
+          @for (m of saBillingMetrics; track m.label) {
+            <div
+              class="rounded-2xl border border-gray-200 bg-white p-3 dark:border-white/10 dark:bg-white/5"
+            >
+              <div
+                class="mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+              >
+                {{ m.label }}
+              </div>
+              <div [ngClass]="getMetricClass(m.color)" class="text-lg font-semibold">
+                {{ m.value }}
+              </div>
+            </div>
+          }
+        </div>
+        <ng-container
+          *ngTemplateOutlet="listCard; context: { items: saBillingItems }"
+        ></ng-container>
+      }
+
+      <!-- roles -->
+      @if (activeTab === 'roles') {
+        <div class="grid grid-cols-2 gap-3">
+          @for (m of saRoleMetrics; track m.label) {
+            <div
+              class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+            >
+              <div
+                class="mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+              >
+                {{ m.label }}
+              </div>
+              <div [ngClass]="getMetricClass(m.color)" class="text-xl font-semibold">
+                {{ m.value }}
+              </div>
+              @if (m.sub) {
+                <div class="mt-0.5 text-[10px] text-gray-400 dark:text-gray-600">{{ m.sub }}</div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ═══════════════ GYM OWNER ═══════════════ -->
+  @if (userRole === 'gym_owner') {
+    <ng-container
+      *ngTemplateOutlet="
+        tabBar;
+        context: {
+          tabs: [
+            { id: 'overview', icon: 'ti-layout-dashboard', label: 'Resumen' },
+            { id: 'branches', icon: 'ti-map-pin', label: 'Sucursales' },
+            { id: 'clients', icon: 'ti-users', label: 'Clientes' },
+          ],
+        }
+      "
+    ></ng-container>
+
+    <div class="p-5">
+      @if (activeTab === 'overview') {
+        @if (goAlert) {
+          <div
+            class="mb-4 flex items-center gap-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-700 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-400"
+          >
+            <i class="ti ti-alert-triangle text-base" aria-hidden="true"></i> {{ goAlert }}
+          </div>
+        }
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          @for (m of goMetrics; track m.label) {
+            <div
+              class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+            >
+              <div
+                class="mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+              >
+                {{ m.label }}
+              </div>
+              <div [ngClass]="getMetricClass(m.color)" class="text-xl font-semibold">
+                {{ m.value }}
+              </div>
+              @if (m.sub) {
+                <div class="mt-0.5 text-[10px] text-gray-400 dark:text-gray-600">{{ m.sub }}</div>
+              }
+            </div>
+          }
+        </div>
+
+        <p
+          class="mb-2 mt-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+        >
+          Membresías por tipo
+        </p>
+        <div
+          class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+        >
+          @for (p of goMembershipProgress; track p.label) {
+            <div class="mb-3 last:mb-0">
+              <div class="mb-1 flex justify-between text-xs">
+                <span class="text-gray-700 dark:text-gray-300">{{ p.label }}</span>
+                <span class="text-gray-400 dark:text-gray-500">{{ p.sub }}</span>
+              </div>
+              <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
+                <div
+                  class="h-full rounded-full transition-all duration-500"
+                  [ngClass]="getProgressClass(p.color)"
+                  [style.width.%]="p.percent"
+                ></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      @if (activeTab === 'branches') {
+        <ng-container
+          *ngTemplateOutlet="listCard; context: { items: goBranches, showIcon: true }"
+        ></ng-container>
+      }
+
+      @if (activeTab === 'clients') {
+        <ng-container
+          *ngTemplateOutlet="listCard; context: { items: goClients, showAvatar: true }"
+        ></ng-container>
+      }
+    </div>
+  }
+
+  <!-- ═══════════════ ADMIN ═══════════════ -->
+  @if (userRole === 'admin') {
+    <ng-container
+      *ngTemplateOutlet="
+        tabBar;
+        context: {
+          tabs: [
+            { id: 'overview', icon: 'ti-layout-dashboard', label: 'Resumen' },
+            { id: 'access', icon: 'ti-qrcode', label: 'Accesos' },
+            { id: 'coaches', icon: 'ti-barbell', label: 'Coaches' },
+          ],
+        }
+      "
+    ></ng-container>
+
+    <div class="p-5">
+      @if (activeTab === 'overview') {
+        <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          @for (m of adMetrics; track m.label) {
+            <div
+              class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+            >
+              <div
+                class="mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+              >
+                {{ m.label }}
+              </div>
+              <div [ngClass]="getMetricClass(m.color)" class="text-xl font-semibold">
+                {{ m.value }}
+              </div>
+              @if (m.sub) {
+                <div class="mt-0.5 text-[10px] text-gray-400 dark:text-gray-600">{{ m.sub }}</div>
+              }
+            </div>
+          }
+        </div>
+
+        <p
+          class="mb-2 mt-5 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+        >
+          Últimos accesos hoy
+        </p>
+        <ng-container
+          *ngTemplateOutlet="listCard; context: { items: adAccessLogs, showIcon: true }"
+        ></ng-container>
+      }
+
+      @if (activeTab === 'access') {
+        <div
+          class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+        >
+          <p
+            class="mb-3 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+          >
+            Métodos de acceso habilitados
+          </p>
+          <div class="grid grid-cols-4 gap-3">
+            @for (m of adAccessMethods; track m.label) {
+              <div
+                class="rounded-xl border border-gray-100 p-3 text-center dark:border-white/10"
+                [class.opacity-40]="m.comingSoon"
+              >
+                <i
+                  [ngClass]="m.icon"
+                  class="ti text-2xl"
+                  [style.color]="
+                    m.active ? 'var(--color-text-info)' : 'var(--color-text-secondary)'
+                  "
+                  aria-hidden="true"
+                ></i>
+                <div class="mt-2 text-xs font-medium text-gray-700 dark:text-gray-300">
+                  {{ m.label }}
+                </div>
+                <div class="text-[9px] text-gray-400 dark:text-gray-600">
+                  {{ m.comingSoon ? 'Próximo' : 'Activo' }}
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      @if (activeTab === 'coaches') {
+        <ng-container
+          *ngTemplateOutlet="listCard; context: { items: adCoaches, showAvatar: true }"
+        ></ng-container>
+      }
+    </div>
+  }
+
+  <!-- ═══════════════ COACH ═══════════════ -->
+  @if (userRole === 'coach') {
+    <ng-container
+      *ngTemplateOutlet="
+        tabBar;
+        context: {
+          tabs: [
+            { id: 'overview', icon: 'ti-layout-dashboard', label: 'Mis clientes' },
+            { id: 'routines', icon: 'ti-clipboard-list', label: 'Rutinas' },
+            { id: 'progress', icon: 'ti-trending-up', label: 'Progreso' },
+          ],
+        }
+      "
+    ></ng-container>
+
+    <div class="p-5">
+      @if (activeTab === 'overview') {
+        <div class="mb-4 grid grid-cols-3 gap-3">
+          @for (m of coMetrics; track m.label) {
+            <div
+              class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+            >
+              <div
+                class="mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500"
+              >
+                {{ m.label }}
+              </div>
+              <div [ngClass]="getMetricClass(m.color)" class="text-xl font-semibold">
+                {{ m.value }}
+              </div>
+            </div>
+          }
+        </div>
+        <ng-container
+          *ngTemplateOutlet="listCard; context: { items: coClients, showAvatar: true }"
+        ></ng-container>
+      }
+
+      @if (activeTab === 'routines') {
+        <ng-container
+          *ngTemplateOutlet="listCard; context: { items: coRoutines, showIcon: true }"
+        ></ng-container>
+      }
+
+      @if (activeTab === 'progress') {
+        <div
+          class="rounded-2xl border border-gray-200 bg-white p-4 dark:border-white/10 dark:bg-white/5"
+        >
+          <p class="mb-4 text-sm font-semibold text-black dark:text-white">Ana López — progreso</p>
+          @for (p of coProgress; track p.label) {
+            <div class="mb-4 last:mb-0">
+              <div class="mb-1 flex justify-between text-xs">
+                <span class="text-gray-700 dark:text-gray-300">{{ p.label }}</span>
+                <span
+                  [ngClass]="{
+                    'text-emerald-500': p.color === 'green',
+                    'text-blue-500': p.color === 'blue',
+                    'text-gray-400': p.color === 'purple',
+                  }"
+                  >{{ p.sub }}</span
+                >
+              </div>
+              <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-white/10">
+                <div
+                  class="h-full rounded-full transition-all duration-500"
+                  [ngClass]="getProgressClass(p.color)"
+                  [style.width.%]="p.percent"
+                ></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ═══════════════ CLIENT ═══════════════ -->
+  @if (userRole === 'client') {
+    <!-- TAB BAR -->
+    <ng-container
+      *ngTemplateOutlet="
+        tabBar;
+        context: {
+          tabs: [
+            { id: 'routine', icon: 'ti-clipboard-list', label: 'Mi rutina' },
+          ],
+        }
+      "
+    ></ng-container>
+
+    <div class="px-4 py-5 space-y-4">
+
+
+      <!-- ══════════ TAB: RUTINA ══════════ -->
+      @if (activeTab === 'routine') {
+        <!-- ROUTINE HERO -->
+        <div
+          class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-700 via-primary-700 to-accent-700 p-5 shadow-xl shadow-indigo-900/40"
+        >
+          <div
+            class="pointer-events-none absolute -bottom-10 -right-10 h-36 w-36 rounded-full bg-white/10 blur-2xl"
+          ></div>
+
+          <div class="relative mb-1 flex items-start justify-between">
+            <div class="flex-1 min-w-0 pr-4">
+              <p class="text-[10px] font-semibold uppercase tracking-widest text-indigo-200">
+                Rutina activa
+              </p>
+              <p class="mt-0.5 text-xl font-black leading-tight text-white truncate">
+                {{ clRoutineName }}
+              </p>
+              <p class="mt-1 text-xs text-indigo-300">Coach: Luis Torres</p>
+            </div>
+            <span
+              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/10"
+            >
+              <i class="ti ti-clipboard-list text-xl text-white" aria-hidden="true"></i>
+            </span>
+          </div>
+
+          <!-- Week progress -->
+          <div class="relative mt-4">
+            <div class="mb-1.5 flex justify-between text-xs">
+              <span class="text-indigo-200"
+                >Semana {{ clRoutineWeek }} de {{ clRoutineWeekTotal }}</span
+              >
+              <span class="font-bold text-white">{{ clRoutinePercent }}% completado</span>
+            </div>
+            <div class="h-2.5 w-full overflow-hidden rounded-full bg-white/10">
+              <div
+                class="h-full rounded-full bg-gradient-to-r from-accent-300 to-white transition-all duration-700"
+                [style.width.%]="clRoutinePercent"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TODAY'S SESSION HEADER -->
+        <div class="flex items-center justify-between">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-gray-500">
+            Hoy — día de piernas
+          </p>
+          <span
+            class="rounded-full bg-primary-500/15 px-2.5 py-1 text-[10px] font-semibold text-primary-400"
+          >
+            {{ clExercises.length }} ejercicios
+          </span>
+        </div>
+
+        <!-- EXERCISE LIST -->
+        <div class="space-y-2">
+          @for (ex of clExercises; track ex.name; let i = $index) {
+            <div
+              class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3.5 transition hover:bg-white/8"
+            >
+              <!-- Number bubble -->
+              <span
+                class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-indigo-700 text-xs font-black text-white shadow-md shadow-primary-900/40"
+              >
+                {{ i + 1 }}
+              </span>
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-semibold text-white">{{ ex.name }}</p>
+                <p class="text-xs text-gray-400">{{ ex.sub }}</p>
+              </div>
+              <!-- Status badge -->
+              <span
+                class="shrink-0 flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold"
+                [ngClass]="{
+                  'bg-emerald-500/15 text-emerald-400': ex.badgeColor === 'green',
+                  'bg-gray-500/15 text-gray-500': ex.badgeColor === 'gray',
+                  'bg-amber-500/15 text-amber-400': ex.badgeColor === 'yellow',
+                }"
+              >
+                <i
+                  class="ti text-[10px]"
+                  [ngClass]="{
+                    'ti-check': ex.badgeColor === 'green',
+                    'ti-clock': ex.badgeColor === 'gray' || ex.badgeColor === 'yellow',
+                  }"
+                  aria-hidden="true"
+                ></i>
+                {{ ex.badge }}
+              </span>
+            </div>
+          }
+
+          <!-- Empty state -->
+          @if (!clExercises.length) {
+            <div
+              class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-white/10 py-10 text-center"
+            >
+              <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5">
+                <i class="ti ti-clipboard-list text-2xl text-gray-500" aria-hidden="true"></i>
+              </span>
+              <p class="text-sm font-semibold text-gray-400">Sin rutina asignada</p>
+              <p class="text-xs text-gray-600">Tu coach asignará ejercicios pronto</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- ═══════════════ SHARED TEMPLATES ═══════════════ -->
+
+<!-- Tab bar -->
+<ng-template #tabBar let-tabs="tabs">
+  <nav
+    class="flex gap-1 border-b border-gray-200 bg-white px-5 pt-3 dark:border-white/10 dark:bg-black"
+  >
+    @for (t of tabs; track t.id) {
+      <button
+        (click)="setTab(t.id)"
+        class="inline-flex items-center gap-1.5 rounded-t-xl border-b-2 px-3 py-2 text-xs font-semibold transition-colors"
+        [ngClass]="
+          activeTab === t.id
+            ? 'border-violet-500 text-violet-600 dark:text-violet-400'
+            : 'border-transparent text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300'
+        "
+      >
+        <i class="ti text-sm" [ngClass]="t.icon" aria-hidden="true"></i>
+        {{ t.label }}
+      </button>
+    }
+  </nav>
+</ng-template>
+
+<!-- Generic list card -->
+<ng-template #listCard let-items="items" let-showIcon="showIcon" let-showAvatar="showAvatar">
+  <div class="rounded-2xl border border-gray-200 bg-white dark:border-white/10 dark:bg-white/5">
+    @for (item of items; track item.name; let last = $last) {
+      <div
+        class="flex items-center gap-3 px-4 py-3"
+        [class.border-b]="!last"
+        [class.border-gray-100]="!last"
+        [class.dark:border-white/5]="!last"
+      >
+        <!-- icon tile -->
+        @if (showIcon && item.icon) {
+          <div
+            class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-xl"
+            [ngClass]="{
+              'bg-blue-50 dark:bg-blue-900/20': item.badgeColor === 'blue',
+              'bg-emerald-50 dark:bg-emerald-900/20': item.badgeColor === 'green',
+              'bg-amber-50 dark:bg-amber-900/20': item.badgeColor === 'yellow',
+              'bg-red-50 dark:bg-red-900/20': item.badgeColor === 'red',
+              'bg-gray-100 dark:bg-white/10': item.badgeColor === 'gray' || !item.badgeColor,
+            }"
+          >
+            <i
+              class="ti text-sm"
+              [ngClass]="item.icon"
+              [style.color]="
+                item.badgeColor === 'green'
+                  ? 'var(--color-text-success)'
+                  : item.badgeColor === 'yellow'
+                    ? 'var(--color-text-warning)'
+                    : item.badgeColor === 'red'
+                      ? 'var(--color-text-danger)'
+                      : item.badgeColor === 'blue'
+                        ? 'var(--color-text-info)'
+                        : 'var(--color-text-secondary)'
+              "
+              aria-hidden="true"
+            ></i>
+          </div>
+        }
+
+        <!-- avatar -->
+        @if (showAvatar && item.initials) {
+          <div
+            class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-[10px] font-semibold"
+            [style.background]="getAvatarBg(item.avatarColor)"
+            [style.color]="getAvatarColor(item.avatarColor)"
+          >
+            {{ item.initials }}
+          </div>
+        }
+
+        <!-- text -->
+        <div class="min-w-0 flex-1">
+          <div class="truncate text-sm font-semibold text-black dark:text-white">
+            {{ item.name }}
+          </div>
+          @if (item.sub) {
+            <div class="truncate text-[10px] text-gray-400 dark:text-gray-500">{{ item.sub }}</div>
+          }
+        </div>
+
+        <!-- badge -->
+        @if (item.badge) {
+          <span
+            class="flex-shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold"
+            [ngClass]="{
+              'border-emerald-300 bg-emerald-50 text-emerald-700 dark:border-emerald-800/40 dark:bg-emerald-950/40 dark:text-emerald-400':
+                item.badgeColor === 'green',
+              'border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-800/40 dark:bg-amber-950/40 dark:text-amber-400':
+                item.badgeColor === 'yellow',
+              'border-red-300 bg-red-50 text-red-700 dark:border-red-800/40 dark:bg-red-950/40 dark:text-red-400':
+                item.badgeColor === 'red',
+              'border-blue-300 bg-blue-50 text-blue-700 dark:border-blue-800/40 dark:bg-blue-950/40 dark:text-blue-400':
+                item.badgeColor === 'blue',
+              'border-gray-200 bg-gray-100 text-gray-500 dark:border-white/10 dark:bg-white/5 dark:text-gray-400':
+                item.badgeColor === 'gray' || !item.badgeColor,
+            }"
+            >{{ item.badge }}</span
+          >
+        }
+      </div>
+    }
+  </div>
+</ng-template>
+
+<!-- progress color helpers (Tailwind JIT safelist) -->
+<!-- fill-blue fill-green fill-yellow fill-red fill-purple -->

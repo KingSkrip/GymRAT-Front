@@ -1,0 +1,37 @@
+<nav class="mobile-bottom-nav md:!hidden">
+  @for (item of mobileNavItems(); track item.id) {
+    @if (item.type === 'basic') {
+      <a class="mobile-nav-item" [routerLink]="item.link" routerLinkActive="active" [title]="item.title">
+        <span class="mobile-nav-icon">
+          <mat-icon [svgIcon]="item.icon || ''" class="!h-6 !w-6"></mat-icon>
+        </span>
+        <span class="mobile-nav-label">{{ item.title }}</span>
+      </a>
+    }
+    @if (item.type === 'group') {
+      <button class="mobile-nav-item" type="button" (click)="toggleMobileGroup(item.id)" [class.active]="isMobileGroupActive(item.id)">
+        <span class="mobile-nav-icon">
+          <mat-icon [svgIcon]="item.icon || ''" class="!h-6 !w-6"></mat-icon>
+        </span>
+        <span class="mobile-nav-label">{{ item.title }}</span>
+      </button>
+    }
+  }
+</nav>
+
+@if (mobileOpenGroup()) {
+  <div class="mobile-drawer-backdrop" (click)="closeMobileGroup()"></div>
+  <div class="mobile-drawer">
+    <div class="mobile-drawer-handle"></div>
+    @for (item of navigation(); track item.id) {
+      @if (item.type === 'group' && item.id === mobileOpenGroup()) {
+        <p class="mobile-drawer-title">{{ item.title }}</p>
+        @for (child of item.children; track child.id) {
+          <a class="mobile-drawer-item" [routerLink]="child.link" routerLinkActive="active" (click)="closeMobileGroup()">
+            {{ child.title }}
+          </a>
+        }
+      }
+    }
+  </div>
+}

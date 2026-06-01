@@ -1,0 +1,302 @@
+<div
+  class="min-h-[100dvh] bg-white dark:bg-black transition-colors w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col gap-4"
+>
+  <!-- ═══ DESKTOP: dos columnas ═══════════════════════════════ -->
+  <div class="hidden md:grid">
+    <!-- ROUTINE HERO -->
+    <div
+      class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-700 via-primary-700 to-accent-700 p-5 shadow-xl shadow-indigo-900/40"
+    >
+      <div
+        class="pointer-events-none absolute -bottom-10 -right-10 h-36 w-36 rounded-full bg-white/10 blur-2xl"
+      ></div>
+      <div class="relative mb-1 flex items-start justify-between">
+        <div class="flex-1 min-w-0 pr-4">
+          <p class="text-[10px] font-semibold uppercase tracking-widest text-indigo-200">
+            Rutina activa
+          </p>
+          <p class="mt-0.5 text-xl font-black leading-tight text-white truncate">
+            {{ clRoutineName }}
+          </p>
+          <p class="mt-1 text-xs text-indigo-300">{{ clWorkoutDescription }}</p>
+        </div>
+        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-white/10">
+          <i class="ti ti-clipboard-list text-xl text-white"></i>
+        </span>
+      </div>
+      <div class="mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5">
+        <span class="h-1.5 w-1.5 rounded-full bg-accent-300 animate-pulse"></span>
+        <p class="text-xs font-semibold text-white">Hoy — {{ clTodayDay }}</p>
+      </div>
+    </div>
+
+    <!-- columnas de ejercicios y dias -->
+    <div class="grid grid-cols-12 gap-6 mt-6">
+      <!-- Columna izquierda: hero + día de hoy -->
+      <div
+        class="col-span-4 flex flex-col gap-0 rounded-2xl border border-secondary-200/30 dark:border-secondary-700/30 overflow-hidden bg-secondary-400/30 dark:bg-secondary-400/5"
+      >
+        <!-- header -->
+        <div class="px-5 py-4 border-b border-secondary-200/30 dark:border-secondary-700/30">
+          <p class="text-[11px] font-semibold uppercase tracking-widest text-secondary-400">
+            Semana completa
+          </p>
+        </div>
+        <!-- lista de días -->
+        <div class="flex flex-col p-2">
+          @for (dayBlock of clAllDays; track dayBlock.day; let di = $index) {
+            <button
+              type="button"
+              (click)="selectedDayIndex = di; selectedDay = dayBlock"
+              class="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left"
+              [ngClass]="
+                di === selectedDayIndex
+                  ? 'bg-white dark:bg-secondary-900'
+                  : 'hover:bg-white/50 dark:hover:bg-secondary-800/50'
+              "
+            >
+              <!-- CALENDAR2 -->
+              <span
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+                [ngClass]="
+                  di === selectedDayIndex
+                    ? 'bg-primary-500 text-white'
+                    : 'bg-secondary-200/50 dark:bg-secondary-800 text-secondary-500'
+                "
+              >
+                <mat-icon svgIcon="heroicons_outline:calendar" class="icon-size-4"></mat-icon>
+              </span>
+              <div class="flex-1 min-w-0">
+                <p
+                  class="text-sm font-medium"
+                  [ngClass]="di === todayIndex ? 'text-accent-500' : 'text-black dark:text-white'"
+                >
+                  {{ dayBlock.day }}
+                </p>
+                @if (di === todayIndex) {
+                  <p class="text-[10px] text-accent-400">Hoy</p>
+                }
+              </div>
+              <p class="text-sm font-medium text-secondary-400 shrink-0">
+                {{ dayBlock.exercises.length }}
+              </p>
+            </button>
+          }
+        </div>
+        <!-- detalle del día seleccionado -->
+        <div class="border-t border-secondary-200/30 dark:border-secondary-700/30 px-4 py-3">
+          <p class="text-[11px] uppercase tracking-widest text-secondary-400 font-semibold mb-2">
+            {{ selectedDay?.day }}
+          </p>
+          @for (ex of selectedDay?.exercises ?? []; track ex.name; let i = $index) {
+            <div class="flex items-center gap-2 py-1.5">
+              <span
+                class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-primary-500 text-[10px] font-bold text-white"
+                >{{ i + 1 }}</span
+              >
+              <span class="text-xs text-black dark:text-white flex-1 truncate">{{ ex.name }}</span>
+              <span class="text-[10px] text-secondary-400">{{ ex.sets }}×{{ ex.reps }}</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- ═══ DESKTOP: semana completa ═══════════════════════════ -->
+      <!-- Columna derecha: semana completa -->
+      <div class="col-span-8 flex flex-col gap-4">
+        @if (clIsRestDay) {
+          <div
+            class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-secondary-200/30 dark:border-secondary-700/30 py-10 text-center bg-secondary-400/30 dark:bg-secondary-400/5"
+          >
+            <i class="ti ti-moon text-3xl text-gray-400"></i>
+            <p class="text-sm font-semibold text-gray-400">Día de descanso 💤</p>
+          </div>
+        }
+
+        @if (!clIsRestDay) {
+          <div class="flex items-center justify-between px-1">
+            <p class="text-xs font-semibold uppercase tracking-widest text-secondary-400">
+              {{ clTodayDay }}
+            </p>
+            <span
+              class="rounded-full bg-accent-500/15 px-2.5 py-1 text-[10px] font-semibold text-accent-500"
+            >
+              {{ clTodayExercises.length }} ejercicios
+            </span>
+          </div>
+          <div class="space-y-2">
+            @for (ex of clTodayExercises; track ex.name; let i = $index) {
+              <div
+                class="relative flex items-center gap-3 rounded-2xl border px-4 py-3.5 transition-all bg-secondary-400/30 dark:bg-secondary-400/5 border-secondary-200/30 dark:border-secondary-700/30"
+              >
+                <span
+                  class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary-500 text-xs font-black text-white"
+                >
+                  {{ i + 1 }}
+                </span>
+                <div class="min-w-0 flex-1">
+                  <p class="truncate text-sm font-medium text-black dark:text-white">
+                    {{ ex.name }}
+                  </p>
+                  <p class="text-xs text-black dark:text-white">
+                    {{ ex.sets }} series · {{ ex.reps }} reps
+                  </p>
+                </div>
+                <span
+                  class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium text-secondary-500"
+                >
+                  {{ ex.sets }}×{{ ex.reps }}
+                </span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ MÓVIL: semana completa + bottom sheet ═══════════════ -->
+  <div class="flex flex-col gap-3 md:hidden">
+    <p class="text-xs text-secondary-400 mt-1 mb-1 px-1">Semana completa</p>
+
+    @if (clIsRestDay) {
+      <div
+        class="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-secondary-200/30 dark:border-secondary-700/30 py-10 text-center bg-secondary-400/30 dark:bg-secondary-400/5"
+      >
+        <i class="ti ti-moon text-3xl text-gray-400"></i>
+        <p class="text-sm font-semibold text-gray-400">Día de descanso 💤</p>
+      </div>
+    }
+
+    @for (dayBlock of clAllDays; track dayBlock.day; let di = $index) {
+      <button
+        type="button"
+        (click)="openBottomSheet(dayBlock, di)"
+        [ngClass]="
+          di === todayIndex
+            ? 'border-2 border-accent-500'
+            : 'border border-secondary-200/30 dark:border-secondary-700/30'
+        "
+        class="relative w-full text-left rounded-2xl px-4 py-3 flex items-center gap-3 transition-all active:scale-95 bg-secondary-400/30 dark:bg-secondary-400/5"
+      >
+        <span
+          class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl"
+          [ngClass]="
+            di === todayIndex
+              ? 'bg-primary-500 text-white'
+              : 'bg-secondary-300 dark:bg-secondary-800 text-black dark:text-white'
+          "
+        >
+          <mat-icon svgIcon="heroicons_outline:calendar" class="icon-size-4"></mat-icon>
+        </span>
+        <div class="flex-1 min-w-0">
+          <p
+            class="text-sm font-medium"
+            [ngClass]="di === todayIndex ? 'text-accent-500' : 'text-black dark:text-white'"
+          >
+            {{ dayBlock.day }}
+          </p>
+          @if (di === todayIndex) {
+            <p class="text-xs text-white">Hoy</p>
+          }
+        </div>
+        <div class="flex flex-col items-end shrink-0 leading-none">
+          <p class="text-sm font-medium text-secondary-500">{{ dayBlock.exercises.length }}</p>
+          <div class="flex ite ms-center gap-1">
+            <p
+              class="text-xs"
+              [ngClass]="
+                di === selectedDayIndex ? 'text-secondary-400' : 'text-black dark:text-white'
+              "
+            >
+              ejercicios
+            </p>
+            <i class="ti ti-chevron-right text-xs text-gray-400"></i>
+          </div>
+        </div>
+      </button>
+    }
+  </div>
+
+  <!-- ═══ BOTTOM SHEET ════════════════════════════════════════ -->
+  @if (showBottomSheet) {
+    <div
+      class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm md:hidden transition-opacity duration-200"
+      [style.opacity]="sheetOpacity"
+      (click)="closeBottomSheet()"
+    ></div>
+
+    <div
+      class="fixed bottom-16 left-0 right-0 z-50 md:hidden rounded-t-3xl bg-white dark:bg-black shadow-2xl"
+      [style.transform]="'translateY(' + sheetTranslateY + 'px)'"
+      [style.max-height]="'85dvh'"
+      style="display: flex; flex-direction: column; transition: transform 0.2s ease"
+      (touchstart)="onDragStart($event)"
+      (touchmove)="onDragMove($event)"
+      (touchend)="onDragEnd()"
+    >
+      <!-- Handle -->
+      <div class="flex-shrink-0 pt-3 pb-0">
+        <div class="mx-auto h-1.5 w-12 rounded-full bg-secondary-300 dark:bg-accent-500"></div>
+      </div>
+
+      <!-- Header -->
+      <div class="flex-shrink-0 px-5 pt-3 pb-3 border-b border-primary-500">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm text-black dark:text-white">{{ selectedDay?.day }}</p>
+            <p class="text-xs text-secondary-500 mt-0.5">
+              {{ selectedDay?.exercises?.length }} ejercicios
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lista scrollable -->
+      <div class="overflow-y-auto px-4 py-3 space-y-2" style="flex: 1; min-height: 0">
+        @for (ex of selectedDay?.exercises ?? []; track ex.name; let i = $index) {
+          <div
+            class="relative flex items-center gap-3 rounded-2xl border-2 px-4 py-3.5 transition-all cursor-pointer active:scale-95 bg-secondary-400/30 dark:bg-secondary-400/5"
+            [ngClass]="
+              i === selectedExerciseIndex
+                ? 'border-2 border-accent-500'
+                : 'border-secondary-200/30 dark:border-secondary-700/30'
+            "
+            (click)="selectedExerciseIndex = i"
+          >
+            <span
+              class="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl text-xs font-black text-white"
+              [ngClass]="
+                i === selectedExerciseIndex
+                  ? 'bg-primary-500'
+                  : 'bg-secondary-300 dark:bg-secondary-800 !text-black dark:!text-white'
+              "
+            >
+              {{ i + 1 }}
+            </span>
+            <div class="min-w-0 flex-1">
+              <p
+                class="truncate text-sm font-medium"
+                [ngClass]="
+                  i === selectedExerciseIndex ? 'text-accent-500' : 'text-black dark:text-white'
+                "
+              >
+                {{ ex.name }}
+              </p>
+              <p class="text-xs text-black dark:text-white">
+                {{ ex.sets }} series · {{ ex.reps }} reps
+              </p>
+            </div>
+            <span
+              class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium"
+              [ngClass]="i === selectedExerciseIndex ? 'text-accent-500' : 'text-secondary-500'"
+            >
+              {{ ex.sets }}×{{ ex.reps }}
+            </span>
+          </div>
+        }
+        <div class="h-6"></div>
+      </div>
+    </div>
+  }
+</div>

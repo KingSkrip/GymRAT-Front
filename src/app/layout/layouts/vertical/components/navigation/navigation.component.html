@@ -1,0 +1,130 @@
+<!-- Desktop sidebar nav (solo visible en md+) -->
+<nav class="hidden md:flex flex-col gap-0.5 px-2">
+  @for (item of navigation(); track item.id) {
+    @if (item.type === 'basic') {
+      <a
+        class="group relative flex items-center rounded-xl py-2.5 text-sm font-medium text-gray-400 transition-all duration-200 hover:bg-white/5 hover:text-secondary-500 dark:hover:text-white [&.active]:bg-primary-500/10 dark:[&.active]:bg-secondary-500/10 [&.active]:text-secondary-500 dark:[&.active]:text-secondary-400"
+        [class.justify-center]="layoutService.isSidebarCollapsed()"
+        [class.px-2]="layoutService.isSidebarCollapsed()"
+        [class.gap-3]="!layoutService.isSidebarCollapsed()"
+        [class.px-3]="!layoutService.isSidebarCollapsed()"
+        [routerLink]="item.link"
+        routerLinkActive="active"
+        [title]="item.title"
+      >
+        <span class="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-secondary-500 opacity-0 transition-opacity [.active_&]:opacity-100"></span>
+        <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-150 group-hover:bg-white/5 [.active_&]:bg-secondary-500/15">
+          <mat-icon [svgIcon]="item.icon || ''" class="!h-5 !w-5 text-current"></mat-icon>
+        </span>
+        <span
+          class="overflow-hidden whitespace-nowrap transition-all duration-200"
+          [class.w-0]="layoutService.isSidebarCollapsed()"
+          [class.opacity-0]="layoutService.isSidebarCollapsed()"
+          [class.ml-0]="layoutService.isSidebarCollapsed()"
+          [class.w-auto]="!layoutService.isSidebarCollapsed()"
+          [class.opacity-100]="!layoutService.isSidebarCollapsed()"
+          [class.ml-1]="!layoutService.isSidebarCollapsed()"
+        >{{ item.title }}</span>
+      </a>
+    }
+
+    @if (item.type === 'group') {
+      <div class="nav-group">
+        <button
+          class="group flex w-full items-center rounded-xl py-2.5 text-sm font-medium text-gray-400 transition-all duration-200 hover:bg-white/5 hover:text-secondary-500 dark:hover:text-white [&.active]:bg-primary-500/10 dark:[&.active]:bg-secondary-500/10 [&.active]:text-secondary-500 dark:[&.active]:text-secondary-400"
+          [class.justify-center]="layoutService.isSidebarCollapsed()"
+          [class.px-2]="layoutService.isSidebarCollapsed()"
+          [class.gap-3]="!layoutService.isSidebarCollapsed()"
+          [class.px-3]="!layoutService.isSidebarCollapsed()"
+          type="button"
+          (click)="toggleGroup(item.id)"
+        >
+          <div class="flex items-center" [class.flex-1]="!layoutService.isSidebarCollapsed()" [class.gap-3]="!layoutService.isSidebarCollapsed()">
+            <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition group-hover:bg-white/5">
+              <mat-icon [svgIcon]="item.icon || ''" class="!h-5 !w-5 text-current"></mat-icon>
+            </span>
+            <span
+              class="overflow-hidden whitespace-nowrap text-left transition-all duration-200"
+              [class.w-0]="layoutService.isSidebarCollapsed()"
+              [class.opacity-0]="layoutService.isSidebarCollapsed()"
+              [class.ml-0]="layoutService.isSidebarCollapsed()"
+              [class.w-auto]="!layoutService.isSidebarCollapsed()"
+              [class.opacity-100]="!layoutService.isSidebarCollapsed()"
+              [class.ml-1]="!layoutService.isSidebarCollapsed()"
+            >{{ item.title }}</span>
+          </div>
+          @if (!layoutService.isSidebarCollapsed()) {
+            <span class="shrink-0 transition-transform duration-200" [class.rotate-180]="isGroupExpanded(item.id)">
+              <mat-icon svgIcon="heroicons_outline:chevron-down" class="icon-size-2"></mat-icon>
+            </span>
+          }
+        </button>
+        @if (isGroupExpanded(item.id) && !layoutService.isSidebarCollapsed()) {
+          <div class="nav-label mt-0.5 ml-3 flex flex-col gap-0.5 border-l border-white/10 pl-3">
+            @for (child of item.children; track child.id) {
+              <a
+                class="rounded-lg px-3 py-2 text-sm text-gray-400 transition-all duration-200 hover:bg-white/5 hover:text-secondary-500 dark:hover:text-white [&.active]:bg-primary-500/10 dark:[&.active]:bg-secondary-500/10 [&.active]:text-secondary-500 dark:[&.active]:text-secondary-400"
+                [routerLink]="child.link"
+                routerLinkActive="active"
+              >{{ child.title }}</a>
+            }
+          </div>
+        }
+      </div>
+    }
+  }
+</nav>
+
+<!-- Mobile bottom nav (solo visible en <md) -->
+<nav class="mobile-bottom-nav md:!hidden">
+  @for (item of mobileNavItems(); track item.id) {
+    @if (item.type === 'basic') {
+      <a
+        class="mobile-nav-item"
+        [routerLink]="item.link"
+        routerLinkActive="active"
+        [title]="item.title"
+      >
+        <span class="mobile-nav-icon">
+          <mat-icon [svgIcon]="item.icon || ''" class="!h-6 !w-6"></mat-icon>
+        </span>
+        <span class="mobile-nav-label">{{ item.title }}</span>
+      </a>
+    }
+    @if (item.type === 'group') {
+      <button
+        class="mobile-nav-item"
+        type="button"
+        (click)="toggleMobileGroup(item.id)"
+        [class.active]="isMobileGroupActive(item.id)"
+        [title]="item.title"
+      >
+        <span class="mobile-nav-icon">
+          <mat-icon [svgIcon]="item.icon || ''" class="!h-6 !w-6"></mat-icon>
+        </span>
+        <span class="mobile-nav-label">{{ item.title }}</span>
+      </button>
+    }
+  }
+</nav>
+
+<!-- Mobile group bottom sheet -->
+@if (mobileOpenGroup()) {
+  <div class="mobile-drawer-backdrop" (click)="closeMobileGroup()"></div>
+  <div class="mobile-drawer">
+    <div class="mobile-drawer-handle"></div>
+    @for (item of navigation(); track item.id) {
+      @if (item.type === 'group' && item.id === mobileOpenGroup()) {
+        <p class="mobile-drawer-title">{{ item.title }}</p>
+        @for (child of item.children; track child.id) {
+          <a
+            class="mobile-drawer-item"
+            [routerLink]="child.link"
+            routerLinkActive="active"
+            (click)="closeMobileGroup()"
+          >{{ child.title }}</a>
+        }
+      }
+    }
+  </div>
+}
