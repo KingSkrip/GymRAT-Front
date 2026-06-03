@@ -1,16 +1,11 @@
-import {
-  Component,
-  ViewEncapsulation,
-  inject,
-  signal,
-  computed,
-} from '@angular/core';
+import { Component,ViewEncapsulation,inject,signal,computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { VerticalLayoutService } from '../services/vertical-layout.service';
 import { UserService } from '../../../../../core/user/user.service';
 import { APP_CONFIG } from '../../../../../core/config/app-config';
 import { MatIconModule } from '@angular/material/icon';
-
+import { AuthService } from '../../../../../modules/auth/auth.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -21,94 +16,55 @@ import { MatIconModule } from '@angular/material/icon';
   styleUrls: ['./toolbar.component.scss'],
 })
 export class ToolbarComponent {
-  // -----------------------------------------------------------------------------------------------------
-  // @ Injects
-  // -----------------------------------------------------------------------------------------------------
-
   layoutService = inject(VerticalLayoutService);
   appName = APP_CONFIG.appName;
   private _userService = inject(UserService);
-
-  // -----------------------------------------------------------------------------------------------------
-  // @ Signals
-  // -----------------------------------------------------------------------------------------------------
-
-  /**
-   * Search visibility
-   */
+  private _authService = inject(AuthService);
+  private _router = inject(Router);
   isSearchOpen = signal(false);
-
-  /**
-   * Notifications
-   */
   notifications = signal(3);
-
-  /**
-   * Dark mode
-   */
   isDarkMode = signal(false);
-
-  // -----------------------------------------------------------------------------------------------------
-  // @ User
-  // -----------------------------------------------------------------------------------------------------
-
+  isUserMenuOpen = signal(false);
   user = this._userService.user$;
-
-  /**
-   * Role
-   */
   userRole = computed(() => {
     const user: any = this._userService.user;
-
     const permissions = Number(user?.permissions || 5);
-
     switch (permissions) {
-      case 1:
-        return 'superadmin';
-
-      case 2:
-        return 'gym_owner';
-
-      case 3:
-        return 'admin';
-
-      case 4:
-        return 'coach';
-
-      default:
-        return 'client';
+      case 1: return 'superadmin';
+      case 2: return 'gym_owner';
+      case 3: return 'admin';
+      case 4: return 'coach';
+      default: return 'client';
     }
   });
 
-  /**
-   * Initials
-   */
   userInitials = computed(() => {
     const user: any = this._userService.user;
-
     const name = user?.name ?? 'Usuario';
-
-    return name
-      .split(' ')
-      .map((w: string) => w[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
+    return name.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase();
   });
 
-  // -----------------------------------------------------------------------------------------------------
-  // @ Public methods
-  // -----------------------------------------------------------------------------------------------------
-
   toggleSearch(): void {
-    this.isSearchOpen.update((value) => !value);
+    this.isSearchOpen.update((v) => !v);
   }
 
-  toggleDarkMode(): void {
-    const enabled = !this.isDarkMode();
+  toggleUserMenu(): void {
+    this.isUserMenuOpen.update((v) => !v);
+  }
 
-    this.isDarkMode.set(enabled);
+  closeUserMenu(): void {
+    this.isUserMenuOpen.set(false);
+  }
 
-    document.documentElement.classList.toggle('dark', enabled);
+  goToProfile(): void {
+    this.closeUserMenu();
+    this._userService.openProfileDrawer();
+  }
+
+  signOut(): void {
+    this.closeUserMenu();
+    this._authService.signOut().subscribe(() => {
+      this._router.navigate(['/sign-in']);
+    });
   }
 }

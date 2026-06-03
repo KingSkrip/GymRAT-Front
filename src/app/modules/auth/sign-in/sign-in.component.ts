@@ -44,12 +44,12 @@ export class AuthSignInComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-  this.signInForm = this._formBuilder.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required],
-    rememberMe: [''],
-  });
-}
+    this.signInForm = this._formBuilder.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required],
+      rememberMe: [''],
+    });
+  }
 
   signIn(event?: Event): void {
     if (event) event.preventDefault();
@@ -62,16 +62,13 @@ export class AuthSignInComponent implements OnInit {
     this.showAlert = false;
 
     this._authService.signIn(this.signInForm.value).subscribe({
-     next: (response: any) => {
-  console.log(response);
+      next: (response: any) => {
+        const userRole: number = response.permissions;
+        const redirectURL =
+          DashboardByRole[userRole as keyof typeof DashboardByRole] || '/dashboard';
 
-  const userRole: number = response.permissions;
-
-  const redirectURL =
-    DashboardByRole[userRole as keyof typeof DashboardByRole] || '/dashboard';
-
-  this._router.navigateByUrl(redirectURL);
-},
+        this._router.navigateByUrl(redirectURL);
+      },
       error: (error: any) => {
         console.error('❌ Error en login:', error);
         this.signInForm.enable();

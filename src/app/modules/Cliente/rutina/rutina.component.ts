@@ -27,8 +27,8 @@ export class RutinaComponent implements OnInit {
   userName = '';
   userRole = '';
   branchName = '';
-selectedExerciseIndex: number = 0;
-todayIndex = 0;
+  selectedExerciseIndex: number = 0;
+  todayIndex = 0;
   // ─── Client / workout ────────────────────────────────────────
   clRoutineName = '';
   clWorkoutDescription = '';
@@ -60,49 +60,49 @@ todayIndex = 0;
     });
   }
 
-private loadWorkout(user: any): void {
-  const workout = user?.workout;
+  private loadWorkout(user: any): void {
+    const workout = user?.workout;
 
-  if (!workout) {
-    this.clRoutineName = 'Sin rutina asignada';
-    this.clWorkoutDescription = '';
-    this.clAllDays = [];
-    this.clIsRestDay = false;
-    this.clTodayDay = '';
-    this.clTodayExercises = [];
-    return;
+    if (!workout) {
+      this.clRoutineName = 'Sin rutina asignada';
+      this.clWorkoutDescription = '';
+      this.clAllDays = [];
+      this.clIsRestDay = false;
+      this.clTodayDay = '';
+      this.clTodayExercises = [];
+      return;
+    }
+
+    this.clRoutineName = workout.title;
+    this.clWorkoutDescription = workout.description;
+    this.clAllDays = workout.exercises ?? [];
+
+    const dayIndex = new Date().getDay();
+    const routineIndex = dayIndex - 1;
+    this.todayIndex = routineIndex;
+
+    if (dayIndex === 0 || routineIndex >= this.clAllDays.length) {
+      this.clIsRestDay = true;
+      this.clTodayDay = 'Día de descanso';
+      this.clTodayExercises = [];
+      this.selectedDayIndex = 0;
+      this.todayIndex = -1;
+   } else {
+  this.clIsRestDay = false;
+  this.clTodayDay = this.clAllDays[routineIndex].day;
+  this.clTodayExercises = this.clAllDays[routineIndex].exercises;
+  this.todayIndex = routineIndex;
+  this.selectedDayIndex = routineIndex;
+}
+    this.selectedDay = this.clAllDays[this.selectedDayIndex] ?? null;
   }
 
-  this.clRoutineName = workout.title;
-  this.clWorkoutDescription = workout.description;
-  this.clAllDays = workout.exercises ?? [];
-
-  const dayIndex = new Date().getDay();
-  const routineIndex = dayIndex - 1;
-
-  if (dayIndex === 0 || routineIndex >= this.clAllDays.length) {
-    this.clIsRestDay = true;
-    this.clTodayDay = 'Día de descanso';
-    this.clTodayExercises = [];
-    this.selectedDayIndex = 0;
-    this.todayIndex = -1; 
-  } else {
-    this.clIsRestDay = false;
-    this.clTodayDay = this.clAllDays[routineIndex].day;
-    this.clTodayExercises = this.clAllDays[routineIndex].exercises;
-    this.selectedDayIndex = routineIndex; // ← selecciona hoy por defecto
+  openBottomSheet(day: WorkoutDay, index: number): void {
+    this.selectedDay = day;
+    this.selectedDayIndex = index;
+    this.selectedExerciseIndex = 0;
+    this.showBottomSheet = true;
   }
-
-  // Bottom sheet default = día de hoy
-  this.selectedDay = this.clAllDays[this.selectedDayIndex] ?? null;
-}
-
-openBottomSheet(day: WorkoutDay, index: number): void {
-  this.selectedDay = day;
-  this.selectedDayIndex = index;
-  this.selectedExerciseIndex = 0;
-  this.showBottomSheet = true;
-}
 
   onDragStart(e: TouchEvent): void {
     this.dragStartY = e.touches[0].clientY;
@@ -111,7 +111,7 @@ openBottomSheet(day: WorkoutDay, index: number): void {
 
   onDragMove(e: TouchEvent): void {
     const delta = e.touches[0].clientY - this.dragStartY;
-    if (delta < 0) return; // no subir
+    if (delta < 0) return;
     this.dragCurrentY = delta;
     this.sheetTranslateY = delta;
     this.sheetOpacity = Math.max(0, 1 - delta / 300);
@@ -121,7 +121,6 @@ openBottomSheet(day: WorkoutDay, index: number): void {
     if (this.dragCurrentY > 120) {
       this.closeBottomSheet();
     } else {
-      // snap back
       this.sheetTranslateY = 0;
       this.sheetOpacity = 1;
     }

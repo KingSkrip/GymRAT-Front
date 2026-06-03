@@ -1,0 +1,498 @@
+<div class="min-h-screen bg-white dark:bg-black transition-colors duration-300 w-full h-full p-4">
+  <div class="absolute inset-0 overflow-auto bg-white dark:bg-black p-4 md:p-6">
+    <!-- HEADER -->
+    <div class="mb-6">
+      <h1 class="text-xl md:text-2xl font-bold text-black dark:text-white">Gestión de Roles</h1>
+      <p class="text-sm text-gray-400 mt-1">Administra usuarios, roles y subroles</p>
+    </div>
+
+    <!-- TABS -->
+    <div class="mb-4">
+      <!-- Desktop -->
+      <div
+        class="hidden md:inline-flex gap-1 bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-[14px] p-1"
+      >
+        <button
+          (click)="activeTab = 'users'"
+          class="rounded-[10px] px-5 py-2 text-sm transition"
+          [ngClass]="
+            activeTab === 'users'
+              ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium shadow-sm border border-black/10 dark:border-white/10'
+              : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'
+          "
+        >
+          Usuarios
+        </button>
+        <button
+          (click)="activeTab = 'roles'"
+          class="rounded-[10px] px-5 py-2 text-sm transition"
+          [ngClass]="
+            activeTab === 'roles'
+              ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium shadow-sm border border-black/10 dark:border-white/10'
+              : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'
+          "
+        >
+          Roles
+        </button>
+        <button
+          (click)="activeTab = 'subroles'"
+          class="rounded-[10px] px-5 py-2 text-sm transition"
+          [ngClass]="
+            activeTab === 'subroles'
+              ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium shadow-sm border border-black/10 dark:border-white/10'
+              : 'text-gray-500 dark:text-gray-400 hover:text-black dark:hover:text-white'
+          "
+        >
+          Subroles
+        </button>
+      </div>
+
+      <!-- Mobile -->
+      <div
+        class="flex md:hidden bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 rounded-[14px] p-1"
+      >
+        <button
+          (click)="activeTab = 'users'"
+          class="flex-1 rounded-[10px] py-3 text-sm text-center transition"
+          [ngClass]="
+            activeTab === 'users'
+              ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium border border-black/10 dark:border-white/10'
+              : 'text-gray-500 dark:text-gray-400'
+          "
+        >
+          Usuarios
+        </button>
+        <button
+          (click)="activeTab = 'roles'"
+          class="flex-1 rounded-[10px] py-3 text-sm text-center transition"
+          [ngClass]="
+            activeTab === 'roles'
+              ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium border border-black/10 dark:border-white/10'
+              : 'text-gray-500 dark:text-gray-400'
+          "
+        >
+          Roles
+        </button>
+        <button
+          (click)="activeTab = 'subroles'"
+          class="flex-1 rounded-[10px] py-3 text-sm text-center transition"
+          [ngClass]="
+            activeTab === 'subroles'
+              ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium border border-black/10 dark:border-white/10'
+              : 'text-gray-500 dark:text-gray-400'
+          "
+        >
+          Subroles
+        </button>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    @if (activeTab === 'users') {
+      <div
+        class="rounded-2xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-4 md:p-6 mb-[7.5rem]"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-semibold text-black dark:text-white">Usuarios</h2>
+          <button class="rounded-xl bg-accent-500 dark:bg-primary-500 px-3 md:px-4 py-2 text-sm">
+            <span class="text-white">+ Usuario</span>
+          </button>
+        </div>
+
+        <!-- Desktop table -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-black/10 dark:border-white/10 text-black dark:text-white">
+                <th class="p-3 text-left text-sm font-medium">Nombre</th>
+                <th class="p-3 text-left text-sm font-medium">Correo</th>
+                <th class="p-3 text-left text-sm font-medium">Gym</th>
+                <th class="p-3 text-left text-sm font-medium">Rol</th>
+                <th class="p-3 text-left text-sm font-medium">Subrol</th>
+                <th class="p-3 text-left text-sm font-medium">Estado</th>
+                <th class="p-3 text-right text-sm font-medium">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of pagedUsers; track user.id) {
+                <tr
+                  class="border-b border-black/5 dark:border-white/5 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition"
+                >
+                  <td class="p-3 text-sm">{{ user.name }}</td>
+                  <td class="p-3 text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</td>
+                  <td class="p-3 text-sm text-gray-500 dark:text-gray-400">
+                    {{ user.gym?.name ?? '—' }}
+                  </td>
+                  <td class="p-3 text-sm text-gray-500 dark:text-gray-400">
+                    {{ user.role?.name ?? '—' }}
+                  </td>
+                  <td class="p-3 text-sm text-gray-500 dark:text-gray-400">
+                    {{ user.sub_role?.name ?? '—' }}
+                  </td>
+                  <td class="p-3">
+                    <span
+                      [class]="
+                        user.is_active
+                          ? 'inline-block rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400'
+                          : 'inline-block rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-500 dark:text-red-400'
+                      "
+                    >
+                      {{ user.is_active ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </td>
+                  <td class="p-3">
+                    <div class="flex justify-end gap-2">
+                      <button
+                        class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        class="rounded-lg border border-red-500/30 px-3 py-1 text-xs text-red-500 dark:text-red-400 hover:bg-red-500/5 transition"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="flex md:hidden flex-col gap-3">
+          @for (user of pagedUsers; track user.id) {
+            <div
+              class="rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 p-4"
+            >
+              <div class="flex items-start justify-between mb-2">
+                <div>
+                  <p class="font-medium text-sm text-black dark:text-white">{{ user.name }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ user.email }}</p>
+                </div>
+                <span
+                  [class]="
+                    user.is_active
+                      ? 'inline-block rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400'
+                      : 'inline-block rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-500 dark:text-red-400'
+                  "
+                >
+                  {{ user.is_active ? 'Activo' : 'Inactivo' }}
+                </span>
+              </div>
+              <div class="flex flex-wrap gap-x-4 gap-y-1 mb-3">
+                <p class="text-xs text-gray-400">
+                  <span class="text-gray-500 dark:text-gray-300">Gym:</span>
+                  {{ user.gym?.name ?? '—' }}
+                </p>
+                <p class="text-xs text-gray-400">
+                  <span class="text-gray-500 dark:text-gray-300">Rol:</span>
+                  {{ user.role?.name ?? '—' }}
+                </p>
+                <p class="text-xs text-gray-400">
+                  <span class="text-gray-500 dark:text-gray-300">Subrol:</span>
+                  {{ user.sub_role?.name ?? '—' }}
+                </p>
+              </div>
+              <div class="flex gap-2 pt-3 border-t border-black/5 dark:border-white/5">
+                <button
+                  class="flex-1 rounded-lg border border-black/10 dark:border-white/10 py-2 text-xs text-black dark:text-white text-center"
+                >
+                  Editar
+                </button>
+                <button
+                  class="flex-1 rounded-lg border border-red-500/30 py-2 text-xs text-red-500 dark:text-red-400 text-center"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Paginado -->
+        <div
+          class="flex items-center justify-between mt-4 pt-4 border-t border-black/10 dark:border-white/10"
+        >
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ (usersPage - 1) * usersPageSize + 1 }}–{{
+              min(usersPage * usersPageSize, users.length)
+            }}
+            de {{ users.length }}
+          </p>
+          <div class="flex gap-1">
+            <button
+              (click)="usersPage = usersPage - 1"
+              [disabled]="usersPage === 1"
+              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition"
+            >
+              ‹
+            </button>
+            @for (p of usersTotalPages; track p) {
+              <button
+                (click)="usersPage = p"
+                [class]="
+                  usersPage === p
+                    ? 'rounded-lg bg-accent-500 dark:bg-primary-500 px-3 py-1 text-xs text-white'
+                    : 'rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition'
+                "
+              >
+                {{ p }}
+              </button>
+            }
+            <button
+              (click)="usersPage = usersPage + 1"
+              [disabled]="usersPage === usersTotalPages.length"
+              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ROLES -->
+    @if (activeTab === 'roles') {
+      <div
+        class="rounded-2xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-4 md:p-6 mb-[7.5rem]"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-semibold text-black dark:text-white">Roles</h2>
+          <button class="rounded-xl bg-accent-500 dark:bg-primary-500 px-3 md:px-4 py-2 text-sm">
+            <span class="text-white">+ Rol</span>
+          </button>
+        </div>
+
+        <!-- Desktop table -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-black/10 dark:border-white/10 text-black dark:text-white">
+                <th class="p-3 text-left text-sm font-medium">Nombre</th>
+                <th class="p-3 text-left text-sm font-medium">Usuarios</th>
+                <th class="p-3 text-right text-sm font-medium">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (role of pagedRoles; track role.id) {
+                <tr
+                  class="border-b border-black/5 dark:border-white/5 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition"
+                >
+                  <td class="p-3 text-sm">{{ role.name }}</td>
+                  <td class="p-3 text-sm text-gray-500 dark:text-gray-400">
+                    {{ role.users_count }}
+                  </td>
+                  <td class="p-3">
+                    <div class="flex justify-end gap-2">
+                      <button
+                        class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        class="rounded-lg border border-red-500/30 px-3 py-1 text-xs text-red-500 dark:text-red-400 hover:bg-red-500/5 transition"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="flex md:hidden flex-col gap-3">
+          @for (role of pagedRoles; track role.id) {
+            <div
+              class="rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 p-4"
+            >
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <p class="font-medium text-sm text-black dark:text-white">{{ role.name }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ role.users_count }} usuarios</p>
+                </div>
+              </div>
+              <div class="flex gap-2 pt-3 border-t border-black/5 dark:border-white/5">
+                <button
+                  class="flex-1 rounded-lg border border-black/10 dark:border-white/10 py-2 text-xs text-black dark:text-white text-center"
+                >
+                  Editar
+                </button>
+                <button
+                  class="flex-1 rounded-lg border border-red-500/30 py-2 text-xs text-red-500 dark:text-red-400 text-center"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Paginado -->
+        <div
+          class="flex items-center justify-between mt-4 pt-4 border-t border-black/10 dark:border-white/10"
+        >
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ (rolesPage - 1) * rolesPageSize + 1 }}–{{
+              min(rolesPage * rolesPageSize, roles.length)
+            }}
+            de {{ roles.length }}
+          </p>
+          <div class="flex gap-1">
+            <button
+              (click)="rolesPage = rolesPage - 1"
+              [disabled]="rolesPage === 1"
+              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition"
+            >
+              ‹
+            </button>
+            @for (p of rolesTotalPages; track p) {
+              <button
+                (click)="rolesPage = p"
+                [class]="
+                  rolesPage === p
+                    ? 'rounded-lg bg-accent-500 dark:bg-primary-500 px-3 py-1 text-xs text-white'
+                    : 'rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition'
+                "
+              >
+                {{ p }}
+              </button>
+            }
+            <button
+              (click)="rolesPage = rolesPage + 1"
+              [disabled]="rolesPage === rolesTotalPages.length"
+              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- SUBROLES -->
+    @if (activeTab === 'subroles') {
+      <div
+        class="rounded-2xl border border-black/10 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-4 md:p-6 mb-[7.5rem]"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-semibold text-black dark:text-white">Subroles</h2>
+          <button class="rounded-xl bg-accent-500 dark:bg-primary-500 px-3 md:px-4 py-2 text-sm">
+            <span class="text-white">+ Subrol</span>
+          </button>
+        </div>
+
+        <!-- Desktop table -->
+        <div class="hidden md:block overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b border-black/10 dark:border-white/10 text-black dark:text-white">
+                <th class="p-3 text-left text-sm font-medium">Nombre</th>
+                <th class="p-3 text-left text-sm font-medium">Usuarios</th>
+                <th class="p-3 text-right text-sm font-medium">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (subRole of pagedSubRoles; track subRole.id) {
+                <tr
+                  class="border-b border-black/5 dark:border-white/5 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition"
+                >
+                  <td class="p-3 text-sm">{{ subRole.name }}</td>
+                  <td class="p-3 text-sm text-gray-500 dark:text-gray-400">
+                    {{ subRole.users_count }}
+                  </td>
+                  <td class="p-3">
+                    <div class="flex justify-end gap-2">
+                      <button
+                        class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        class="rounded-lg border border-red-500/30 px-3 py-1 text-xs text-red-500 dark:text-red-400 hover:bg-red-500/5 transition"
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="flex md:hidden flex-col gap-3">
+          @for (subRole of pagedSubRoles; track subRole.id) {
+            <div
+              class="rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 p-4"
+            >
+              <div class="flex items-start justify-between mb-3">
+                <div>
+                  <p class="font-medium text-sm text-black dark:text-white">{{ subRole.name }}</p>
+                  <p class="text-xs text-gray-400 mt-0.5">{{ subRole.users_count }} usuarios</p>
+                </div>
+              </div>
+              <div class="flex gap-2 pt-3 border-t border-black/5 dark:border-white/5">
+                <button
+                  class="flex-1 rounded-lg border border-black/10 dark:border-white/10 py-2 text-xs text-black dark:text-white text-center"
+                >
+                  Editar
+                </button>
+                <button
+                  class="flex-1 rounded-lg border border-red-500/30 py-2 text-xs text-red-500 dark:text-red-400 text-center"
+                >
+                  Eliminar
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Paginado -->
+        <div
+          class="flex items-center justify-between mt-4 pt-4 border-t border-black/10 dark:border-white/10"
+        >
+          <p class="text-xs text-gray-500 dark:text-gray-400">
+            {{ (subRolesPage - 1) * subRolesPageSize + 1 }}–{{
+              min(subRolesPage * subRolesPageSize, subRoles.length)
+            }}
+            de {{ subRoles.length }}
+          </p>
+          <div class="flex gap-1">
+            <button
+              (click)="subRolesPage = subRolesPage - 1"
+              [disabled]="subRolesPage === 1"
+              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition"
+            >
+              ‹
+            </button>
+            @for (p of subRolesTotalPages; track p) {
+              <button
+                (click)="subRolesPage = p"
+                [class]="
+                  subRolesPage === p
+                    ? 'rounded-lg bg-accent-500 dark:bg-primary-500 px-3 py-1 text-xs text-white'
+                    : 'rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition'
+                "
+              >
+                {{ p }}
+              </button>
+            }
+            <button
+              (click)="subRolesPage = subRolesPage + 1"
+              [disabled]="subRolesPage === subRolesTotalPages.length"
+              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

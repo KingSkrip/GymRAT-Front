@@ -97,12 +97,57 @@
       {{ userRole() }}
     </span>
 
-    <!-- User -->
+<!-- User -->
+<div class="relative">
+  <div
+    (click)="toggleUserMenu()"
+    class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-secondary-500 to-accent-300 text-sm font-semibold select-none dark:bg-gradient-to-r dark:from-primary-500 dark:to-secondary-500 dark:text-white"
+  >
+    {{ userInitials() }}
+  </div>
+
+  @if (isUserMenuOpen()) {
+    <!-- Backdrop para cerrar al hacer clic afuera -->
     <div
-      class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-secondary-500 to-accent-300 text-sm font-semibold dark:bg-gradient-to-r dark:from-primary-500 dark:to-secondary-500 dark:text-white"
+      class="fixed inset-0 z-40"
+      (click)="closeUserMenu()"
+    ></div>
+
+    <!-- Dropdown -->
+    <div
+      class="absolute right-0 top-12 z-50 w-48 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg dark:border-white/10 dark:bg-black"
     >
-      {{ userInitials() }}
+      <!-- Info del usuario -->
+      <div class="border-b border-gray-100 px-4 py-3 dark:border-white/10">
+        <p class="text-sm font-medium text-black dark:text-white truncate">
+          {{ (user | async)?.name ?? 'Usuario' }}
+        </p>
+        <p class="text-xs text-gray-400 truncate">
+          {{ (user | async)?.email ?? '' }}
+        </p>
+      </div>
+
+      <!-- Acciones -->
+      <div class="py-1">
+        <button
+          (click)="goToProfile()"
+          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-black transition hover:bg-gray-100 dark:text-white dark:hover:bg-white/5"
+        >
+          <mat-icon svgIcon="heroicons_outline:user-circle" class="icon-size-4"></mat-icon>
+          Perfil
+        </button>
+
+        <button
+          (click)="signOut()"
+          class="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 transition hover:bg-red-50 dark:hover:bg-red-950/40"
+        >
+          <mat-icon svgIcon="heroicons_outline:arrow-right-on-rectangle" class="icon-size-4"></mat-icon>
+          Cerrar sesión
+        </button>
+      </div>
     </div>
+  }
+</div>
   </div>
 </header>
 

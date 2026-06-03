@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
-import { catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { catchError, map, Observable, of, switchMap, throwError, timeout } from 'rxjs';
 
 import { RoleEnum } from './roles/dataroles';
 import { AuthUtils } from './auth.utils';
@@ -97,33 +97,34 @@ signIn(credentials: { email: string; password: string }): Observable<any> {
   /**
    * Sign In Using Token (Refresh)
    */
-  signInUsingToken(): Observable<any> {
-    if (!this.encrypt) return of(false);
+signInUsingToken(): Observable<any> {
+  if (!this.encrypt) return of(false);
 
-    return this._httpClient
-      .post(`${this.apiUrl}auth/sign-in-with-token`, {
-        encrypt: this.encrypt,
-      })
-      .pipe(
-        catchError(() => {
-          localStorage.removeItem('encrypt');
-          this._authenticated = false;
-          return of(false);
-        }),
-        switchMap((response: any) => {
-          if (response.encrypt) {
-            this.encrypt = response.encrypt;
-            this._authenticated = true;
-         this._userService.user = {
-  ...response.user,
-  permissions: response.permissions,
-};
-            return of(true);
-          }
-          return of(false);
-        }),
-      );
-  }
+  return this._httpClient
+    .post(`${this.apiUrl}auth/sign-in-with-token`, {
+      encrypt: this.encrypt,
+    })
+    .pipe(
+      timeout(5000), // ← clave: no esperar forever
+      catchError(() => {
+        localStorage.removeItem('encrypt');
+        this._authenticated = false;
+        return of(false);
+      }),
+      switchMap((response: any) => {
+        if (response?.encrypt) {
+          this.encrypt = response.encrypt;
+          this._authenticated = true;
+          this._userService.user = {
+            ...response.user,
+            permissions: response.permissions,
+          };
+          return of(true);
+        }
+        return of(false);
+      }),
+    );
+}
 
   /**
    * Sign Out
@@ -157,10 +158,13 @@ signIn(credentials: { email: string; password: string }): Observable<any> {
    * Check Authentication
    */
 check(): Observable<boolean> {
-    if (this._authenticated) return of(true);
-    if (!this.encrypt) return of(false);
-    if (AuthUtils.isTokenExpired(this.encrypt)) return of(false);
-    return this.signInUsingToken();
+  if (this._authenticated) return of(true);
+  if (!this.encrypt) return of(false);
+  if (AuthUtils.isTokenExpired(this.encrypt)) {
+    localStorage.removeItem('encrypt');
+    return of(false);
+  }
+  return this.signInUsingToken();
 }
 
   /**

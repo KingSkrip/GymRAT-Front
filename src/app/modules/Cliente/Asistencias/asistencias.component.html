@@ -4,7 +4,7 @@
   <!-- QR CARD HERO -->
   <div
     #qrCard
-    class="relative overflow-hidden rounded-3xl border bg-secondary-400/30 dark:border-white/10 dark:bg-black p-6 text-center shadow-2xl"
+    class="relative overflow-hidden rounded-3xl border bg-secondary-400/30 dark:border-white/10 dark:bg-black p-6 text-center"
   >
     <!-- Top glow -->
     <div
@@ -19,32 +19,33 @@
     </div>
 
     <!-- QR CODE -->
-    <div
-      #qrCard
-      class="relative mx-auto mb-4 inline-block cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
-    >
-      <div class="rounded-2xl p-4 shadow-inner" [ngClass]="clQrValid ? 'bg-white' : 'bg-white/60'">
-        <qrcode
-          [qrdata]="clQrToken"
-          [width]="160"
-          [errorCorrectionLevel]="'M'"
-          [margin]="1"
-          [colorDark]="'#111111'"
-          [colorLight]="'#ffffff'"
-          [style.opacity]="clQrValid ? '1' : '0.4'"
-        ></qrcode>
-      </div>
-
-      <!-- Valid/Invalid overlay badge -->
-      @if (showQrOverlay) {
-        <div
-          class="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm"
-        >
-          <div class="text-center">
-            <i class="ti ti-lock text-3xl text-red-400" aria-hidden="true"></i>
-          </div>
+    <div class="flex justify-center mb-4">
+      <div
+        #qrCard
+        class="relative cursor-pointer transition-transform duration-200 hover:scale-105 active:scale-95"
+      >
+        <div class="rounded-2xl p-2" [ngClass]="clQrValid ? 'bg-white' : 'bg-white/60'">
+          <qrcode
+            [qrdata]="clQrToken"
+            [width]="160"
+            [errorCorrectionLevel]="'M'"
+            [margin]="1"
+            [colorDark]="'#111111'"
+            [colorLight]="'#ffffff'"
+            [style.opacity]="clQrValid ? '1' : '0.4'"
+          ></qrcode>
         </div>
-      }
+
+        @if (showQrOverlay) {
+          <div
+            class="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/60 backdrop-blur-sm"
+          >
+            <div class="text-center">
+              <i class="ti ti-lock text-3xl text-red-400"></i>
+            </div>
+          </div>
+        }
+      </div>
     </div>
 
     <!-- Status pill -->

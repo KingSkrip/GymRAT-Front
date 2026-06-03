@@ -55,7 +55,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./modules/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
-   
+
       {
         path: 'membresia',
 
@@ -66,11 +66,12 @@ export const routes: Routes = [
         },
 
         loadComponent: () =>
-          import('./modules/Cliente/membresia/membresia.component').then((m) => m.MembresiaComponent),
+          import('./modules/Cliente/membresia/membresia.component').then(
+            (m) => m.MembresiaComponent,
+          ),
       },
 
-
-       {
+      {
         path: 'asistencias',
 
         canActivate: [AuthGuard],
@@ -80,10 +81,12 @@ export const routes: Routes = [
         },
 
         loadComponent: () =>
-          import('./modules/Cliente/Asistencias/asistencias.component').then((m) => m.AsistenciasComponent),
+          import('./modules/Cliente/Asistencias/asistencias.component').then(
+            (m) => m.AsistenciasComponent,
+          ),
       },
 
-       {
+      {
         path: 'rutina',
 
         canActivate: [AuthGuard],
@@ -94,6 +97,47 @@ export const routes: Routes = [
 
         loadComponent: () =>
           import('./modules/Cliente/rutina/rutina.component').then((m) => m.RutinaComponent),
+      },
+
+      //SUPERADMIN
+
+      {
+        path: 'Facturacion',
+
+        canActivate: [AuthGuard],
+
+        data: {
+          layout: 'vertical',
+        },
+
+        loadComponent: () =>
+          import('./modules/Suadmin/Facturacion/facturacion.component').then(
+            (m) => m.FacturacionComponent,
+          ),
+      },
+      {
+        path: 'GYM´s',
+
+        canActivate: [AuthGuard],
+
+        data: {
+          layout: 'vertical',
+        },
+
+        loadComponent: () =>
+          import('./modules/Suadmin/Gyms/gyms.component').then((m) => m.GymsComponent),
+      },
+      {
+        path: 'Roles',
+
+        canActivate: [AuthGuard],
+
+        data: {
+          layout: 'vertical',
+        },
+
+        loadComponent: () =>
+          import('./modules/Suadmin/Gestion/gestion.component').then((m) => m.GestionComponent),
       },
     ],
   },

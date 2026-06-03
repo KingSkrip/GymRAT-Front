@@ -1,12 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, PLATFORM_ID, Injectable, inject } from '@angular/core';
-
 import { isPlatformBrowser } from '@angular/common';
-
-import { map, Observable, ReplaySubject, Subject, take, tap } from 'rxjs';
-
+import { catchError, map, Observable, of, ReplaySubject, Subject, take, tap } from 'rxjs';
 import { User } from './user.types';
 import { APP_CONFIG } from '../../core/config/app-config';
+import { AuthUtils } from '../../modules/auth/auth.utils';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -44,34 +42,41 @@ export class UserService {
   // @ Public methods
   // -----------------------------------------------------------------------------------------------------
 
-  init(): Observable<void> {
-    let token: string | null = null;
+init(): Observable<void> {
+  let token: string | null = null;
 
-    if (isPlatformBrowser(this.platformId)) {
-      token = localStorage.getItem('encrypt');
-    }
-
-    if (!token) {
-      this._user.next(null);
-
-      return new Observable<void>((observer) => {
-        observer.next();
-        observer.complete();
-      });
-    }
-
-    return this._httpClient
-      .get(`${this.apiUrl}dash/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .pipe(
-        tap((resp: any) => {
-          console.warn('🔥 INIT USER:', resp.user?.workout);
-          this._user.next(resp.user);
-        }),
-        map(() => void 0),
-      );
+  if (isPlatformBrowser(this.platformId)) {
+    token = localStorage.getItem('encrypt');
   }
+
+  // Sin token o token expirado → limpiar y salir sin llamar al backend
+  if (!token || AuthUtils.isTokenExpired(token)) {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('encrypt');
+    }
+    this._user.next(null);
+    return of(void 0);
+  }
+
+  return this._httpClient
+    .get(`${this.apiUrl}dash/me`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    .pipe(
+      tap((resp: any) => {
+        this._user.next(resp.user);
+      }),
+      map(() => void 0),
+      catchError(() => {
+        // Backend caído o 401 → limpiar token y continuar sin romper la app
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.removeItem('encrypt');
+        }
+        this._user.next(null);
+        return of(void 0);
+      }),
+    );
+}
 
   /**
    * Update user info

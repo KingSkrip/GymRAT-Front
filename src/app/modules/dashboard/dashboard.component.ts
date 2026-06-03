@@ -53,7 +53,6 @@ export class DashboardComponent implements OnInit {
   userRole = '';
   branchName = '';
   clMembershipActive = true;
-
   clQrToken = '';
   clQrValid = false;
   clQrExpiresAt = '';

@@ -33,6 +33,27 @@ export const menuSuAdmin: NavItem[] = [
     icon: 'heroicons_outline:home',
     link: '/dashboard',
   },
+  {
+    id: 'facturacion',
+    title: 'Facturacion',
+    type: 'basic',
+    icon: 'heroicons_outline:banknotes',
+    link: '/Facturacion',
+  },
+  {
+    id: 'gyms',
+    title: 'Gym´s',
+    type: 'basic',
+    icon: 'heroicons_outline:biceps-flexed',
+    link: '/GYM´s',
+  },
+  {
+    id: 'roles',
+    title: 'Roles',
+    type: 'basic',
+    icon: 'heroicons_outline:users',
+    link: '/Roles',
+  },
 ];
 
 export const menuAdmin: NavItem[] = [
@@ -63,8 +84,8 @@ export const menuClientes: NavItem[] = [
     icon: 'heroicons_outline:home',
     link: '/dashboard',
   },
-  
-   {
+
+  {
     id: 'app.asistencias',
     title: 'Mis asistencias',
     type: 'basic',
@@ -85,5 +106,4 @@ export const menuClientes: NavItem[] = [
     icon: 'heroicons_outline:credit-card',
     link: '/membresia',
   },
-   
 ];

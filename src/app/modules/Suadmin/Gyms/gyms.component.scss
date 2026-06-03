@@ -1,0 +1,59 @@
+/* ─── Agrega esto a tu styles.scss o styles.css global ─── */
+
+/* Progress bar fill colors usados en el dashboard */
+.fill-blue   { background-color: #3b82f6; }
+.fill-green  { background-color: #10b981; }
+.fill-yellow { background-color: #f59e0b; }
+.fill-red    { background-color: #ef4444; }
+.fill-purple { background-color: #7c3aed; }
+
+/* Metric value color overrides */
+.metric-val         { font-size: 1.25rem; font-weight: 500; color: inherit; }
+.metric-val.info    { color: #3b82f6; }
+.metric-val.success { color: #10b981; }
+.metric-val.warning { color: #f59e0b; }
+.metric-val.danger  { color: #ef4444; }
+
+/* ─── tailwind.config.js — agrega en safelist para JIT ─── */
+/*
+module.exports = {
+  content: ['./src/**/*.{html,ts}'],
+//   darkMode: 'class',
+//   safelist: [
+//     'fill-blue','fill-green','fill-yellow','fill-red','fill-purple',
+//     'metric-val','metric-val info','metric-val success','metric-val warning','metric-val danger',
+//   ],
+//   theme: { extend: {} },
+//   plugins: [],
+//};*/
+
+/* ─── Imports que necesita el componente ─── */
+/*
+  En el TS ya están declarados:
+    import { CommonModule } from '@angular/common';
+    import { RouterLink } from '@angular/router';
+
+  ngTemplateOutlet viene incluido en CommonModule — sin necesidad de
+  importar NgTemplateOutlet por separado en Angular 17+.
+
+  Si usas ng-template con *ngTemplateOutlet asegúrate de importar CommonModule.
+*/
+
+/* ─── user$ observable en AuthService ─── */
+/*
+  El componente espera que AuthService exponga:
+
+    get user$(): Observable<any>
+
+  Si tu AuthService no lo tiene todavía, agrega:
+
+    import { BehaviorSubject } from 'rxjs';
+
+    private _user = new BehaviorSubject<any>(null);
+    get user$() { return this._user.asObservable(); }
+
+  Y emite el usuario al hacer signIn exitoso:
+    this._user.next(response.user);
+
+  El usuario debe traer: { name, roles: [{name}], branch?: {name} }
+*/
