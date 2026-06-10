@@ -102,7 +102,7 @@ export const routes: Routes = [
       //SUPERADMIN
 
       {
-        path: 'Facturacion',
+        path: 'Clientes',
 
         canActivate: [AuthGuard],
 
@@ -111,8 +111,8 @@ export const routes: Routes = [
         },
 
         loadComponent: () =>
-          import('./modules/Suadmin/Facturacion/facturacion.component').then(
-            (m) => m.FacturacionComponent,
+          import('./modules/Suadmin/Clientes/clientes.component').then(
+            (m) => m.ClientesComponent,
           ),
       },
       {

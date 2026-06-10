@@ -34,11 +34,11 @@ export const menuSuAdmin: NavItem[] = [
     link: '/dashboard',
   },
   {
-    id: 'facturacion',
-    title: 'Facturacion',
+    id: 'clientes',
+    title: 'clientes',
     type: 'basic',
-    icon: 'heroicons_outline:banknotes',
-    link: '/Facturacion',
+    icon: 'heroicons_outline:user-group',
+    link: '/Clientes',
   },
   {
     id: 'gyms',

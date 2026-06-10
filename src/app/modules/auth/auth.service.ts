@@ -129,11 +129,11 @@ signInUsingToken(): Observable<any> {
   /**
    * Sign Out
    */
-  signOut(): Observable<any> {
-    localStorage.removeItem('encrypt');
-    this._authenticated = false;
-    return of(true);
-  }
+signOut(): Observable<any> {
+  localStorage.removeItem('encrypt');
+  this._authenticated = false;
+  return of(true);
+}
 
   /**
    * Sign Up
@@ -158,12 +158,22 @@ signInUsingToken(): Observable<any> {
    * Check Authentication
    */
 check(): Observable<boolean> {
-  if (this._authenticated) return of(true);
-  if (!this.encrypt) return of(false);
+  // Si no hay token en storage, limpiar estado y denegar
+  if (!this.encrypt) {
+    this._authenticated = false;
+    return of(false);
+  }
+
+  // Si el token expiró, limpiar y denegar
   if (AuthUtils.isTokenExpired(this.encrypt)) {
+    this._authenticated = false;
     localStorage.removeItem('encrypt');
     return of(false);
   }
+
+  // Solo confiar en _authenticated si también hay token válido
+  if (this._authenticated) return of(true);
+
   return this.signInUsingToken();
 }
 

@@ -1,0 +1,689 @@
+<div class="min-h-screen bg-white dark:bg-black transition-colors duration-300 w-full h-full">
+  <!-- ── HEADER ──────────────────────────────────────────────────────── -->
+  <div class="sticky top-0 z-20 px-5 pt-4 flex items-center justify-between gap-3">
+    <div>
+      <h1 class="text-xl font-extrabold tracking-tight text-black dark:text-white leading-none">
+        Clientes
+      </h1>
+    </div>
+    <button
+      (click)="openCreate()"
+      class="flex items-center justify-center w-10 h-10 rounded-full md:w-auto md:h-auto md:rounded-xl bg-primary-500 text-black font-bold text-[0.78rem] md:px-3.5 md:py-2 transition-colors duration-150 shrink-0"
+    >
+      <div class="hidden md:flex items-center gap-1.5">
+        <mat-icon svgIcon="heroicons_outline:user-plus" class="icon-size-5 text-white"></mat-icon>
+      </div>
+
+      <div class="md:hidden flex items-center justify-center">
+        <mat-icon svgIcon="heroicons_outline:user-plus" class="icon-size-5 text-white"></mat-icon>
+      </div>
+    </button>
+  </div>
+
+  <div class="px-4 pt-3 space-y-4">
+    <!-- ── BUSCADOR ──────────────────────────────────────────────────── -->
+    <div class="relative">
+      <mat-icon
+        class="absolute left-3.5 top-1/2 -translate-y-1/2 !text-[17px] !h-[17px] !w-[17px] text-gray-500 pointer-events-none"
+        >search</mat-icon
+      >
+      <input
+        type="text"
+        placeholder="Buscar cliente..."
+        [value]="searchTerm"
+        (input)="onSearchChange($any($event.target).value)"
+        class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border border-white/[0.06] focus:border-accent-500/50 rounded-xl pl-10 pr-4 py-2.5 text-sm text-[#e2e2e8] placeholder-[#3d3d4d] outline-none transition-colors duration-150"
+      />
+    </div>
+
+    <!-- ── FILTROS PILLS ─────────────────────────────────────────────── -->
+    <div class="flex gap-2 overflow-x-auto scrollbar-none pb-0.5">
+      @for (pill of filterPills; track pill.value) {
+        <button
+          (click)="setFilter(pill.value)"
+          [class]="
+            activeFilter === pill.value
+              ? 'shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs md:text-sm bg-secondary-400/30 dark:bg-secondary-400/5 border-2 border-primary-500 text-primary-500 transition-all'
+              : 'shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs md:text-sm bg-gray-400  dark:bg-gray-800  dark:text-white hover:text-purple-500 hover:border-white/[0.08] transition-all'
+          "
+        >
+          {{ pill.label }}
+
+          <span
+            [class]="
+              activeFilter === pill.value
+                ? 'text-xs md:text-sm bg-accent-300 text-primary-500 rounded-md px-1.5 py-0.5'
+                : 'text-xs md:text-sm bg-gray-400  dark:bg-gray-800 dark:text-default-500 rounded-md px-1.5 py-0.5'
+            "
+          >
+            {{ getMetricValue(pill.metric) }}
+          </span>
+        </button>
+      }
+    </div>
+
+    <!-- ── LOADING ───────────────────────────────────────────────────── -->
+    @if (loading) {
+      <div class="flex justify-center py-16">
+        <div
+          class="w-7 h-7 rounded-full border-2 border-accent-400/10 border-t-primary-500 animate-spin"
+        ></div>
+      </div>
+    }
+
+    <!-- ── ERROR ─────────────────────────────────────────────────────── -->
+    @if (error && !loading) {
+      <div class="rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-500">
+        {{ error }}
+      </div>
+    }
+
+    <!-- ── LISTA DE CLIENTES ─────────────────────────────────────────── -->
+    @if (!loading && !error) {
+      <div class="flex flex-col gap-2.5">
+        @for (c of paginatedClientes; track trackById($index, c)) {
+          <div
+            (click)="openDetail(c)"
+            [class]="
+              'group relative overflow-hidden rounded-2xl border bg-secondary-400/30 dark:bg-secondary-400/5 p-4 cursor-pointer transition-all duration-150 active:scale-[0.99] ' +
+              (c.is_active
+                ? 'border-white/[0.06] hover:border-white/10'
+                : 'border-white/[0.03] opacity-50')
+            "
+          >
+            <!-- Blob superior -->
+            <div
+              class="pointer-events-none absolute -top-12 -right-12 h-28 w-28 rounded-full bg-accent-400/15 blur-3xl"
+            ></div>
+
+            <!-- Blob inferior -->
+            <div
+              class="pointer-events-none absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-secondary-400/15 blur-3xl"
+            ></div>
+
+            <!-- top row -->
+            <div class="flex items-start justify-between gap-3 mb-3">
+              <!-- Avatar + info -->
+              <div class="flex items-center gap-3 min-w-0">
+                <div
+                  class="shrink-0 w-10 h-10 rounded-xl bg-primary-500 flex items-center justify-center"
+                >
+                  <span class="text-white font-black text-sm">{{ c.name.charAt(0) }}</span>
+                </div>
+                <div class="min-w-0 text-black dark:text-white">
+                  <p class="text-sm font-bold truncate leading-tight">{{ c.name }}</p>
+                  <p class="text-[0.72rem] truncate mt-0.5">{{ c.email }}</p>
+                </div>
+              </div>
+              <!-- Badge -->
+              <span
+                [ngClass]="{
+                  'bg-accent-300 text-primary-500': c.status_color === 'green',
+                  'bg-yellow-500/10 text-yellow-500': c.status_color === 'yellow',
+                  'bg-red-500/10  text-red-500': c.status_color === 'red',
+                  'bg-white/5  text-[#5a5a6e]': c.status_color === 'gray',
+                }"
+                class="shrink-0 text-[0.65rem] font-bold rounded-full px-2.5 py-1 leading-none whitespace-nowrap"
+              >
+                {{ c.status_label }}
+              </span>
+            </div>
+
+            <!-- stats row -->
+            <div class="flex items-center gap-4 mb-3 text-black dark:text-white">
+              <span class="flex items-center gap-1 text-[0.72rem]">
+                <mat-icon class="!text-[13px] !h-[13px] !w-[13px] text-primary-500"
+                  >fitness_center</mat-icon
+                >
+                {{ c.gym_count }} gym{{ c.gym_count !== 1 ? 's' : '' }}
+              </span>
+              <span class="flex items-center gap-1 text-[0.72rem]">
+                <mat-icon class="!text-[13px] !h-[13px] !w-[13px] text-primary-500">store</mat-icon>
+                {{ c.branch_count }} sucursal{{ c.branch_count !== 1 ? 'es' : '' }}
+              </span>
+              @if (c.days_left > 0) {
+                <span class="flex items-center gap-1 text-[0.72rem]">
+                  <mat-icon class="!text-[13px] !h-[13px] !w-[13px] text-primary-500"
+                    >schedule</mat-icon
+                  >
+                  {{ c.days_left }}d restantes
+                </span>
+              }
+            </div>
+
+            <!-- footer row: actions -->
+            <div class="flex items-center justify-between pt-3 border-t border-white/[0.04]">
+              <span class="text-xs md:text-sm text-black dark:text-white">{{
+                c.subscription_end
+              }}</span>
+              <div class="flex gap-1.5" (click)="$event.stopPropagation()">
+                <button
+                  (click)="openEdit(c, $event)"
+                  class="w-7 h-7 flex items-center justify-center"
+                >
+                  <mat-icon class="!text-[14px] !h-[14px] !w-[14px] text-primary-500"
+                    >edit</mat-icon
+                  >
+                </button>
+                <button
+                  (click)="openToggleConfirm(c, $event)"
+                  class="w-7 h-7 flex items-center justify-center"
+                >
+                  <mat-icon class="!text-[14px] !h-[14px] !w-[14px] text-primary-500">
+                    {{ c.is_active ? 'toggle_on' : 'toggle_off' }}
+                  </mat-icon>
+                </button>
+                <button
+                  (click)="openDeleteConfirm(c, $event)"
+                  class="w-7 h-7 flex items-center justify-center"
+                >
+                  <mat-icon class="!text-[14px] !h-[14px] !w-[14px] text-primary-500"
+                    >delete_outline</mat-icon
+                  >
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      @if (clientes.length > itemsPerPage) {
+        <div class="flex items-center justify-center gap-2 mt-5">
+          <button
+            (click)="prevPage()"
+            [disabled]="currentPage === 1"
+            class="h-9 w-9 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
+          >
+            <mat-icon
+              svgIcon="heroicons_outline:chevron-left"
+              class="text-sm text-black"
+            ></mat-icon>
+          </button>
+
+          @for (page of [].constructor(totalPages); track $index) {
+            <button
+              (click)="goToPage($index + 1)"
+              [class]="
+                currentPage === $index + 1
+                  ? 'h-9 min-w-9 px-3 rounded-xl bg-accent-500 text-white font-bold'
+                  : 'h-9 min-w-9 px-3 rounded-xl bg-primary-500 border border-white/10 text-white'
+              "
+            >
+              {{ $index + 1 }}
+            </button>
+          }
+
+          <button
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages"
+            class="h-9 w-9 rounded-xl border border-white/10 bg-gray-400 text-white disabled:opacity-30"
+          >
+            <mat-icon
+              svgIcon="heroicons_outline:chevron-right"
+              class="text-sm text-black"
+            ></mat-icon>
+          </button>
+        </div>
+      }
+
+      <!-- ── EMPTY STATE ───────────────────────────────────────────── -->
+      @if (clientes.length === 0) {
+        <div class="flex flex-col items-center py-20 text-center">
+          <div class="w-14 h-14 rounded-2xl bg-purple-500 flex items-center justify-center mb-4">
+            <mat-icon class="!text-[24px] text-white">group_off</mat-icon>
+          </div>
+          <p class="text-sm md:text-sm text-black dark:text-white mb-1">Sin clientes</p>
+          <p class="text-xs text-gray-400">No hay resultados para este filtro</p>
+        </div>
+      }
+    }
+  </div>
+  <!-- /px-4 -->
+</div>
+<!-- /page -->
+
+<!-- ════════════════════════════════════════════════════════════════════
+     OVERLAYS / MODALES de clientes
+════════════════════════════════════════════════════════════════════ -->
+@if (modalMode) {
+  <!-- Backdrop -->
+  <div class="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm" (click)="closeModal()"></div>
+
+  <!-- ── DETAIL DRAWER ──────────────────────────────────────────────── -->
+  @if (modalMode === 'detail' && selectedCliente) {
+    <div
+      class="fixed z-50 left-0 right-0 bottom-[60px] md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh]"
+      [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : undefined"
+    >
+      <!-- handle mobile -->
+      <div
+        class="md:hidden flex justify-center pt-3 pb-1 cursor-grab touch-none"
+        (touchstart)="onDrawerTouchStart($event)"
+        (touchmove)="onDrawerTouchMove($event)"
+        (touchend)="onDrawerTouchEnd()"
+      >
+        <div class="w-9 h-1 rounded-full bg-accent-500"></div>
+      </div>
+
+      <div class="px-5 pb-6 pt-2 md:pt-5">
+        <!-- Header del drawer -->
+        <div class="flex items-center justify-between mb-5">
+          <div class="flex items-center gap-3">
+            <div
+              class="w-11 h-11 rounded-xl bg-primary-500 flex items-center justify-center shrink-0"
+            >
+              <span class="text-white font-black text-base">
+                {{ selectedCliente.name.charAt(0) }}
+              </span>
+            </div>
+            <div>
+              <p class="font-bold text-black dark:text-white leading-tight">
+                {{ selectedCliente.name }}
+              </p>
+              <p class="text-xs text-gray-500 mt-0.5">{{ selectedCliente.email }}</p>
+            </div>
+          </div>
+          <button
+            (click)="closeModal()"
+            class="w-8 h-8 rounded-3xl bg-gray-300 hover:bg-red-300 flex items-center justify-center text-black transition-colors hidden md:block"
+          >
+            <mat-icon class="!text-[18px]">close</mat-icon>
+          </button>
+          <!-- Status badge -->
+          <div class="mb-4 block md:hidden">
+            <span
+              [ngClass]="{
+                'bg-[#00e676]/10 border-[#00e676]/30 text-[#00e676]':
+                  selectedCliente.status_color === 'green',
+                'bg-yellow-500/10 border-yellow-500/30 text-yellow-500':
+                  selectedCliente.status_color === 'yellow',
+                'bg-red-500/10 border-red-500/30 text-red-500':
+                  selectedCliente.status_color === 'red',
+                'bg-white/5 border-white/10 text-[#5a5a6e]':
+                  selectedCliente.status_color === 'gray',
+              }"
+              class="text-xs font-bold border rounded-full px-3 py-1.5 leading-none"
+            >
+              {{ selectedCliente.status_label }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Info rows -->
+        <div class="space-y-1.5 mb-4 text-sm md:text-xs text-black dark:text-white">
+          <div
+            class="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 border border-white/[0.04]"
+          >
+            <span>Teléfono</span>
+            <span>
+              {{ selectedCliente.phone || '—' }}
+            </span>
+          </div>
+          <div
+            class="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 border border-white/[0.04]"
+          >
+            <span>Inicio suscripción</span>
+            <span>
+              {{ selectedCliente.subscription_start }}
+            </span>
+          </div>
+          <div
+            class="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 border border-white/[0.04]"
+          >
+            <span>Fin suscripción</span>
+            <span>
+              {{ selectedCliente.subscription_end }}
+            </span>
+          </div>
+          <div
+            class="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 border border-white/[0.04]"
+          >
+            <span>Días restantes</span>
+            <span
+              [class]="
+                'text-sm md:text-xs ' +
+                (selectedCliente.days_left <= 0
+                  ? 'text-red-500'
+                  : selectedCliente.days_left <= 7
+                    ? 'text-yellow-500'
+                    : 'text-green-500')
+              "
+            >
+              {{ selectedCliente.days_left > 0 ? selectedCliente.days_left + ' días' : 'Vencido' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Alerta vencimiento -->
+        @if (selectedCliente.status_color === 'red' || selectedCliente.status_color === 'yellow') {
+          <div
+            [class]="
+              'rounded-xl border px-4 py-3 mb-4 ' +
+              (selectedCliente.status_color === 'red'
+                ? 'border-red-400/20 bg-red-400/5'
+                : 'border-yellow-400/20 bg-yellow-400/5')
+            "
+          >
+            <p
+              [class]="
+                'text-xs font-bold mb-1 ' +
+                (selectedCliente.status_color === 'red' ? 'text-red-500' : 'text-yellow-500')
+              "
+            >
+              {{
+                selectedCliente.status_color === 'red'
+                  ? '⚠ Suscripción vencida'
+                  : '⚡ Próximo vencimiento'
+              }}
+            </p>
+            <p
+              [class]="
+                'text-xs ' +
+                (selectedCliente.status_color === 'red' ? 'text-red-500/70' : 'text-yellow-500/70')
+              "
+            >
+              Contacta al cliente para renovar su plan.
+            </p>
+          </div>
+        }
+
+        <!-- Gyms section -->
+        @if (selectedCliente.gyms && selectedCliente.gyms.length > 0) {
+          <div class="mb-5">
+            <p class="text-sm md:text-xs text-black dark:text-white mb-2.5">
+              Gyms · {{ selectedCliente.gym_count }}
+            </p>
+            <div class="space-y-2">
+              @for (gym of selectedCliente.gyms; track gym.id) {
+                <div
+                  class="rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 p-3 text-sm md:text-xs text-black dark:text-white"
+                >
+                  <div class="flex items-center justify-between mb-2">
+                    <p class="font-semibold">{{ gym.name }}</p>
+                    <span
+                      [class]="
+                        'text-[0.65rem] font-medium rounded-full px-2 py-0.5 ' +
+                        (gym.is_active
+                          ? 'bg-accent-300 text-primary-500'
+                          : 'text-gray-300 bg-gray-500')
+                      "
+                    >
+                      {{ gym.is_active ? 'Activo' : 'Inactivo' }}
+                    </span>
+                  </div>
+                  @if (gym.branches && gym.branches.length > 0) {
+                    <div class="flex flex-wrap gap-1.5">
+                      @for (b of gym.branches; track b.id) {
+                        <span
+                          [class]="
+                            'text-[0.65rem] rounded-md' +
+                            (b.is_active
+                              ? 'dark:bg-secondary-400/30 bg-secondary-400/5 text-primary-500'
+                              : 'bg-transparent text-secondary-500 line-through')
+                          "
+                        >
+                          {{ b.name }}
+                        </span>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Acciones -->
+        <div class="flex gap-2">
+          <button
+            (click)="openToggleConfirm(selectedCliente)"
+            class="flex-1 py-2.5 rounded-xl bg-accent-500/10 border border-accent-500/30 text-sm font-bold text-accent-500 hover:bg-accent-500/20 transition-colors"
+          >
+            {{ selectedCliente.is_active ? 'Desactivar' : 'Activar' }}
+          </button>
+          <button
+            (click)="openDeleteConfirm(selectedCliente)"
+            class="flex-1 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-bold text-red-500 hover:bg-red-500/20 transition-colors"
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── CREATE / EDIT FORM DRAWER ─────────────────────────────────── -->
+  @if (modalMode === 'create' || modalMode === 'edit') {
+    <div
+      class="fixed z-50 left-0 right-0 bottom-[60px] md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh]"
+      [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : undefined"
+    >
+      <!-- handle -->
+      <div
+        class="md:hidden flex justify-center pt-3 pb-2 cursor-grab touch-none"
+        (touchstart)="onDrawerTouchStart($event)"
+        (touchmove)="onDrawerTouchMove($event)"
+        (touchend)="onDrawerTouchEnd()"
+      >
+        <div class="w-10 h-1 rounded-full bg-white/10"></div>
+      </div>
+
+      <div class="px-5 pb-8 pt-2 md:pt-5">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-5">
+          <h2 class="font-bold text-black dark:text-white text-lg">
+            {{ modalMode === 'create' ? 'Nuevo cliente' : 'Editar cliente' }}
+          </h2>
+          <button
+            (click)="closeModal()"
+            class="w-8 h-8 rounded-3xl bg-gray-300 hover:bg-red-300 flex items-center justify-center text-black transition-colors hidden md:block"
+          >
+            <mat-icon class="!text-[18px]">close</mat-icon>
+          </button>
+        </div>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3.5">
+          <!-- Nombre -->
+          <div>
+            <label class="block text-xs md:text-sm text-black dark:text-white"> Nombre</label>
+            <input
+              formControlName="name"
+              type="text"
+              placeholder="Nombre del cliente"
+              class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-black dark:text-white placeholder-gray-500 outline-none transition-colors"
+              [class]="
+                hasError('name')
+                  ? 'border-red-500/60 focus:border-red-500'
+                  : 'border-white/[0.06] focus:border-[#00e676]/50'
+              "
+            />
+            @if (hasError('name')) {
+              <p class="text-[0.68rem] text-red-500 mt-1">Requerido</p>
+            }
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label class="block text-xsmd:text-sm text-black dark:text-white"> Email</label>
+            <input
+              formControlName="email"
+              type="email"
+              placeholder="correo@gym.com"
+              class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-black dark:text-white placeholder-gray-500"
+              [class]="
+                hasError('email') || hasError('email', 'email')
+                  ? 'border-red-500/60 focus:border-red-500'
+                  : 'border-white/[0.06] focus:border-[#00e676]/50'
+              "
+            />
+            @if (hasError('email')) {
+              <p class="text-[0.68rem] text-red-500 mt-1">Email requerido</p>
+            }
+            @if (hasError('email', 'email')) {
+              <p class="text-[0.68rem] text-red-500 mt-1">Email inválido</p>
+            }
+          </div>
+
+          <!-- Teléfono -->
+          <div>
+            <label class="block text-xsmd:text-sm text-black dark:text-white">Teléfono</label>
+            <input
+              formControlName="phone"
+              type="tel"
+              placeholder="+52 55 1234 5678"
+              class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-black dark:text-white placeholder-gray-500"
+            />
+          </div>
+
+          <!-- Fechas -->
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-xsmd:text-sm text-black dark:text-white"> Inicio</label>
+              <input
+                formControlName="subscription_start"
+                type="date"
+                class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-black dark:text-white outline-none"
+                [class]="
+                  hasError('subscription_start')
+                    ? 'border-red-500/60'
+                    : 'border-white/[0.06] focus:border-[#00e676]/50'
+                "
+              />
+            </div>
+            <div>
+              <label class="block text-xsmd:text-sm text-black dark:text-white"> Fin</label>
+              <input
+                formControlName="subscription_end"
+                type="date"
+                class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border rounded-xl px-3.5 py-2.5 text-xs md:text-sm text-black dark:text-white"
+                [class]="
+                  hasError('subscription_end')
+                    ? 'border-red-500/60'
+                    : 'border-white/[0.06] focus:border-[#00e676]/50'
+                "
+              />
+            </div>
+          </div>
+
+          <!-- Toggle activo -->
+          <div
+            class="flex items-center justify-between bg-secondary-400/30 dark:bg-secondary-400/5 rounded-xl px-3.5 py-3"
+          >
+            <span class="text-xs md:text-sm text-black dark:text-white">Activo al crear</span>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" formControlName="is_active" class="sr-only peer" />
+              <div
+                class="w-11 h-6 bg-accent-300 rounded-full peer peer-checked:bg-accent-500/30 transition-colors"
+              ></div>
+              <div
+                class="absolute left-0.5 top-0.5 w-5 h-5 bg-primary-500 rounded-full transition-all peer-checked:translate-x-5 peer-checked:bg-primary-500"
+              ></div>
+            </label>
+          </div>
+
+          <!-- Form error -->
+          @if (formError) {
+            <div
+              class="rounded-xl border border-red-500/20 bg-red-500/5 px-3.5 py-2.5 text-xs text-red-500"
+            >
+              {{ formError }}
+            </div>
+          }
+
+          <!-- Submit -->
+          <button
+            type="submit"
+            [disabled]="saving"
+            class="w-full py-3 rounded-xl bg-primary-500 hover:bg-accent-500 disabled:opacity-40 text-white font-medium text-sm transition-colors mt-1"
+          >
+            {{
+              saving ? 'Guardando…' : modalMode === 'create' ? 'Crear cliente' : 'Guardar cambios'
+            }}
+          </button>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- ── CONFIRM TOGGLE ─────────────────────────────────────────────── -->
+  @if (modalMode === 'confirm-toggle' && selectedCliente) {
+    <div
+      class="fixed z-50 left-0 right-0 bottom-[60px] md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh] md:p-4"
+    >
+      <div class="flex justify-center mb-4">
+        <div
+          class="w-13 h-13 w-14 h-14 rounded-2xl bg-primary-500 flex items-center justify-center"
+        >
+          <mat-icon class="!text-[26px] text-white">
+            {{ isToggleDeactivate ? 'toggle_off' : 'toggle_on' }}
+          </mat-icon>
+        </div>
+      </div>
+      <h3 class="text-center font-extrabold text-white text-base mb-1.5">
+        {{ isToggleDeactivate ? 'Desactivar cliente' : 'Activar cliente' }}
+      </h3>
+      <p class="text-center text-xs md:text-sm text-black dark:text-white leading-relaxed mb-5">
+        {{
+          isToggleDeactivate
+            ? 'Se desactivarán en cascada todos sus gyms y sucursales.'
+            : 'Se activarán en cascada todos sus gyms y sucursales.'
+        }}
+        <br /><strong class="text-black dark:text-white">{{ selectedCliente.name }}</strong>
+      </p>
+      <div class="flex gap-2">
+        <button
+          (click)="closeModal()"
+          class="flex-1 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-medium text-red-500 hover:bg-red-500/20 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="confirmToggle()"
+          [disabled]="saving"
+          class="flex-1 py-2.5 rounded-xl bg-primary-500 hover:bg-accent-500 border border-primary-500/30 text-sm font-medium text-white disabled:opacity-40 transition-colors"
+        >
+          {{ saving ? 'Procesando…' : 'Confirmar' }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ── CONFIRM DELETE ─────────────────────────────────────────────── -->
+  @if (modalMode === 'confirm-delete' && selectedCliente) {
+    <div
+      class="fixed z-50 left-0 right-0 bottom-[60px] md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] md:p-5 bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh]"
+    >
+      <div class="flex justify-center mb-4">
+        <div
+          class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center"
+        >
+          <mat-icon class="!text-[26px] text-red-500">delete_forever</mat-icon>
+        </div>
+      </div>
+      <h3 class="text-center font-extrabold text-black dark:text-white text-base mb-1.5">
+        Eliminar cliente
+      </h3>
+      <p class="text-center text-xs text-black dark:text-white leading-relaxed mb-5">
+        Esta acción es <strong class="text-red-500">irreversible</strong>. Se eliminarán todos los
+        gyms, sucursales y usuarios asociados a
+        <strong class="text-black dark:text-white">{{ selectedCliente.name }}</strong>
+        .
+      </p>
+      <div class="flex gap-2">
+        <button
+          (click)="closeModal()"
+          class="flex-1 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-bold text-red-500 hover:bg-red-500/20 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="confirmDelete()"
+          [disabled]="saving"
+          class="flex-1 py-2.5 rounded-xl bg-primary-500 hover:bg-accent-500 border border-primary-500/30 text-sm font-bold text-white disabled:opacity-40 transition-colors"
+        >
+          {{ saving ? 'Eliminando…' : 'Eliminar' }}
+        </button>
+      </div>
+    </div>
+  }
+}
