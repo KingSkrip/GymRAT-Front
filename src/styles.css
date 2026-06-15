@@ -4,3 +4,27 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.icon-size-4 {
+  width: 1rem !important;
+  height: 1rem !important;
+  filter: drop-shadow(0 0 0 currentColor);
+}
+
+.icon-size-5 {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  filter: drop-shadow(0 0 0 currentColor);
+}
+
+.icon-size-6 {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  filter: drop-shadow(0 0 0 currentColor);
+}
+
+.icon-size-8 {
+  width: 2rem !important;
+  height: 2rem !important;
+  filter: drop-shadow(0 0 0 currentColor);
+}

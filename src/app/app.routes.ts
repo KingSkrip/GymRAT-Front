@@ -127,6 +127,18 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./modules/Suadmin/Gyms/gyms.component').then((m) => m.GymsComponent),
       },
+         {
+        path: 'Sucursales',
+
+        canActivate: [AuthGuard],
+
+        data: {
+          layout: 'vertical',
+        },
+
+        loadComponent: () =>
+          import('./modules/Suadmin/Sucursales/sucursales.component').then((m) => m.SucursalesComponent),
+      },
       {
         path: 'Roles',
 

@@ -2,9 +2,7 @@
   <!-- ── HEADER ──────────────────────────────────────────────────────── -->
   <div class="sticky top-0 z-20 px-5 pt-4 flex items-center justify-between gap-3">
     <div>
-      <h1 class="text-xl font-extrabold tracking-tight text-black dark:text-white leading-none">
-        Clientes
-      </h1>
+      <h1 class="text-2xl md:text-3xl font-bold text-black dark:text-white">Clientes</h1>
     </div>
     <button
       (click)="openCreate()"
@@ -36,24 +34,26 @@
       />
     </div>
 
-    <!-- ── FILTROS PILLS ─────────────────────────────────────────────── -->
+    <!-- ── FILTROS PILLS clientes ─────────────────────────────────────────────── -->
     <div class="flex gap-2 overflow-x-auto scrollbar-none pb-0.5">
       @for (pill of filterPills; track pill.value) {
         <button
           (click)="setFilter(pill.value)"
           [class]="
-            activeFilter === pill.value
-              ? 'shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs md:text-sm bg-secondary-400/30 dark:bg-secondary-400/5 border-2 border-primary-500 text-primary-500 transition-all'
-              : 'shrink-0 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs md:text-sm bg-gray-400  dark:bg-gray-800  dark:text-white hover:text-purple-500 hover:border-white/[0.08] transition-all'
+            (activeFilter === pill.value
+              ? 'bg-secondary-400/30 dark:bg-secondary-400/5 text-primary-500 dark:text-white'
+              : 'bg-black/5 dark:bg-white/10 text-black dark:text-white hover:bg-black/10 dark:hover:bg-white/20') +
+            ' flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-medium transition-all duration-150'
           "
         >
           {{ pill.label }}
 
           <span
             [class]="
-              activeFilter === pill.value
-                ? 'text-xs md:text-sm bg-accent-300 text-primary-500 rounded-md px-1.5 py-0.5'
-                : 'text-xs md:text-sm bg-gray-400  dark:bg-gray-800 dark:text-default-500 rounded-md px-1.5 py-0.5'
+              (activeFilter === pill.value
+                ? 'bg-accent-300 dark:bg-black/20'
+                : 'bg-black/10 dark:bg-white/10') +
+              ' rounded-full px-1.5 py-0.5 text-[10px] font-semibold'
             "
           >
             {{ getMetricValue(pill.metric) }}
@@ -93,12 +93,12 @@
           >
             <!-- Blob superior -->
             <div
-              class="pointer-events-none absolute -top-12 -right-12 h-28 w-28 rounded-full bg-accent-400/15 blur-3xl"
+              class="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-accent-400/30 blur-3xl"
             ></div>
 
             <!-- Blob inferior -->
             <div
-              class="pointer-events-none absolute -bottom-10 -left-10 h-24 w-24 rounded-full bg-secondary-400/15 blur-3xl"
+              class="pointer-events-none absolute -bottom-12 -left-12 h-28 w-28 rounded-full bg-secondary-400/30 blur-3xl"
             ></div>
 
             <!-- top row -->
@@ -608,7 +608,7 @@
   <!-- ── CONFIRM TOGGLE ─────────────────────────────────────────────── -->
   @if (modalMode === 'confirm-toggle' && selectedCliente) {
     <div
-      class="fixed z-50 left-0 right-0 bottom-[60px] md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh] md:p-4"
+      class="fixed z-50 left-0 right-0 bottom-[60px] py-5 px-5 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh] md:p-4"
     >
       <div class="flex justify-center mb-4">
         <div
@@ -633,7 +633,7 @@
       <div class="flex gap-2">
         <button
           (click)="closeModal()"
-          class="flex-1 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-medium text-red-500 hover:bg-red-500/20 transition-colors"
+          class="flex-1 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 text-sm font-medium transition-colors"
         >
           Cancelar
         </button>
@@ -651,7 +651,7 @@
   <!-- ── CONFIRM DELETE ─────────────────────────────────────────────── -->
   @if (modalMode === 'confirm-delete' && selectedCliente) {
     <div
-      class="fixed z-50 left-0 right-0 bottom-[60px] md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] md:p-5 bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh]"
+      class="fixed z-50 left-0 right-0 bottom-[60px] py-5 px-5 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] md:p-5 bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh]"
     >
       <div class="flex justify-center mb-4">
         <div

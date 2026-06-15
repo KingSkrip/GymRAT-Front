@@ -48,6 +48,13 @@ export const menuSuAdmin: NavItem[] = [
     link: '/GYM´s',
   },
   {
+  id: 'sucursales',
+  title: 'Sucursales',
+  type: 'basic',
+  icon: 'heroicons_outline:building-storefront',
+  link: '/Sucursales',
+},
+  {
     id: 'roles',
     title: 'Roles',
     type: 'basic',

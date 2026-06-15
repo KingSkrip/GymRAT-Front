@@ -1,113 +1,330 @@
 import {
   Component,
-  DestroyRef,
-  inject,
   OnInit,
-  ViewEncapsulation,
+  OnDestroy,
+  inject,
   ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { GymsService, GymItem, GymBranch } from './gyms.service';
-import { UserService } from '../../../core/user/user.service';
-import { filter, switchMap, take } from 'rxjs/operators';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  of,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
+
+import {
+  GymsService,
+  Gym,
+  GymMetrics,
+  GymFilters,
+  GymPayload,
+  GymBranch,
+  ClientOption,
+} from './gyms.service';
+
+type FilterStatus = '' | 'active' | 'inactive';
+type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-delete';
 
 @Component({
   selector: 'app-suadmin-gyms',
   standalone: true,
   templateUrl: './gyms.component.html',
-  encapsulation: ViewEncapsulation.None,
-   imports: [CommonModule, MatIconModule, FormsModule], 
+  styleUrls: ['./gyms.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
 })
-export class GymsComponent implements OnInit {
-  saGyms: GymItem[] = [];
+export class GymsComponent implements OnInit, OnDestroy {
+  gyms: Gym[] = [];
+  metrics: GymMetrics | null = null;
   loading = true;
+  saving = false;
   error: string | null = null;
 
-  // ─── Detail panel ────────────────────────────────────────────
-  selectedGym: GymItem | null = null;
-  gymPanelStartY = 0;
-  gymPanelDeltaY = 0;
-  gymPanelDragging = false;
+  clientOptions: ClientOption[] = [];
 
+  activeFilter: FilterStatus = '';
+  searchTerm = '';
+
+  modalMode: ModalMode | null = null;
+  selectedGym: Gym | null = null;
+  form: FormGroup;
+  formError: string | null = null;
+
+  drawerStartY = 0;
+  drawerDeltaY = 0;
+  drawerDragging = false;
+
+  // Branch inline form inside detail
   showBranchForm = false;
   savingBranch = false;
-  newBranch: Partial<GymBranch> = { name: '', address: '', phone: '' };
   editingBranch: GymBranch | null = null;
+  newBranch: Partial<GymBranch> = { name: '', address: '', phone: '' };
 
-  private destroyRef = inject(DestroyRef);
+  readonly filterPills: { label: string; value: FilterStatus; metric: keyof GymMetrics }[] = [
+    { label: 'Todos', value: '', metric: 'total' },
+    { label: 'Activos', value: 'active', metric: 'active' },
+    { label: 'Inactivos', value: 'inactive', metric: 'inactive' },
+  ];
+
+  currentPage = 1;
+  itemsPerPage = 6;
+
+  private destroy$ = new Subject<void>();
+  private load$ = new Subject<GymFilters>();
+  private search$ = new Subject<string>();
+  private zone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
+  private fb = inject(FormBuilder);
+  private svc = inject(GymsService);
 
-  constructor(
-    private _gymsService: GymsService,
-    private _userService: UserService,
-  ) {}
+  constructor() {
+    this.form = this.buildForm();
+  }
 
   ngOnInit(): void {
-    this._userService.user$
-      .pipe(
-        filter((user) => !!user),
-        take(1),
-        switchMap(() => this._gymsService.getGyms()),
-        takeUntilDestroyed(this.destroyRef),
-      )
+    // Cargar lista de clientes para el select
+    this.svc
+      .getClientsList()
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          this.saGyms = res.items;
-          this.loading = false;
-          this.cdr.detectChanges();
+          this.clientOptions = res.data;
+          this.cdr.markForCheck();
         },
-        error: () => {
-          this.error = 'Error al cargar gyms';
-          this.loading = false;
+      });
+
+    this.load$
+      .pipe(
+        switchMap((filters) => {
+          this.loading = true;
+          this.error = null;
+          this.gyms = [];
+          this.cdr.markForCheck();
+
+          return this.svc.getAll(filters).pipe(
+            catchError(() => {
+              this.error = 'No se pudo cargar la lista de gyms.';
+              this.loading = false;
+              this.cdr.markForCheck();
+              return of(null);
+            }),
+          );
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((res) => {
+        if (!res) return;
+        this.gyms = [...res.data];
+        this.metrics = { ...res.metrics };
+        this.currentPage = 1;
+        this.loading = false;
+        this.cdr.markForCheck();
+      });
+
+    this.search$
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => this.triggerLoad());
+
+    this.triggerLoad();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private triggerLoad(): void {
+    const filters: GymFilters = {
+      status: this.activeFilter || undefined,
+      search: this.searchTerm || undefined,
+    };
+    this.loading = true;
+    this.cdr.markForCheck();
+    this.load$.next(filters);
+  }
+
+  setFilter(value: FilterStatus): void {
+    this.activeFilter = value;
+    this.triggerLoad();
+  }
+
+  onSearchChange(value: string): void {
+    this.searchTerm = value;
+    this.search$.next(value);
+  }
+
+  openCreate(): void {
+    this.selectedGym = null;
+    this.form = this.buildForm();
+    this.formError = null;
+    this.modalMode = 'create';
+    this.cdr.markForCheck();
+  }
+
+  openEdit(g: Gym, event?: Event): void {
+    event?.stopPropagation();
+    this.selectedGym = g;
+    this.formError = null;
+
+    // Si ya hay clientes cargados, construye el form de inmediato
+    if (this.clientOptions.length > 0) {
+      this.form = this.buildForm(g);
+      this.modalMode = 'edit';
+      this.cdr.markForCheck();
+      return;
+    }
+
+    // Si no, espera a que carguen y luego parchea el form
+    this.svc
+      .getClientsList()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.zone.run(() => {
+            this.clientOptions = res.data;
+            this.form = this.buildForm(g);
+            this.modalMode = 'edit';
+            this.cdr.markForCheck();
+          });
+        },
+      });
+  }
+
+  openDetail(g: Gym): void {
+    this.selectedGym = g;
+    this.showBranchForm = false;
+    this.editingBranch = null;
+    this.modalMode = 'detail';
+    this.cdr.markForCheck();
+
+    this.svc
+      .getOne(g.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.selectedGym = { ...res.data };
           this.cdr.detectChanges();
         },
       });
   }
 
-  getBadgeClass(color?: string): string {
-    const map: Record<string, string> = {
-      green: 'b-green',
-      yellow: 'b-yellow',
-      red: 'b-red',
-      blue: 'b-blue',
-      gray: 'b-gray',
-    };
-    return map[color ?? ''] ?? 'b-gray';
+  openToggleConfirm(g: Gym, event?: Event): void {
+    event?.stopPropagation();
+    this.selectedGym = g;
+    this.modalMode = 'confirm-toggle';
+    this.cdr.markForCheck();
   }
 
-  openGymDetail(item: GymItem): void {
-    this.selectedGym = item;
+  openDeleteConfirm(g: Gym, event?: Event): void {
+    event?.stopPropagation();
+    this.selectedGym = g;
+    this.modalMode = 'confirm-delete';
+    this.cdr.markForCheck();
   }
 
-  closeGymDetail(): void {
+  closeModal(): void {
+    this.modalMode = null;
     this.selectedGym = null;
-    this.gymPanelDeltaY = 0;
+    this.drawerDeltaY = 0;
+    this.formError = null;
+    this.showBranchForm = false;
+    this.editingBranch = null;
+    this.cdr.markForCheck();
   }
 
-  onPanelTouchStart(e: TouchEvent): void {
-    this.gymPanelStartY = e.touches[0].clientY;
-    this.gymPanelDeltaY = 0;
-    this.gymPanelDragging = true;
-  }
-
-  onPanelTouchMove(e: TouchEvent): void {
-    if (!this.gymPanelDragging) return;
-    this.gymPanelDeltaY = Math.max(0, e.touches[0].clientY - this.gymPanelStartY);
-  }
-
-  onPanelTouchEnd(): void {
-    this.gymPanelDragging = false;
-    if (this.gymPanelDeltaY > 80) {
-      this.closeGymDetail();
-    } else {
-      this.gymPanelDeltaY = 0;
+  submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
     }
+
+    this.saving = true;
+    this.formError = null;
+    const payload = this.form.value as GymPayload;
+    const isCreate = this.modalMode === 'create';
+    const req$ = isCreate
+      ? this.svc.create(payload)
+      : this.svc.update(this.selectedGym!.id, payload);
+
+    req$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.zone.run(() => {
+          this.saving = false;
+          this.closeModal();
+          this.triggerLoad();
+        });
+      },
+      error: (err) => {
+        this.zone.run(() => {
+          this.saving = false;
+          this.formError = err?.error?.message ?? 'Ocurrió un error. Intenta de nuevo.';
+          this.cdr.markForCheck();
+        });
+      },
+    });
   }
 
-  // Métodos nuevos:
+  confirmToggle(): void {
+    if (!this.selectedGym) return;
+    this.saving = true;
+    this.cdr.markForCheck();
+
+    this.svc
+      .toggle(this.selectedGym.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.saving = false;
+          this.closeModal();
+          this.triggerLoad();
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.saving = false;
+          this.cdr.markForCheck();
+        },
+      });
+  }
+
+  confirmDelete(): void {
+    if (!this.selectedGym) return;
+    this.saving = true;
+    this.svc
+      .delete(this.selectedGym.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.zone.run(() => {
+            this.saving = false;
+            this.closeModal();
+            this.triggerLoad();
+          });
+        },
+        error: () => {
+          this.zone.run(() => {
+            this.saving = false;
+            this.cdr.markForCheck();
+          });
+        },
+      });
+  }
+
+  // ── Branches (dentro del detail) ────────────────────────────────────
+
   startAddBranch(): void {
     this.showBranchForm = true;
     this.editingBranch = null;
@@ -121,17 +338,23 @@ export class GymsComponent implements OnInit {
   saveNewBranch(): void {
     if (!this.selectedGym || !this.newBranch.name) return;
     this.savingBranch = true;
-    this._gymsService.storeBranch(this.selectedGym.id, this.newBranch).subscribe({
-      next: (branch) => {
-        this.selectedGym!.branches.push({ ...branch });
-        this.cancelAddBranch();
-        this.savingBranch = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.savingBranch = false;
-      },
-    });
+    this.svc
+      .storeBranch(this.selectedGym.id, this.newBranch)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (branch) => {
+          this.zone.run(() => {
+            this.selectedGym!.branches = [...(this.selectedGym!.branches ?? []), branch];
+            this.selectedGym!.branch_count++;
+            this.cancelAddBranch();
+            this.savingBranch = false;
+            this.cdr.markForCheck();
+          });
+        },
+        error: () => {
+          this.savingBranch = false;
+        },
+      });
   }
 
   startEditBranch(branch: GymBranch): void {
@@ -139,26 +362,130 @@ export class GymsComponent implements OnInit {
     this.showBranchForm = false;
   }
 
-  cancelEdit(): void {
+  cancelEditBranch(): void {
     this.editingBranch = null;
   }
 
-  saveBranch(): void {
+  saveEditBranch(): void {
     if (!this.selectedGym || !this.editingBranch) return;
     this.savingBranch = true;
-    this._gymsService
+    this.svc
       .updateBranch(this.selectedGym.id, this.editingBranch.id, this.editingBranch)
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (updated) => {
-          const idx = this.selectedGym!.branches.findIndex((b) => b.id === updated.id);
-          if (idx !== -1) this.selectedGym!.branches[idx] = updated;
-          this.editingBranch = null;
-          this.savingBranch = false;
-          this.cdr.detectChanges();
+          this.zone.run(() => {
+            const idx = this.selectedGym!.branches!.findIndex((b) => b.id === updated.id);
+            if (idx !== -1) this.selectedGym!.branches![idx] = updated;
+            this.editingBranch = null;
+            this.savingBranch = false;
+            this.cdr.markForCheck();
+          });
         },
         error: () => {
           this.savingBranch = false;
         },
       });
   }
+
+  deleteBranch(branch: GymBranch): void {
+    if (!this.selectedGym) return;
+    this.svc
+      .deleteBranch(this.selectedGym.id, branch.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.zone.run(() => {
+            this.selectedGym!.branches = this.selectedGym!.branches!.filter(
+              (b) => b.id !== branch.id,
+            );
+            this.selectedGym!.branch_count--;
+            this.cdr.markForCheck();
+          });
+        },
+      });
+  }
+
+  // ── Drawer touch ─────────────────────────────────────────────────────
+
+  onDrawerTouchStart(e: TouchEvent): void {
+    this.drawerStartY = e.touches[0].clientY;
+    this.drawerDeltaY = 0;
+    this.drawerDragging = true;
+  }
+
+  onDrawerTouchMove(e: TouchEvent): void {
+    if (!this.drawerDragging) return;
+    this.drawerDeltaY = Math.max(0, e.touches[0].clientY - this.drawerStartY);
+  }
+
+  onDrawerTouchEnd(): void {
+    this.drawerDragging = false;
+    if (this.drawerDeltaY > 90) this.closeModal();
+    else this.drawerDeltaY = 0;
+  }
+
+  // ── Helpers ──────────────────────────────────────────────────────────
+
+  getMetricValue(key: keyof GymMetrics): number {
+    return this.metrics?.[key] ?? 0;
+  }
+
+  trackById(_: number, item: Gym): number {
+    return item.id;
+  }
+
+  get isToggleDeactivate(): boolean {
+    return !!this.selectedGym?.is_active;
+  }
+
+  hasError(field: string, error = 'required'): boolean {
+    const ctrl = this.form.get(field);
+    return !!(ctrl?.invalid && ctrl?.touched && ctrl?.hasError(error));
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.gyms.length / this.itemsPerPage);
+  }
+
+  get paginatedGyms(): Gym[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    return this.gyms.slice(start, start + this.itemsPerPage);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.cdr.markForCheck();
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.cdr.markForCheck();
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.cdr.markForCheck();
+    }
+  }
+
+  private buildForm(g?: Gym): FormGroup {
+    return this.fb.group({
+      name: [g?.name ?? '', [Validators.required, Validators.maxLength(255)]],
+      system_client_id: [g?.system_client_id ? +g.system_client_id : null, Validators.required],
+      address: [g?.address ?? ''],
+      phone: [g?.phone ?? ''],
+      is_active: [g?.is_active ?? true],
+    });
+  }
+
+  compareById(a: any, b: any): boolean {
+    return +a === +b;
+  }
+
+
 }
