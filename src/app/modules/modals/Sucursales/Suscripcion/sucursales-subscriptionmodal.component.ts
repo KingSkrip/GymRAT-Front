@@ -7,28 +7,38 @@ import {
   inject,
   Input,
   NgZone,
-  OnChanges,
   OnDestroy,
   OnInit,
   Output,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { Subject, takeUntil, finalize } from 'rxjs';
-import { GymOption, Sucursal, SucursalesService, SucursalPayload } from '../../../Suadmin/Sucursales/sucursales.service';
-
+import { Subject, takeUntil } from 'rxjs';
+import {
+  Subscription,
+  Sucursal,
+  SucursalesService,
+  SubscriptionPayload,
+} from '../../../Suadmin/Sucursales/sucursales.service';
 
 @Component({
-  selector: 'sucursalesedit-modal',
+  selector: 'sucursalessubscription-modal',
   standalone: true,
-  templateUrl: './sucursales-editmodal.component.html',
-  styleUrls: ['./sucursales-editmodal.component.scss'],
+  templateUrl: './sucursales-subscriptionmodal.component.html',
+  styleUrls: ['./sucursales-subscriptionmodal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
 })
-export class SucursalesEditComponent implements OnInit, OnChanges, OnDestroy {
-  @Input() sucursal!: Sucursal;
-  @Input() gymOptions: GymOption[] = [];
+export class SucursalesSubscriptionComponent implements OnInit, OnDestroy {
+  @Input({ required: true }) sucursal!: Sucursal;
+  /** Si viene con valor, el modal edita esa suscripción; si es null, crea una nueva. */
+  @Input() subscription: Subscription | null = null;
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
@@ -48,11 +58,13 @@ export class SucursalesEditComponent implements OnInit, OnChanges, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
 
   ngOnInit(): void {
-    this.form = this.buildForm(this.sucursal);
-  }
-
-  ngOnChanges(): void {
-    if (this.form) this.form = this.buildForm(this.sucursal);
+    const sub = this.subscription;
+    this.form = this.fb.group({
+      plan: [sub?.plan ?? 'monthly', Validators.required],
+      price: [sub?.price ?? null, [Validators.required, Validators.min(0)]],
+      starts_at: [sub?.starts_at ?? '', Validators.required],
+      ends_at: [sub?.ends_at ?? ''],
+    });
   }
 
   ngOnDestroy(): void {
@@ -65,6 +77,10 @@ export class SucursalesEditComponent implements OnInit, OnChanges, OnDestroy {
     return !!(ctrl?.invalid && ctrl?.touched && ctrl?.hasError(error));
   }
 
+  planLabel(plan: string): string {
+    return { monthly: 'Mensual', quarterly: 'Trimestral', yearly: 'Anual' }[plan] ?? plan;
+  }
+
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -72,22 +88,26 @@ export class SucursalesEditComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.saving = true;
     this.formError = null;
-    const payload = this.form.value as SucursalPayload;
+    const payload = this.form.value as SubscriptionPayload;
 
-    this.svc.update(this.sucursal.id, payload).pipe(
-      takeUntil(this.destroy$),
-      finalize(() => {
+    const req$ = this.subscription
+      ? this.svc.updateSubscription(this.sucursal.id, this.subscription.id, payload)
+      : this.svc.storeSubscription(this.sucursal.id, payload);
+
+    req$.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
         this.zone.run(() => {
           this.saving = false;
+          this.saved.emit();
+        });
+      },
+      error: (err) => {
+        this.zone.run(() => {
+          this.saving = false;
+          this.formError = err?.error?.message ?? 'Ocurrió un error.';
           this.cdr.markForCheck();
         });
-      }),
-    ).subscribe({
-      next: () => this.zone.run(() => this.saved.emit()),
-      error: (err) => this.zone.run(() => {
-        this.formError = err?.error?.message ?? 'Ocurrió un error.';
-        this.cdr.markForCheck();
-      }),
+      },
     });
   }
 
@@ -106,17 +126,5 @@ export class SucursalesEditComponent implements OnInit, OnChanges, OnDestroy {
     this.drawerDragging = false;
     if (this.drawerDeltaY > 90) this.closed.emit();
     else this.drawerDeltaY = 0;
-  }
-
-  private buildForm(s: Sucursal): FormGroup {
-    return this.fb.group({
-      name: [s?.name ?? '', [Validators.required, Validators.maxLength(255)]],
-      gym_id: [s?.gym_id ?? null, Validators.required],
-      address: [s?.address ?? ''],
-      phone: [s?.phone ?? ''],
-      latitude: [s?.latitude ?? null],
-      longitude: [s?.longitude ?? null],
-      is_active: [s?.is_active ?? true],
-    });
   }
 }

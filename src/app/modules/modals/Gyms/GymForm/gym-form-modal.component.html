@@ -2,7 +2,7 @@
   class="fixed z-50 bg-white dark:bg-black border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:rounded-3xl max-h-[90vh] flex flex-col transition-transform duration-150"
   [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : ''"
 >
-  <!-- Drag handle -->
+  <!-- Drag handle (mobile) -->
   <div
     class="md:hidden flex justify-center pt-4 pb-1 cursor-grab active:cursor-grabbing touch-none"
     (touchstart)="onDrawerTouchStart($event)"
@@ -14,18 +14,14 @@
 
   <!-- Header -->
   <div class="flex items-center justify-between px-6 pt-4 pb-4 md:pt-6">
-    <h2 class="text-base font-semibold text-black dark:text-white">Editar sucursal</h2>
+    <h2 class="text-base font-semibold text-black dark:text-white">
+      {{ mode === 'create' ? 'Nuevo gym' : 'Editar gym' }}
+    </h2>
     <button
       (click)="closed.emit()"
       class="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
     >
-      <svg
-        class="w-4 h-4 text-gray-500"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-      >
+      <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
@@ -34,22 +30,6 @@
   <!-- Form -->
   <div class="overflow-y-auto flex-1 px-6 pb-6">
     <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
-      <!-- Gym -->
-      <div class="flex flex-col gap-1.5">
-        <label class="text-xs font-medium text-black dark:text-white">
-          Gym <span class="text-red-500">*</span>
-        </label>
-        <select
-          formControlName="gym_id"
-          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-2.5 text-sm text-black dark:text-white outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150 appearance-none"
-        >
-          <option [ngValue]="null" disabled>Selecciona un gym</option>
-          <option *ngFor="let g of gymOptions" [ngValue]="g.id">{{ g.name }}</option>
-        </select>
-        @if (hasError('gym_id')) {
-          <p class="text-xs text-red-500">El gym es requerido</p>
-        }
-      </div>
 
       <!-- Nombre -->
       <div class="flex flex-col gap-1.5">
@@ -58,11 +38,34 @@
         </label>
         <input
           formControlName="name"
-          placeholder="Nombre de la sucursal"
+          placeholder="Ej. Iron Gym Norte"
           class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150"
         />
         @if (hasError('name')) {
           <p class="text-xs text-red-500">El nombre es requerido</p>
+        }
+        @if (hasError('name', 'maxlength')) {
+          <p class="text-xs text-red-500">Máximo 255 caracteres</p>
+        }
+      </div>
+
+      <!-- Cliente -->
+      <div class="flex flex-col gap-1.5">
+        <label class="text-xs font-medium text-black dark:text-white">
+          Cliente <span class="text-red-500">*</span>
+        </label>
+        <select
+          formControlName="system_client_id"
+          [compareWith]="compareById"
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-2.5 text-sm text-black dark:text-white outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150 appearance-none"
+        >
+          <option [ngValue]="null" disabled>Selecciona un cliente</option>
+          @for (c of clientOptions; track c.id) {
+            <option [ngValue]="c.id">{{ c.name }}</option>
+          }
+        </select>
+        @if (hasError('system_client_id')) {
+          <p class="text-xs text-red-500">El cliente es requerido</p>
         }
       </div>
 
@@ -86,54 +89,26 @@
         />
       </div>
 
-      <!-- Coordenadas -->
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-black dark:text-white">Latitud</label>
-          <input
-            formControlName="latitude"
-            type="number"
-            step="any"
-            placeholder="19.4326"
-            class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150"
-          />
+      <!-- Estado (solo en edit) -->
+      @if (mode === 'edit') {
+        <div class="flex items-center justify-between rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3">
+          <span class="text-sm text-black dark:text-white font-medium">Activo</span>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input type="checkbox" formControlName="is_active" class="sr-only peer" />
+            <div class="w-11 h-6 bg-accent-300 rounded-full peer peer-checked:bg-accent-500/30 transition-colors"></div>
+            <div class="absolute left-0.5 top-0.5 w-5 h-5 bg-primary-500 rounded-full transition-all peer-checked:translate-x-5 peer-checked:bg-primary-500"></div>
+          </label>
         </div>
-        <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-medium text-black dark:text-white">Longitud</label>
-          <input
-            formControlName="longitude"
-            type="number"
-            step="any"
-            placeholder="-99.1332"
-            class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150"
-          />
-        </div>
-      </div>
+      }
 
-      <!-- Estado -->
-      <div
-        class="flex items-center justify-between rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3"
-      >
-        <span class="text-sm text-black dark:text-white font-medium">Activa</span>
-        <label class="relative inline-flex items-center cursor-pointer">
-          <input type="checkbox" formControlName="is_active" class="sr-only peer" />
-          <div
-            class="w-11 h-6 bg-accent-300 rounded-full peer peer-checked:bg-accent-500/30 transition-colors"
-          ></div>
-          <div
-            class="absolute left-0.5 top-0.5 w-5 h-5 bg-primary-500 rounded-full transition-all peer-checked:translate-x-5 peer-checked:bg-primary-500"
-          ></div>
-        </label>
-      </div>
-
+      <!-- Form error -->
       @if (formError) {
-        <div
-          class="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-xs text-red-500"
-        >
+        <div class="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-xs text-red-500">
           {{ formError }}
         </div>
       }
 
+      <!-- Actions -->
       <div class="flex gap-3 pt-1">
         <button
           type="button"
@@ -147,9 +122,10 @@
           [disabled]="saving"
           class="flex-1 rounded-xl bg-primary-500 hover:bg-accent-500 text-white py-3 text-sm font-medium hover:opacity-80 disabled:opacity-40 transition-all duration-150"
         >
-          {{ saving ? 'Guardando…' : 'Guardar cambios' }}
+          {{ saving ? 'Guardando…' : mode === 'create' ? 'Crear gym' : 'Guardar cambios' }}
         </button>
       </div>
+
     </form>
   </div>
 </div>

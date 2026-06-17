@@ -1,0 +1,53 @@
+<!-- Backdrop -->
+<div class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" (click)="closed.emit()"></div>
+
+<div
+  class="fixed z-50 bg-white dark:bg-neutral-950 border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] py-5 px-5 left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[400px] md:rounded-3xl p-6"
+  [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : ''"
+>
+  <!-- Drag handle (mobile) -->
+  <div
+    class="md:hidden flex justify-center mb-4 -mt-2 cursor-grab active:cursor-grabbing touch-none"
+    (touchstart)="onDrawerTouchStart($event)"
+    (touchmove)="onDrawerTouchMove($event)"
+    (touchend)="onDrawerTouchEnd()"
+  >
+    <div class="w-10 h-1 rounded-full bg-primary-500"></div>
+  </div>
+
+  <!-- Icon -->
+  <div
+    class="flex items-center justify-center w-12 h-12 rounded-2xl mb-4 bg-primary-500 dark:bg-secondary-300 mx-auto"
+  >
+    <mat-icon
+      svgIcon="heroicons_solid:power"
+      class="con-size-4 dark:text-black text-white"
+    ></mat-icon>
+  </div>
+
+  <h3 class="text-base font-semibold text-black dark:text-white text-center mb-1">
+    {{ isDeactivate ? 'Desactivar sucursal' : 'Activar sucursal' }}
+  </h3>
+  <p class="text-sm text-black dark:text-white text-center mb-6">
+    ¿Deseas {{ isDeactivate ? 'desactivar' : 'activar' }}
+    <span class="font-medium text-secondary-500 dark:text-primary-500">
+      {{ sucursal.name }}</span
+    >?
+  </p>
+
+  <div class="flex gap-3">
+    <button
+      (click)="closed.emit()"
+      class="flex-1 rounded-xl py-3 text-sm bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 transition-colors duration-150"
+    >
+      Cancelar
+    </button>
+    <button
+      (click)="confirm()"
+      [disabled]="saving"
+      class="flex-1 rounded-xl py-3 text-sm font-medium bg-primary-500 hover:bg-accent-500 border border-primary-500/30 text-white disabled:opacity-40 transition-all duration-150"
+    >
+      {{ saving ? 'Procesando…' : (isDeactivate ? 'Desactivar' : 'Activar') }}
+    </button>
+  </div>
+</div>

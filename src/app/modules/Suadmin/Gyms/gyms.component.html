@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-white dark:bg-black transition-colors duration-300 w-full h-full">
   <!-- GYMS -->
   <div class="absolute inset-0 overflow-auto bg-white dark:bg-black p-4 md:p-8">
-    <!-- ── Header ─────────────────────────────────────────────────────── -->
+    <!-- ── Header ──────────────────────────────────────────────────── -->
     <div class="mb-6 md:mb-8 flex items-start justify-between gap-4 flex-wrap">
       <div>
         <h1 class="text-2xl md:text-3xl font-bold text-black dark:text-white">Gyms</h1>
@@ -23,7 +23,7 @@
       </button>
     </div>
 
-    <!-- ── Filter pills -gyms ───────────────────────────────────────────────── -->
+    <!-- ── Filter pills ─────────────────────────────────────────────── -->
     <div class="flex gap-2 mb-5 flex-wrap">
       @for (pill of filterPills; track pill.value) {
         <button
@@ -50,13 +50,12 @@
       }
     </div>
 
-    <!-- ── Search ─────────────────────────────────────────────────────── -->
+    <!-- ── Search ───────────────────────────────────────────────────── -->
     <div class="relative mb-6">
       <mat-icon
         svgIcon="heroicons_outline:magnifying-glass"
         class="absolute left-3 top-1/2 -translate-y-1/2 icon-size-4 text-black dark:text-white"
       ></mat-icon>
-
       <input
         [value]="searchTerm"
         (input)="onSearchChange($any($event.target).value)"
@@ -65,7 +64,7 @@
       />
     </div>
 
-    <!-- ── Loading ────────────────────────────────────────────────────── -->
+    <!-- ── Loading ──────────────────────────────────────────────────── -->
     @if (loading) {
       <div class="flex justify-center py-20">
         <div
@@ -74,16 +73,15 @@
       </div>
     }
 
-    <!-- ── Error ──────────────────────────────────────────────────────── -->
+    <!-- ── Error ────────────────────────────────────────────────────── -->
     @if (error) {
       <div class="rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-500">
         {{ error }}
       </div>
     }
 
-    <!-- mobile list -->
     @if (!loading && !error) {
-      <!-- ── MOBILE: lista compacta ──────────────────────────────────── -->
+      <!-- ── MOBILE: lista compacta ─────────────────────────────────── -->
       <div
         class="flex md:hidden flex-col divide-y divide-black/5 dark:divide-white/5 overflow-hidden"
       >
@@ -128,34 +126,29 @@
         }
       </div>
 
-      <!-- ── DESKTOP: grid cards ─────────────────────────────────────── -->
+      <!-- ── DESKTOP: grid cards ────────────────────────────────────── -->
       <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
         @for (item of paginatedGyms; track item.id) {
           <div
             class="group relative overflow-hidden flex flex-col justify-between rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 p-5 hover:border-black/20 dark:hover:border-white/20 hover:bg-secondary-400/20 dark:hover:bg-secondary-400/10 transition-all duration-200 cursor-pointer"
             (click)="openDetail(item)"
           >
-            <!-- Blob superior -->
             <div
               class="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-accent-400/30 blur-3xl"
             ></div>
-
-            <!-- Blob inferior -->
             <div
               class="pointer-events-none absolute -bottom-12 -left-12 h-28 w-28 rounded-full bg-secondary-400/30 blur-3xl"
             ></div>
 
             <div class="flex items-center justify-between mb-4">
-              <!-- IZQUIERDA -->
               <div class="flex items-center gap-3 min-w-0">
                 <div
                   class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
                 >
-                  <span class="text-white dark:text-black text-sm font-bold">
-                    {{ item.name.charAt(0) }}
-                  </span>
+                  <span class="text-white dark:text-black text-sm font-bold">{{
+                    item.name.charAt(0)
+                  }}</span>
                 </div>
-
                 <p
                   class="font-medium text-xs md:text-base text-black dark:text-white leading-tight truncate"
                 >
@@ -163,7 +156,6 @@
                 </p>
               </div>
 
-              <!-- DERECHA -->
               <div class="flex items-center gap-1.5">
                 <span
                   [class]="
@@ -175,21 +167,18 @@
                 >
                   {{ item.status_label }}
                 </span>
-
                 <button
                   (click)="openEdit(item, $event)"
                   class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
                 >
                   <mat-icon svgIcon="heroicons_solid:pencil-square" class="icon-size-4"></mat-icon>
                 </button>
-
                 <button
                   (click)="openToggleConfirm(item, $event)"
                   class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center font-bold justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
                 >
                   <mat-icon svgIcon="heroicons_solid:power" class="icon-size-4"></mat-icon>
                 </button>
-
                 <button
                   (click)="openDeleteConfirm(item, $event)"
                   class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-red-500 text-primary-500 hover:text-white dark:text-white transition-all duration-150"
@@ -214,16 +203,16 @@
             <div
               class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-black dark:text-white"
             >
-              <span class="text-xs">
-                {{ item.branch_count }} sucursal{{ item.branch_count !== 1 ? 'es' : '' }}
-              </span>
+              <span class="text-xs"
+                >{{ item.branch_count }} sucursal{{ item.branch_count !== 1 ? 'es' : '' }}</span
+              >
               <mat-icon svgIcon="heroicons_outline:chevron-right" class="!w-4 !h-4"></mat-icon>
             </div>
           </div>
         }
       </div>
 
-      <!-- ── Empty state ─────────────────────────────────────────────── -->
+      <!-- ── Empty state ──────────────────────────────────────────── -->
       @if (gyms.length === 0) {
         <div class="flex flex-col items-center justify-center py-20 text-center">
           <div
@@ -248,7 +237,7 @@
         </div>
       }
 
-      <!-- ── Pagination ──────────────────────────────────────────────── -->
+      <!-- ── Pagination ───────────────────────────────────────────── -->
       @if (totalPages > 1) {
         <div class="flex items-center justify-center gap-2 mt-8">
           <button
@@ -301,606 +290,47 @@
 </div>
 
 <!-- ════════════════════════════════════════════════════════════════════
-     MODALS / DRAWERS- GYMS
+     MODALS / DRAWERS
      ════════════════════════════════════════════════════════════════════ -->
 
 @if (modalMode) {
   <!-- Backdrop -->
   <div class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
 
-  <!-- ──────────────────────────────────────────────────────────────────
-       CREATE / EDIT MODAL
-       ────────────────────────────────────────────────────────────────── -->
+  <!-- CREATE / EDIT -->
   @if (modalMode === 'create' || modalMode === 'edit') {
-    <div
-      class="fixed z-50 bg-white dark:bg-black border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:rounded-3xl max-h-[90vh] flex flex-col transition-transform duration-150"
-      [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : ''"
-    >
-      <!-- Drag handle (mobile) -->
-      <div
-        class="md:hidden flex justify-center pt-4 pb-1 cursor-grab active:cursor-grabbing touch-none"
-        (touchstart)="onDrawerTouchStart($event)"
-        (touchmove)="onDrawerTouchMove($event)"
-        (touchend)="onDrawerTouchEnd()"
-      >
-        <div class="w-10 h-1 rounded-full bg-primary-500"></div>
-      </div>
-
-      <!-- Header -->
-      <div class="flex items-center justify-between px-6 pt-4 pb-4 md:pt-6">
-        <h2 class="text-base font-semibold text-black dark:text-white">
-          {{ modalMode === 'create' ? 'Nuevo gym' : 'Editar gym' }}
-        </h2>
-        <button
-          (click)="closeModal()"
-          class="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-        >
-          <svg
-            class="w-4 h-4 text-gray-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Form -->
-      <div class="overflow-y-auto flex-1 px-6 pb-6">
-        <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
-          <!-- Nombre -->
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-black dark:text-white">
-              Nombre <span class="text-red-500">*</span>
-            </label>
-            <input
-              formControlName="name"
-              placeholder="Ej. Iron Gym Norte"
-              class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150"
-            />
-            @if (hasError('name')) {
-              <p class="text-xs text-red-500">El nombre es requerido</p>
-            }
-            @if (hasError('name', 'maxlength')) {
-              <p class="text-xs text-red-500">Máximo 255 caracteres</p>
-            }
-          </div>
-
-          <!-- Cliente -->
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-black dark:text-white">
-              Cliente <span class="text-red-500">*</span>
-            </label>
-            <select
-              formControlName="system_client_id"
-              [compareWith]="compareById"
-              class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-2.5 text-sm text-black dark:text-white outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150 appearance-none"
-            >
-              <option [ngValue]="null" disabled>Selecciona un cliente</option>
-              @for (c of clientOptions; track c.id) {
-                <option [ngValue]="c.id">{{ c.name }}</option>
-              }
-            </select>
-            @if (hasError('system_client_id')) {
-              <p class="text-xs text-red-500">El cliente es requerido</p>
-            }
-          </div>
-
-          <!-- Dirección -->
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-black dark:text-white">Dirección</label>
-            <input
-              formControlName="address"
-              placeholder="Calle y número"
-              class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150"
-            />
-          </div>
-
-          <!-- Teléfono -->
-          <div class="flex flex-col gap-1.5">
-            <label class="text-xs font-medium text-black dark:text-white">Teléfono</label>
-            <input
-              formControlName="phone"
-              placeholder="+52 55 1234 5678"
-              class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150"
-            />
-          </div>
-
-          <!-- Estado (solo en edit) -->
-          @if (modalMode === 'edit') {
-            <div
-              class="flex items-center justify-between rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3"
-            >
-              <span class="text-sm text-black dark:text-white font-medium">Activo</span>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" formControlName="is_active" class="sr-only peer" />
-                <div
-                  class="w-11 h-6 bg-accent-300 rounded-full peer peer-checked:bg-accent-500/30 transition-colors"
-                ></div>
-                <div
-                  class="absolute left-0.5 top-0.5 w-5 h-5 bg-primary-500 rounded-full transition-all peer-checked:translate-x-5 peer-checked:bg-primary-500"
-                ></div>
-              </label>
-            </div>
-          }
-
-          <!-- Form error -->
-          @if (formError) {
-            <div
-              class="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-xs text-red-500"
-            >
-              {{ formError }}
-            </div>
-          }
-
-          <!-- Actions -->
-          <div class="flex gap-3 pt-1">
-            <button
-              type="button"
-              (click)="closeModal()"
-              class="flex-1 rounded-xl py-3 text-sm bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 transition-colors duration-150"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              [disabled]="saving"
-              class="flex-1 rounded-xl bg-primary-500 hover:bg-accent-500 text-white py-3 text-sm font-medium hover:opacity-80 disabled:opacity-40 transition-all duration-150"
-            >
-              {{ saving ? 'Guardando…' : modalMode === 'create' ? 'Crear gym' : 'Guardar cambios' }}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <app-gym-form-modal
+      [mode]="modalMode"
+      [gym]="selectedGym"
+      [clientOptions]="clientOptions"
+      (closed)="closeModal()"
+      (saved)="onSaved()"
+    />
   }
 
-  <!-- ──────────────────────────────────────────────────────────────────
-       DETAIL DRAWER GYMSS
-       ────────────────────────────────────────────────────────────────── -->
+  <!-- DETAIL -->
   @if (modalMode === 'detail' && selectedGym) {
-    <div
-      class="fixed z-50 bg-white dark:bg-black border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[540px] md:rounded-3xl max-h-[90vh] flex flex-col transition-transform duration-150"
-      [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : ''"
-    >
-      <!-- Drag handle (mobile) -->
-      <div
-        class="md:hidden flex justify-center pt-4 pb-2 cursor-grab active:cursor-grabbing touch-none"
-        (touchstart)="onDrawerTouchStart($event)"
-        (touchmove)="onDrawerTouchMove($event)"
-        (touchend)="onDrawerTouchEnd()"
-      >
-        <div class="w-10 h-1 rounded-full bg-primary-500"></div>
-      </div>
-
-      <!-- Scrollable body -->
-      <div class="overflow-y-auto flex-1 px-6 pb-6">
-        <!-- Gym header -->
-        <div class="flex items-center gap-3 mb-5 pt-2 md:pt-4">
-          <div class="flex items-center justify-center w-12 h-12 rounded-2xl shrink-0">
-            <div
-              class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
-            >
-              <span class="text-white dark:text-black text-sm font-bold">
-                {{ selectedGym.name.charAt(0) }}
-              </span>
-            </div>
-          </div>
-          <div class="flex-1 min-w-0">
-            <p class="font-semibold text-black dark:text-white leading-tight">
-              {{ selectedGym.name }}
-            </p>
-            @if (selectedGym.client) {
-              <p class="text-xs text-black dark:text-white mt-0.5 truncate">
-                {{ selectedGym.client.name }}
-              </p>
-            }
-          </div>
-          <span
-            [class]="
-              (selectedGym.is_active
-                ? 'bg-accent-300 text-primary-500'
-                : 'bg-red-200 text-red-500') +
-              ' text-xs px-2.5 py-1 rounded-full font-medium shrink-0'
-            "
-          >
-            {{ selectedGym.status_label }}
-          </span>
-          <!-- Close (desktop) -->
-          <button
-            (click)="closeModal()"
-            class="hidden md:flex p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-          >
-            <svg
-              class="w-4 h-4 text-gray-500"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Info pills -->
-        @if (selectedGym.address || selectedGym.phone) {
-          <div class="flex flex-wrap gap-2 mb-5">
-            @if (selectedGym.address) {
-              <span
-                class="flex items-center gap-1.5 border dark:border-primary-500 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 px-3 py-1.5 text-xs text-black dark:text-white"
-              >
-                <mat-icon
-                  svgIcon="heroicons_solid:map-pin"
-                  class="icon-size-4 text-accent-500"
-                ></mat-icon>
-                {{ selectedGym.address }}
-              </span>
-            }
-            @if (selectedGym.phone) {
-              <span
-                class="flex items-center gap-1.5 border dark:border-primary-500 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 px-3 py-1.5 text-xs text-black dark:text-white"
-              >
-                <mat-icon
-                  svgIcon="heroicons_solid:phone"
-                  class="icon-size-4 text-accent-500"
-                ></mat-icon>
-                {{ selectedGym.phone }}
-              </span>
-            }
-          </div>
-        }
-
-        <!-- ── Sucursales ─────────────────────────────────────────── -->
-        <div class="mb-5">
-          <div class="flex items-center justify-between mb-3">
-            <p class="text-sm font-medium text-black dark:text-white">
-              Sucursales
-              <span
-                class="ml-1 bg-primary-500 dark:bg-secondary-300 text-white dark:text-black rounded-full px-1.5 py-0.5 text-[10px] font-medium"
-              >
-                {{ selectedGym.branch_count }}
-              </span>
-            </p>
-            <button
-              (click)="startAddBranch()"
-              class="flex items-center gap-1 text-xs text-white font-medium bg-primary-500 dark:hover:bg-accent-500 rounded-lg px-2.5 py-1.5 transition-colors duration-150"
-            >
-              <mat-icon svgIcon="heroicons_solid:plus" class="!h-5 !w-5 text-white"></mat-icon>
-              Agregar
-            </button>
-          </div>
-
-          <!-- Empty branches -->
-          @if ((!selectedGym.branches || selectedGym.branches.length === 0) && !showBranchForm) {
-            <div
-              class="rounded-xl border border-dashed border-black/10 dark:border-white/10 px-4 py-6 text-center"
-            >
-              <p class="text-xs text-gray-400">Sin sucursales registradas</p>
-            </div>
-          }
-
-          <!-- Branch list -->
-          <div class="flex flex-col gap-2">
-            @for (branch of selectedGym.branches; track branch.id) {
-              @if (editingBranch?.id === branch.id) {
-                <!-- Inline edit form -->
-                <div
-                  class="rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 p-3"
-                >
-                  <p class="text-xs font-semibold text-black dark:text-white mb-2">
-                    Editar sucursal
-                  </p>
-                  <input
-                    [(ngModel)]="editingBranch!.name"
-                    placeholder="Nombre *"
-                    class="w-full mb-2 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-xs text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30"
-                  />
-                  <input
-                    [(ngModel)]="editingBranch!.address"
-                    placeholder="Dirección"
-                    class="w-full mb-2 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-xs text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30"
-                  />
-                  <input
-                    [(ngModel)]="editingBranch!.phone"
-                    placeholder="Teléfono"
-                    class="w-full mb-3 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-xs text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30"
-                  />
-                  <div class="flex gap-2">
-                    <button
-                      (click)="cancelEditBranch()"
-                      class="flex-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 py-1.5 text-xs transition-colors duration-150"
-                    >
-                      Cancelar
-                    </button>
-                    <button
-                      (click)="saveEditBranch()"
-                      [disabled]="savingBranch"
-                      class="flex-1 rounded-lg bg-primary-500 hover:bg-accent-500 text-white py-1.5 text-xs font-medium hover:opacity-80 disabled:opacity-40 transition-all duration-150"
-                    >
-                      {{ savingBranch ? 'Guardando…' : 'Guardar' }}
-                    </button>
-                  </div>
-                </div>
-              } @else {
-                <!-- Branch row -->
-                <div
-                  class="flex items-center gap-3 rounded-xl border dark:border-secondary-700/30 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 group/branch hover:border-2 hover:border-accent-500 dark:hover:bg-secondary-400/15 transition-colors duration-150"
-                >
-                  <div class="flex-1 min-w-0">
-                    <p
-                      class="text-xs font-medium text-black dark:text-white group-hover/branch:text-accent-500 truncate transition-colors"
-                    >
-                      {{ branch.name }}
-                    </p>
-
-                    @if (branch.address) {
-                      <p class="text-[11px] text-black dark:text-white truncate mt-0.5">
-                        {{ branch.address }}
-                      </p>
-                    }
-                  </div>
-                  <span
-                    [class]="
-                      (branch.is_active
-                        ? 'bg-accent-500 text-white'
-                        : 'bg-gray-500/10 text-gray-500') +
-                      ' text-[10px] px-2 py-0.5 rounded-full font-medium shrink-0'
-                    "
-                  >
-                    {{ branch.is_active ? 'Activa' : 'Inactiva' }}
-                  </span>
-                  <div
-                    class="flex gap-1 opacity-0 group-hover/branch:opacity-100 transition-opacity duration-150"
-                  >
-                    <button
-                      (click)="startEditBranch(branch)"
-                      class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-accent-500 dark:hover:bg-secondary-600 transition-colors text-secondary-500 hover:text-white dark:hover:text-white"
-                    >
-                      <mat-icon
-                        svgIcon="heroicons_solid:pencil-square"
-                        class="icon-size-4"
-                      ></mat-icon>
-                    </button>
-
-                    <button
-                      (click)="deleteBranch(branch)"
-                      class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-500 transition-colors text-secondary-500 hover:text-white"
-                    >
-                      <mat-icon svgIcon="heroicons_solid:trash" class="icon-size-4"></mat-icon>
-                    </button>
-                  </div>
-                </div>
-              }
-            }
-          </div>
-
-          <!-- Add branch form -->
-          @if (showBranchForm) {
-            <div
-              class="mt-2 rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 p-3"
-            >
-              <p class="text-xs font-semibold text-black dark:text-white mb-2">Nueva sucursal</p>
-              <input
-                [(ngModel)]="newBranch.name"
-                placeholder="Nombre *"
-                class="w-full mb-2 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-xs text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30"
-              />
-              <input
-                [(ngModel)]="newBranch.address"
-                placeholder="Dirección"
-                class="w-full mb-2 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-xs text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30"
-              />
-              <input
-                [(ngModel)]="newBranch.phone"
-                placeholder="Teléfono"
-                class="w-full mb-3 rounded-lg border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-xs text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30"
-              />
-              <div class="flex gap-2">
-                <button
-                  (click)="cancelAddBranch()"
-                  class="flex-1 rounded-lg bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 py-1.5 text-xs transition-colors duration-150"
-                >
-                  Cancelar
-                </button>
-                <button
-                  (click)="saveNewBranch()"
-                  [disabled]="savingBranch || !newBranch.name"
-                  class="flex-1 rounded-lg bg-primary-500 hover:bg-accent-500 text-white py-1.5 text-xs font-medium hover:opacity-80 disabled:opacity-40 transition-all duration-150"
-                >
-                  {{ savingBranch ? 'Guardando…' : 'Agregar' }}
-                </button>
-              </div>
-            </div>
-          }
-        </div>
-
-        <!-- Quick actions -->
-        <div class="flex flex-col gap-2">
-          <button
-            (click)="openEdit(selectedGym!)"
-            class="w-full flex items-center gap-3 rounded-xl border border-black/10 dark:border-white/10 px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-150"
-          >
-            <svg
-              class="w-4 h-4 text-gray-400 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-            Editar gym
-          </button>
-          <button
-            (click)="openToggleConfirm(selectedGym)"
-            class="w-full flex items-center gap-3 rounded-xl border border-black/10 dark:border-white/10 px-4 py-3 text-sm text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors duration-150"
-          >
-            <svg
-              class="w-4 h-4 text-gray-400 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"
-              />
-            </svg>
-            {{ selectedGym.is_active ? 'Desactivar gym' : 'Activar gym' }}
-          </button>
-          <button
-            (click)="openDeleteConfirm(selectedGym)"
-            class="w-full flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-500 hover:bg-red-500/10 transition-colors duration-150"
-          >
-            <svg
-              class="w-4 h-4 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-              />
-            </svg>
-            Eliminar gym
-          </button>
-        </div>
-      </div>
-    </div>
+    <gymdetails-modal
+      [gym]="selectedGym"
+      (closed)="closeModal()"
+      (gymUpdated)="onDetailGymUpdated($event)"
+      (openEdit)="onDetailOpenEdit($event)"
+      (openToggle)="onDetailOpenToggle($event)"
+      (openDelete)="onDetailOpenDelete($event)"
+    />
   }
 
-  <!-- ──────────────────────────────────────────────────────────────────
-       CONFIRM TOGGLE MODAL
-       ────────────────────────────────────────────────────────────────── -->
+  <!-- CONFIRM TOGGLE -->
   @if (modalMode === 'confirm-toggle' && selectedGym) {
-    <div
-      class="fixed z-50 bg-white dark:bg-neutral-950 border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] py-5 px-5 left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[400px] md:rounded-3xl p-6"
-      [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : ''"
-    >
-      <!-- Drag handle (mobile) -->
-      <div
-        class="md:hidden flex justify-center mb-4 -mt-2 cursor-grab active:cursor-grabbing touch-none"
-        (touchstart)="onDrawerTouchStart($event)"
-        (touchmove)="onDrawerTouchMove($event)"
-        (touchend)="onDrawerTouchEnd()"
-      >
-        <div class="w-10 h-1 rounded-full bg-primary-500"></div>
-      </div>
-
-      <!-- Icon -->
-      <div
-        class="flex items-center justify-center w-12 h-12 rounded-2xl mb-4 bg-primary-500 dark:bg-secondary-300 mx-auto"
-      >
-        <mat-icon
-          svgIcon="heroicons_solid:power"
-          class="con-size-4 dark:text-black text-white"
-        ></mat-icon>
-      </div>
-
-      <h3 class="text-base font-semibold text-black dark:text-white text-center mb-1">
-        {{ isToggleDeactivate ? 'Desactivar gym' : 'Activar gym' }}
-      </h3>
-      <p class="text-sm text-black dark:text-white text-center mb-6">
-        ¿Deseas {{ isToggleDeactivate ? 'desactivar' : 'activar' }}
-        <span class="font-medium text-secondary-500 dark:text-primary-500">
-          {{ selectedGym.name }}</span
-        >?
-      </p>
-
-      <div class="flex gap-3">
-        <button
-          (click)="closeModal()"
-          class="flex-1 rounded-xl py-3 text-sm bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 transition-colors duration-150"
-        >
-          Cancelar
-        </button>
-        <button
-          (click)="confirmToggle()"
-          [disabled]="saving"
-          class="flex-1 rounded-xl py-3 text-sm font-medium bg-primary-500 hover:bg-accent-500 border border-primary-500/30 text-white disabled:opacity-40 transition-all duration-150"
-        >
-          {{ saving ? 'Procesando…' : isToggleDeactivate ? 'Desactivar' : 'Activar' }}
-        </button>
-      </div>
-    </div>
+    <gymlock-modal [gym]="selectedGym" (closed)="closeModal()" (toggled)="onSaved()" />
   }
 
-  <!-- ──────────────────────────────────────────────────────────────────
-       CONFIRM DELETE MODAL
-       ────────────────────────────────────────────────────────────────── -->
+  <!-- CONFIRM DELETE -->
   @if (modalMode === 'confirm-delete' && selectedGym) {
-    <div
-      class="fixed z-50 bg-white dark:bg-neutral-950 border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] py-5 px-5 left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[400px] md:rounded-3xl p-6"
-      [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : ''"
-    >
-      <!-- Drag handle (mobile) -->
-      <div
-        class="md:hidden flex justify-center mb-4 -mt-2 cursor-grab active:cursor-grabbing touch-none"
-        (touchstart)="onDrawerTouchStart($event)"
-        (touchmove)="onDrawerTouchMove($event)"
-        (touchend)="onDrawerTouchEnd()"
-      >
-        <div class="w-10 h-1 rounded-full bg-primary-500"></div>
-      </div>
-
-      <!-- Icon -->
-      <div
-        class="flex items-center justify-center w-12 h-12 rounded-2xl mb-4 bg-red-500/10 mx-auto"
-      >
-        <svg
-          class="w-5 h-5 text-red-500"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-          />
-        </svg>
-      </div>
-
-      <h3 class="text-base font-semibold text-black dark:text-white text-center mb-1">
-        Eliminar gym
-      </h3>
-      <p class="text-sm text-gray-400 text-center mb-1">
-        Estás a punto de eliminar
-        <span class="font-medium text-secondary-500 dark:text-primary-500">{{
-          selectedGym.name
-        }}</span
-        >.
-      </p>
-      <p class="text-xs text-red-500 text-center mb-6">Esta acción no se puede deshacer.</p>
-
-      <div class="flex gap-3">
-        <button
-          (click)="closeModal()"
-          class="flex-1 rounded-xl py-3 bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 text-sm transition-colors duration-150"
-        >
-          Cancelar
-        </button>
-        <button
-          (click)="confirmDelete()"
-          [disabled]="saving"
-          class="flex-1 rounded-xl bg-primary-500 hover:bg-accent-500 text-white py-3 text-sm font-medium disabled:opacity-40 transition-all duration-150"
-        >
-          {{ saving ? 'Eliminando…' : 'Eliminar' }}
-        </button>
-      </div>
-    </div>
+    <app-gym-delete-confirm-modal
+      [gym]="selectedGym"
+      (closed)="closeModal()"
+      (deleted)="onSaved()"
+    />
   }
 }

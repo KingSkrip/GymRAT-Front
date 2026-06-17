@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'gestionedit-modal',
   standalone: true,
-  templateUrl: './gestion-editmodal.component.html',
-  styleUrls: ['./gestion-editmodal.component.scss'],
+  templateUrl: './clientes-editmodal.component.html',
+  styleUrls: ['./clientes-editmodal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
 })

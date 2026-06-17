@@ -11,54 +11,86 @@ import {
   OnInit,
   Output,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormsModule,
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators,
+} from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Subject, takeUntil } from 'rxjs';
-import { Sucursal, SucursalesService } from '../../../Suadmin/Sucursales/sucursales.service';
+import {
+  PaymentPayload,
+  Subscription,
+  Sucursal,
+  SucursalesService,
+} from '../../../Suadmin/Sucursales/sucursales.service';
 
 @Component({
-  selector: 'sucursaleslock-modal',
+  selector: 'sucursalespayment-modal',
   standalone: true,
-  templateUrl: './sucursales-lockmodal.component.html',
-  styleUrls: ['./sucursales-lockmodal.component.scss'],
+  templateUrl: './sucursales-paymentmodal.component.html',
+  styleUrls: ['./sucursales-paymentmodal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
 })
-export class SucursalesLockComponent implements OnInit, OnDestroy {
+export class SucursalesPaymentComponent implements OnInit, OnDestroy {
   @Input({ required: true }) sucursal!: Sucursal;
+  @Input({ required: true }) subscription!: Subscription;
 
   @Output() closed = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
 
+  form!: FormGroup;
   saving = false;
+  formError: string | null = null;
 
   drawerStartY = 0;
   drawerDeltaY = 0;
   drawerDragging = false;
 
   private destroy$ = new Subject<void>();
+  private fb = inject(FormBuilder);
   private svc = inject(SucursalesService);
   private zone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.form = this.fb.group({
+      amount: [null, [Validators.required, Validators.min(0)]],
+      status: ['paid', Validators.required],
+      payment_method: [''],
+      transaction_id: [''],
+      paid_at: [''],
+    });
+  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  get isDeactivate(): boolean {
-    return !!this.sucursal?.is_active;
+  hasError(field: string, error = 'required'): boolean {
+    const ctrl = this.form.get(field);
+    return !!(ctrl?.invalid && ctrl?.touched && ctrl?.hasError(error));
   }
 
-  confirm(): void {
-    if (!this.sucursal) return;
+  planLabel(plan: string): string {
+    return { monthly: 'Mensual', quarterly: 'Trimestral', yearly: 'Anual' }[plan] ?? plan;
+  }
+
+  submit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
     this.saving = true;
-    this.cdr.markForCheck();
+    this.formError = null;
+    const payload = this.form.value as PaymentPayload;
 
     this.svc
-      .toggle(this.sucursal.id)
+      .storePayment(this.sucursal.id, this.subscription.id, payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
@@ -67,9 +99,10 @@ export class SucursalesLockComponent implements OnInit, OnDestroy {
             this.saved.emit();
           });
         },
-        error: () => {
+        error: (err) => {
           this.zone.run(() => {
             this.saving = false;
+            this.formError = err?.error?.message ?? 'Ocurrió un error.';
             this.cdr.markForCheck();
           });
         },

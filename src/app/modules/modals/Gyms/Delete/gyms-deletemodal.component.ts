@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'gymdelete-modal',
   standalone: true,
-  templateUrl: './gym-deletemodal.component.html',
-  styleUrls: ['./gym-deletemodal.component.scss'],
+  templateUrl: './gyms-deletemodal.component.html',
+  styleUrls: ['./gyms-deletemodal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
 })

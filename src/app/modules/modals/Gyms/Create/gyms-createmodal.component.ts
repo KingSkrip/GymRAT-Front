@@ -6,8 +6,8 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'gymcreate-modal',
   standalone: true,
-  templateUrl: './gym-createmodal.component.html',
-  styleUrls: ['./gym-createmodal.component.scss'],
+  templateUrl: './gyms-createmodal.component.html',
+  styleUrls: ['./gyms-createmodal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
 })

@@ -1,34 +1,32 @@
-import { CommonModule } from '@angular/common';
 import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
   Component,
-  EventEmitter,
-  inject,
   Input,
-  NgZone,
-  OnDestroy,
-  OnInit,
   Output,
+  EventEmitter,
+  OnDestroy,
+  inject,
+  ChangeDetectorRef,
+  ChangeDetectionStrategy,
+  NgZone,
 } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatIconModule } from '@angular/material/icon';
+import { CommonModule } from '@angular/common';
 import { Subject, takeUntil } from 'rxjs';
-import { Sucursal, SucursalesService } from '../../../Suadmin/Sucursales/sucursales.service';
+import { Gym, GymsService } from '../../../Suadmin/Gyms/gyms.service';
+
+
 
 @Component({
-  selector: 'sucursaleslock-modal',
+  selector: 'app-gym-delete-confirm-modal',
   standalone: true,
-  templateUrl: './sucursales-lockmodal.component.html',
-  styleUrls: ['./sucursales-lockmodal.component.scss'],
+  templateUrl: './gym-delete-confirm-modal.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
+  imports: [CommonModule],
 })
-export class SucursalesLockComponent implements OnInit, OnDestroy {
-  @Input({ required: true }) sucursal!: Sucursal;
+export class GymDeleteConfirmModalComponent implements OnDestroy {
+  @Input() gym!: Gym;
 
   @Output() closed = new EventEmitter<void>();
-  @Output() saved = new EventEmitter<void>();
+  @Output() deleted = new EventEmitter<void>();
 
   saving = false;
 
@@ -37,34 +35,20 @@ export class SucursalesLockComponent implements OnInit, OnDestroy {
   drawerDragging = false;
 
   private destroy$ = new Subject<void>();
-  private svc = inject(SucursalesService);
+  private svc = inject(GymsService);
   private zone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
 
-  ngOnInit(): void {}
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  get isDeactivate(): boolean {
-    return !!this.sucursal?.is_active;
-  }
-
   confirm(): void {
-    if (!this.sucursal) return;
     this.saving = true;
-    this.cdr.markForCheck();
-
     this.svc
-      .toggle(this.sucursal.id)
+      .delete(this.gym.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
           this.zone.run(() => {
             this.saving = false;
-            this.saved.emit();
+            this.deleted.emit();
           });
         },
         error: () => {
@@ -74,6 +58,11 @@ export class SucursalesLockComponent implements OnInit, OnDestroy {
           });
         },
       });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onDrawerTouchStart(e: TouchEvent): void {

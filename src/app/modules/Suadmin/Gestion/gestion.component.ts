@@ -1,6 +1,7 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RolesService } from './gestion.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'suadmin-gestion',
@@ -10,21 +11,20 @@ import { RolesService } from './gestion.service';
 })
 export class GestionComponent implements OnInit {
   private rolesService = inject(RolesService);
+  private cdr = inject(ChangeDetectorRef);
+
   activeTab: 'users' | 'roles' | 'subroles' = 'users';
 
   roles: any[] = [];
   subRoles: any[] = [];
   users: any[] = [];
 
-  // Paginado roles
   rolesPage = 1;
   rolesPageSize = 10;
 
-  // Paginado subroles
   subRolesPage = 1;
   subRolesPageSize = 10;
 
-  // Paginado usuarios
   usersPage = 1;
   usersPageSize = 10;
 
@@ -63,27 +63,15 @@ export class GestionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadData();
-    this.loadUsers();
-  }
-
-  loadData(): void {
-    this.rolesService.getRoles().subscribe({
-      next: (resp) => {
-        this.roles = resp.roles ?? [];
-        this.subRoles = resp.sub_roles ?? [];
-        this.rolesPage = 1;
-        this.subRolesPage = 1;
-      },
-      error: (err) => console.error(err),
-    });
-  }
-
-  loadUsers(): void {
-    this.rolesService.getUsers().subscribe({
-      next: (resp) => {
-        this.users = resp.users ?? [];
-        this.usersPage = 1;
+    forkJoin({
+      rolesResp: this.rolesService.getRoles(),
+      usersResp: this.rolesService.getUsers(),
+    }).subscribe({
+      next: ({ rolesResp, usersResp }) => {
+        this.roles    = rolesResp.roles ?? [];
+        this.subRoles = rolesResp.sub_roles ?? [];
+        this.users    = usersResp.users ?? [];
+        this.cdr.detectChanges();
       },
       error: (err) => console.error(err),
     });
