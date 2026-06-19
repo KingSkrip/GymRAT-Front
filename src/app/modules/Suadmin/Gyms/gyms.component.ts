@@ -8,7 +8,7 @@ import {
   NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import {
   catchError,
@@ -20,21 +20,11 @@ import {
   takeUntil,
 } from 'rxjs';
 
-import {
-  GymsService,
-  Gym,
-  GymMetrics,
-  GymFilters,
-  GymPayload,
-  GymBranch,
-  ClientOption,
-} from './gyms.service';
+import { GymsService, Gym, GymMetrics, GymFilters, ClientOption } from './gyms.service';
 import { GymFormModalComponent } from '../../modals/Gyms/GymForm/gym-form-modal.component';
 import { GymDetailsModalComponent } from '../../modals/Gyms/Details/gyms-detailsmodal.component';
 import { GymLockModalComponent } from '../../modals/Gyms/lock/gyms-lockmodal.component';
 import { GymDeleteConfirmModalComponent } from '../../modals/Gyms/GymDelete/gym-delete-confirm-modal.component';
-
-
 
 type FilterStatus = '' | 'active' | 'inactive';
 type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-delete';
@@ -57,15 +47,24 @@ type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-dele
   ],
 })
 export class GymsComponent implements OnInit, OnDestroy {
+  // ── Estado ────────────────────────────────────────────────────────────
   gyms: Gym[] = [];
   metrics: GymMetrics | null = null;
   loading = true;
   error: string | null = null;
   clientOptions: ClientOption[] = [];
+
+  // ── Filtros ───────────────────────────────────────────────────────────
   activeFilter: FilterStatus = '';
   searchTerm = '';
+
+  // ── Modales ───────────────────────────────────────────────────────────
   modalMode: ModalMode | null = null;
   selectedGym: Gym | null = null;
+
+  // ── Paginación ────────────────────────────────────────────────────────
+  currentPage = 1;
+  itemsPerPage = 6;
 
   readonly filterPills: { label: string; value: FilterStatus; metric: keyof GymMetrics }[] = [
     { label: 'Todos', value: '', metric: 'total' },
@@ -73,9 +72,7 @@ export class GymsComponent implements OnInit, OnDestroy {
     { label: 'Inactivos', value: 'inactive', metric: 'inactive' },
   ];
 
-  currentPage = 1;
-  itemsPerPage = 6;
-
+  // ── Inyecciones ───────────────────────────────────────────────────────
   private destroy$ = new Subject<void>();
   private load$ = new Subject<GymFilters>();
   private search$ = new Subject<string>();
@@ -83,7 +80,25 @@ export class GymsComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private svc = inject(GymsService);
 
+  // ── Resize handler ────────────────────────────────────────────────────
+  private resizeHandler = (): void => {
+    this.zone.run(() => {
+      this.calculateItemsPerPage();
+      this.currentPage = 1;
+      this.cdr.markForCheck();
+    });
+  };
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Lifecycle
+  // ─────────────────────────────────────────────────────────────────────
+
   ngOnInit(): void {
+    this.calculateItemsPerPage();
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('resize', this.resizeHandler);
+    });
+
     this.svc
       .getClientsList()
       .pipe(takeUntil(this.destroy$))
@@ -130,9 +145,39 @@ export class GymsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('resize', this.resizeHandler);
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Cálculo dinámico de items por página
+  // ─────────────────────────────────────────────────────────────────────
+
+  private calculateItemsPerPage(): void {
+    const viewportH = window.innerHeight;
+    const mobile = window.innerWidth < 768;
+
+    if (mobile) {
+      const reservedH = 220;
+      const cardH = 90;
+
+      this.itemsPerPage = Math.max(1, Math.floor((viewportH - reservedH) / cardH));
+    } else {
+      const reservedH = 300; // antes 250
+      const cardH = 130; // antes 175
+
+      const cols = window.innerWidth >= 1024 ? 3 : 2;
+
+      const rows = Math.max(1, Math.floor((viewportH - reservedH) / cardH));
+
+      this.itemsPerPage = rows * cols;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Carga de datos
+  // ─────────────────────────────────────────────────────────────────────
 
   private triggerLoad(): void {
     const filters: GymFilters = {
@@ -144,6 +189,10 @@ export class GymsComponent implements OnInit, OnDestroy {
     this.load$.next(filters);
   }
 
+  // ─────────────────────────────────────────────────────────────────────
+  // Filtros y búsqueda
+  // ─────────────────────────────────────────────────────────────────────
+
   setFilter(value: FilterStatus): void {
     this.activeFilter = value;
     this.triggerLoad();
@@ -154,7 +203,13 @@ export class GymsComponent implements OnInit, OnDestroy {
     this.search$.next(value);
   }
 
-  // ── Modal openers ─────────────────────────────────────────────────────
+  getMetricValue(key: keyof GymMetrics): number {
+    return this.metrics?.[key] ?? 0;
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Apertura de modales
+  // ─────────────────────────────────────────────────────────────────────
 
   openCreate(): void {
     this.selectedGym = null;
@@ -189,13 +244,19 @@ export class GymsComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
+  // ─────────────────────────────────────────────────────────────────────
+  // Cierre de modales
+  // ─────────────────────────────────────────────────────────────────────
+
   closeModal(): void {
     this.modalMode = null;
     this.selectedGym = null;
     this.cdr.markForCheck();
   }
 
-  // ── Event handlers from child modals ─────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────
+  // Callbacks de éxito
+  // ─────────────────────────────────────────────────────────────────────
 
   onSaved(): void {
     this.closeModal();
@@ -219,15 +280,9 @@ export class GymsComponent implements OnInit, OnDestroy {
     this.openDeleteConfirm(gym);
   }
 
-  // ── Helpers ──────────────────────────────────────────────────────────
-
-  getMetricValue(key: keyof GymMetrics): number {
-    return this.metrics?.[key] ?? 0;
-  }
-
-  trackById(_: number, item: Gym): number {
-    return item.id;
-  }
+  // ─────────────────────────────────────────────────────────────────────
+  // Paginación
+  // ─────────────────────────────────────────────────────────────────────
 
   get totalPages(): number {
     return Math.ceil(this.gyms.length / this.itemsPerPage);
@@ -236,6 +291,26 @@ export class GymsComponent implements OnInit, OnDestroy {
   get paginatedGyms(): Gym[] {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     return this.gyms.slice(start, start + this.itemsPerPage);
+  }
+
+  get visiblePages(): number[] {
+    const total = this.totalPages;
+    const windowSize = 5;
+
+    if (total <= windowSize) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    let start = this.currentPage - Math.floor(windowSize / 2);
+    start = Math.max(1, start);
+
+    let end = start + windowSize - 1;
+    if (end > total) {
+      end = total;
+      start = end - windowSize + 1;
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
   goToPage(page: number): void {
@@ -256,5 +331,13 @@ export class GymsComponent implements OnInit, OnDestroy {
       this.currentPage--;
       this.cdr.markForCheck();
     }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Helpers
+  // ─────────────────────────────────────────────────────────────────────
+
+  trackById(_: number, item: Gym): number {
+    return item.id;
   }
 }

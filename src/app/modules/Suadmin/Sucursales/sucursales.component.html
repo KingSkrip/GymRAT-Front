@@ -1,17 +1,23 @@
-<div class="w-screen min-h-screen bg-white dark:bg-black transition-colors duration-300">
-  <!-- SUCURSALES -->
-  <div class="mx-auto px-4 sm:px-6 py-6 pb-24 mb-4">
-    <!-- ══════════════════════════════════════════════════════════════════
-       HEADER
+<div class="w-full h-full flex flex-col bg-white dark:bg-black transition-colors duration-300">
+  <!-- ══════════════════════════════════════════════════════════════════
+     ZONA QUE SCROLLEA (header + filtros + contenido)
   ══════════════════════════════════════════════════════════════════ -->
-    <div>
+  <div class="flex-1 overflow-y-auto px-4 sm:px-6 pt-6">
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
       <h1 class="text-2xl md:text-3xl font-bold text-black dark:text-white">Sucursales</h1>
+      <button
+        (click)="openAddSucursal()"
+        class="block md:hidden h-8 w-8 rounded-full bg-primary-500 hover:bg-accent-500 text-white flex items-center justify-center shadow-lg transition-all duration-200"
+      >
+        <mat-icon svgIcon="heroicons_solid:plus" class="!h-5 !w-5"></mat-icon>
+      </button>
     </div>
 
     <!-- ══════════════════════════════════════════════════════════════════
        FILTROS + BÚSQUEDA
-  ══════════════════════════════════════════════════════════════════ -->
-    <div class="flex flex-col gap-3 mb-6">
+    ══════════════════════════════════════════════════════════════════ -->
+    <div class="flex flex-col gap-3 md:mb-6 mt-4">
       <!-- Pills estado sucursal -->
       <div class="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
         <button
@@ -37,44 +43,40 @@
         </button>
         <button
           (click)="openAddSucursal()"
-          class="shrink-0 inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-accent-500 text-white px-3 py-1.5 text-sm font-medium transition-colors ml-auto"
+          class="hidden md:block shrink-0 inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-accent-500 text-white px-3 py-1.5 text-sm font-medium transition-colors ml-auto"
         >
           <mat-icon svgIcon="heroicons_solid:plus" class="!h-4 !w-4"></mat-icon>
           Nueva sucursal
         </button>
       </div>
 
-      <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-        <!-- Filtro por gym -->
+      <!-- ── Selects (desktop, al lado del buscador) + Buscador + botón filtros (mobile) ── -->
+      <div class="flex items-center gap-3">
+        <!-- Selects: solo visibles en sm+, en la misma fila que el buscador -->
         <select
-          class="rounded-xl border border-default-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-black dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          class="hidden sm:block shrink-0 rounded-xl border border-default-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-black dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
           [ngModel]="selectedGymFilter"
           (ngModelChange)="onGymFilterChange($event)"
         >
           <option [ngValue]="null">Todos los gyms</option>
-
           <option *ngFor="let g of gymOptions" [ngValue]="g.id">
             {{ g.name }}
           </option>
         </select>
 
         <select
-          class="rounded-xl border border-default-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-black dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          class="hidden sm:block shrink-0 rounded-xl border border-default-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-black dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
           [ngModel]="activeSubFilter"
           (ngModelChange)="setSubFilter($event)"
         >
           <option value="">Todas las suscripciones</option>
-
           <option value="sub_active">🟢 Activas ({{ getMetricValue('sub_active') }})</option>
-
           <option value="sub_expiring">🟡 Por vencer ({{ getMetricValue('sub_expiring') }})</option>
-
           <option value="sub_expired">🔴 Vencidas ({{ getMetricValue('sub_expired') }})</option>
-
           <option value="no_sub">⚪ Sin suscripción ({{ getMetricValue('no_sub') }})</option>
         </select>
 
-        <!-- Búsqueda -->
+        <!-- Búsqueda: ocupa el resto del ancho disponible -->
         <div class="relative flex-1">
           <mat-icon
             svgIcon="heroicons_outline:magnifying-glass"
@@ -87,7 +89,53 @@
             class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 pl-10 pr-4 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150"
           />
         </div>
+
+        <!-- Botón filtros: solo mobile, pequeño, pegado a la derecha del buscador -->
+        <button
+          type="button"
+          (click)="toggleFilters()"
+          class="sm:hidden shrink-0 h-[42px] w-[42px] flex items-center justify-center rounded-xl border transition-colors"
+          [ngClass]="
+            showFilters
+              ? 'bg-primary-500 border-primary-500 text-white'
+              : 'border-default-200 dark:border-dark-400 text-black dark:text-white'
+          "
+        >
+          <mat-icon svgIcon="heroicons_outline:funnel" class="!h-4 !w-4"></mat-icon>
+        </button>
       </div>
+
+      <!-- ── Panel filtros móvil (desglosable) ───────────────────────── -->
+      @if (showFilters) {
+        <div
+          class="sm:hidden p-3 rounded-xl border border-default-200 dark:border-dark-400 bg-secondary-400/30 dark:bg-secondary-400/5 flex flex-col gap-2"
+        >
+          <select
+            class="w-full rounded-xl border border-default-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-black dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            [ngModel]="selectedGymFilter"
+            (ngModelChange)="onGymFilterChange($event)"
+          >
+            <option [ngValue]="null">Todos los gyms</option>
+            <option *ngFor="let g of gymOptions" [ngValue]="g.id">
+              {{ g.name }}
+            </option>
+          </select>
+
+          <select
+            class="w-full rounded-xl border border-default-200 dark:border-dark-400 bg-white dark:bg-dark-700 text-black dark:text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            [ngModel]="activeSubFilter"
+            (ngModelChange)="setSubFilter($event)"
+          >
+            <option value="">Todas las suscripciones</option>
+            <option value="sub_active">🟢 Activas ({{ getMetricValue('sub_active') }})</option>
+            <option value="sub_expiring">
+              🟡 Por vencer ({{ getMetricValue('sub_expiring') }})
+            </option>
+            <option value="sub_expired">🔴 Vencidas ({{ getMetricValue('sub_expired') }})</option>
+            <option value="no_sub">⚪ Sin suscripción ({{ getMetricValue('no_sub') }})</option>
+          </select>
+        </div>
+      }
     </div>
 
     <!-- ── Loading ────────────────────────────────────────────────────── -->
@@ -109,7 +157,7 @@
     @if (!loading && !error) {
       <!-- ── MOBILE: lista compacta ──────────────────────────────────── -->
       <div
-        class="flex md:hidden flex-col divide-y divide-black/5 dark:divide-white/5 overflow-hidden"
+        class="flex md:hidden flex-col divide-y divide-black/5 dark:divide-white/5 overflow-hidden mt-3"
       >
         @for (s of paginatedSucursales; track s.id) {
           <div
@@ -117,17 +165,17 @@
             (click)="openDetail(s)"
           >
             <div
-              class="flex items-center justify-center w-8 h-8 rounded-lg bg-black/5 dark:bg-white/10 shrink-0"
+              class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
             >
               <mat-icon
                 svgIcon="heroicons_outline:building-storefront"
-                class="icon-size-4 text-black dark:text-white"
+                class="icon-size-5 text-white dark:text-black"
               ></mat-icon>
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-black dark:text-white truncate">{{ s.name }}</p>
               @if (s.gym) {
-                <p class="text-xs text-gray-400 truncate">{{ s.gym.name }}</p>
+                <p class="text-xs text-black dark:text-white truncate">{{ s.gym.name }}</p>
               }
             </div>
             <div class="flex flex-col items-end gap-1 shrink-0">
@@ -141,29 +189,11 @@
               >
                 {{ s.status_label }}
               </span>
-              <span
-                [ngClass]="{
-                  'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400':
-                    s.sub_status_color === 'green',
-                  'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400':
-                    s.sub_status_color === 'yellow',
-                  'bg-red-500/10 text-red-600 dark:text-red-400': s.sub_status_color === 'red',
-                  'bg-gray-500/10 text-gray-500': s.sub_status_color === 'gray',
-                }"
-                class="text-[10px] px-2 py-0.5 rounded-full font-medium"
-              >
-                {{ s.sub_status_label }}
-              </span>
             </div>
-            <svg
-              class="w-4 h-4 text-gray-300 dark:text-gray-600 shrink-0"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
+            <mat-icon
+              svgIcon="heroicons_outline:chevron-right"
+              class="!w-4 !h-4 text-black dark:text-white"
+            ></mat-icon>
           </div>
         }
       </div>
@@ -176,20 +206,18 @@
             [class.opacity-60]="!s.is_active"
             (click)="openDetail(s)"
           >
-            <!-- Blob superior -->
+            <!-- Blobs -->
             <div
               class="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-accent-400/30 blur-3xl"
             ></div>
-
-            <!-- Blob inferior -->
             <div
               class="pointer-events-none absolute -bottom-12 -left-12 h-28 w-28 rounded-full bg-secondary-400/30 blur-3xl"
             ></div>
 
-            <!-- Header de la card -->
-            <div class="flex items-center justify-between mb-4">
+            <!-- Header -->
+            <div class="flex items-start justify-between gap-2 mb-2">
               <!-- IZQUIERDA -->
-              <div class="flex items-center gap-3 min-w-0">
+              <div class="flex items-start gap-3 min-w-0">
                 <div
                   class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
                 >
@@ -199,156 +227,125 @@
                   ></mat-icon>
                 </div>
 
-                <div class="min-w-0">
+                <div class="min-w-0 flex flex-col gap-0.5">
                   <p
                     class="font-medium text-xs md:text-base text-black dark:text-white leading-tight truncate"
                   >
                     {{ s.name }}
                   </p>
-                  @if (s.gym) {
-                    <p class="text-xs text-black dark:text-white truncate flex items-center gap-1">
-                      <mat-icon svgIcon="heroicons_solid:dumbbell" class="!h-3 !w-3"></mat-icon>
-                      {{ s.gym.name }}
-                    </p>
-                  }
-                  @if (s.gym?.client) {
-                    <p class="text-xs text-black dark:text-white truncate flex items-center gap-1">
-                      <mat-icon svgIcon="heroicons_solid:user" class="!h-3 !w-3"></mat-icon>
-                      {{ s.gym!.client!.name }}
-                    </p>
-                  }
+
+                  <div class="flex items-center gap-3 flex-wrap">
+                    @if (s.gym) {
+                      <p
+                        class="text-xs text-black/70 dark:text-white/70 truncate flex items-center gap-1"
+                      >
+                        <mat-icon
+                          svgIcon="heroicons_solid:dumbbell"
+                          class="!h-3 !w-3 shrink-0"
+                        ></mat-icon>
+                        {{ s.gym.name }}
+                      </p>
+                    }
+
+                    @if (s.gym?.client) {
+                      <p
+                        class="text-xs text-black/70 dark:text-white/70 truncate flex items-center gap-1"
+                      >
+                        <mat-icon
+                          svgIcon="heroicons_solid:user"
+                          class="!h-3 !w-3 shrink-0"
+                        ></mat-icon>
+                        {{ s.gym!.client!.name }}
+                      </p>
+                    }
+                  </div>
                 </div>
               </div>
 
-              <!-- DERECHA: badges + acciones -->
-              <div class="flex items-center gap-1.5 shrink-0" (click)="$event.stopPropagation()">
-                <div class="flex flex-col items-end gap-1 mr-1">
-                  <span
-                    [ngClass]="{
-                      'bg-accent-300 text-primary-500': s.is_active,
-                      'bg-red-200 text-red-500': !s.is_active,
-                    }"
-                    class="text-xs px-2.5 py-1 rounded-full text-[10px] font-bold"
+              <!-- DERECHA: badge + acciones -->
+              <div class="flex items-center gap-2 shrink-0" (click)="$event.stopPropagation()">
+                <span
+                  [ngClass]="{
+                    'bg-accent-300 text-primary-500': s.is_active,
+                    'bg-red-200 text-red-500': !s.is_active,
+                  }"
+                  class="text-[10px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap"
+                >
+                  {{ s.status_label }}
+                </span>
+
+                <div class="flex items-center gap-1.5">
+                  <button
+                    (click)="openEdit(s, $event)"
+                    class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
                   >
-                    {{ s.status_label }}
-                  </span>
-                  <span
-                    [ngClass]="{
-                      'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400':
-                        s.sub_status_color === 'green',
-                      'bg-yellow-100 text-yellow-600 dark:bg-yellow-500/15 dark:text-yellow-400':
-                        s.sub_status_color === 'yellow',
-                      'bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400':
-                        s.sub_status_color === 'red',
-                      'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400':
-                        s.sub_status_color === 'gray',
-                    }"
-                    class="text-[10px] px-2.5 py-1 rounded-full font-bold"
+                    <mat-icon
+                      svgIcon="heroicons_solid:pencil-square"
+                      class="icon-size-4"
+                    ></mat-icon>
+                  </button>
+
+                  <button
+                    (click)="openToggleConfirm(s, $event)"
+                    class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
                   >
-                    {{ s.sub_status_label }}
-                  </span>
+                    <mat-icon svgIcon="heroicons_solid:power" class="icon-size-4"></mat-icon>
+                  </button>
+
+                  <button
+                    (click)="openDeleteConfirm(s, $event)"
+                    class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-red-500 text-primary-500 hover:text-white dark:text-white transition-all duration-150"
+                  >
+                    <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
+                  </button>
                 </div>
-
-                <button
-                  (click)="openEdit(s, $event)"
-                  class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
-                >
-                  <mat-icon svgIcon="heroicons_solid:pencil-square" class="icon-size-4"></mat-icon>
-                </button>
-
-                <button
-                  (click)="openToggleConfirm(s, $event)"
-                  class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center font-bold justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
-                >
-                  <mat-icon svgIcon="heroicons_solid:power" class="icon-size-4"></mat-icon>
-                </button>
-
-                <button
-                  (click)="openDeleteConfirm(s, $event)"
-                  class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-red-500 text-primary-500 hover:text-white dark:text-white transition-all duration-150"
-                >
-                  <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
-                </button>
               </div>
             </div>
 
-            <!-- Cuerpo de la card -->
-            <div class="flex flex-col gap-2">
-              <!-- Suscripción actual -->
+            <!-- Cuerpo -->
+            <div class="flex flex-col gap-2.5">
               @if (s.current_subscription) {
                 <div
-                  class="flex items-center gap-3 rounded-xl bg-black/5 dark:bg-white/5 px-3 py-2"
+                  class="flex items-center justify-between gap-3 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 p-2"
                 >
-                  <mat-icon class="text-primary-500 shrink-0">receipt_long</mat-icon>
-                  <div class="flex flex-col min-w-0">
-                    <span class="text-sm font-semibold text-black dark:text-white truncate">{{
-                      planLabel(s.current_subscription.plan)
-                    }}</span>
-                    <span class="text-xs text-gray-400"
-                      >${{ s.current_subscription.price | number: '1.2-2' }} MXN</span
-                    >
+                  <div class="flex items-center gap-3 min-w-0">
+                    <mat-icon
+                      svgIcon="heroicons_outline:recipient"
+                      class="!w-6 !h-6 text-primary-500 shrink-0"
+                    ></mat-icon>
+                    <div class="flex flex-col min-w-0">
+                      <span class="text-sm font-semibold text-black dark:text-white truncate">
+                        {{ planLabel(s.current_subscription.plan) }}
+                      </span>
+                      <span class="text-xs text-black/70 dark:text-white/70">
+                        ${{ s.current_subscription.price | number: '1.2-2' }} MXN
+                      </span>
+                    </div>
                   </div>
-                </div>
 
-                <!-- Días restantes -->
-                <div class="flex items-center gap-2">
-                  <mat-icon
-                    class="!text-lg shrink-0"
-                    [ngClass]="(s.days_left ?? 99) <= 7 ? 'text-yellow-500' : 'text-gray-400'"
-                  >
-                    {{ (s.days_left ?? 99) <= 0 ? 'event_busy' : 'event_available' }}
-                  </mat-icon>
-                  <span
-                    class="text-sm font-medium"
-                    [ngClass]="{
-                      'text-emerald-600 dark:text-emerald-400': (s.days_left ?? 99) > 7,
-                      'text-yellow-600 dark:text-yellow-400':
-                        (s.days_left ?? 99) <= 7 && (s.days_left ?? 99) > 0,
-                      'text-red-600 dark:text-red-400': (s.days_left ?? 99) <= 0,
-                    }"
-                  >
-                    {{ daysLeftLabel(s.days_left) }}
-                  </span>
-                </div>
-
-                <!-- Fechas -->
-                <div class="flex items-center gap-2 text-xs text-gray-400">
-                  <span class="flex items-center gap-1">
-                    <mat-icon class="!text-base !w-4 !h-4">play_arrow</mat-icon>
-                    {{ s.current_subscription.starts_at | date: 'dd MMM yyyy' }}
-                  </span>
-                  <span>→</span>
-                  <span class="flex items-center gap-1">
-                    <mat-icon class="!text-base !w-4 !h-4">stop</mat-icon>
-                    {{ s.current_subscription.ends_at | date: 'dd MMM yyyy' }}
-                  </span>
-                </div>
-
-                <!-- Último pago -->
-                @if (s.last_payment) {
-                  <div class="flex items-center gap-1.5 flex-wrap text-xs text-gray-400">
-                    <mat-icon class="!text-base !w-4 !h-4">payments</mat-icon>
-                    Último pago:
+                  <!-- Días restantes pegado a la derecha del mismo bloque -->
+                  <div class="flex items-center gap-1.5 shrink-0">
+                    <mat-icon
+                      class="!text-base shrink-0"
+                      [ngClass]="
+                        (s.days_left ?? 99) <= 7 ? 'text-yellow-500' : 'text-black dark:text-white'
+                      "
+                    >
+                      {{ (s.days_left ?? 99) <= 0 ? 'event_busy' : 'event_available' }}
+                    </mat-icon>
                     <span
-                      class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium"
+                      class="text-xs font-medium whitespace-nowrap"
                       [ngClass]="{
-                        'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-400':
-                          paymentStatusColor(s.last_payment.status) === 'green',
-                        'bg-yellow-100 text-yellow-600 dark:bg-yellow-500/15 dark:text-yellow-400':
-                          paymentStatusColor(s.last_payment.status) === 'yellow',
-                        'bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400':
-                          paymentStatusColor(s.last_payment.status) === 'red',
-                        'bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400':
-                          paymentStatusColor(s.last_payment.status) === 'gray',
+                        'text-emerald-600 dark:text-emerald-400': (s.days_left ?? 99) > 7,
+                        'text-yellow-600 dark:text-yellow-400':
+                          (s.days_left ?? 99) <= 7 && (s.days_left ?? 99) > 0,
+                        'text-red-600 dark:text-red-400': (s.days_left ?? 99) <= 0,
                       }"
                     >
-                      {{ paymentStatusLabel(s.last_payment.status) }}
+                      {{ daysLeftLabel(s.days_left) }}
                     </span>
-                    @if (s.last_payment.paid_at) {
-                      <span>· {{ s.last_payment.paid_at | date: 'dd/MM/yyyy HH:mm' }}</span>
-                    }
                   </div>
-                }
+                </div>
               } @else {
                 <div
                   class="flex items-center gap-2 rounded-xl bg-black/5 dark:bg-white/5 px-3 py-2.5 text-sm text-gray-400"
@@ -363,19 +360,11 @@
                   </button>
                 </div>
               }
-
-              @if (s.address) {
-                <p
-                  class="text-xs text-black dark:text-white leading-relaxed truncate mt-0.5 flex items-center gap-1"
-                >
-                  <mat-icon class="!text-base !w-4 !h-4">place</mat-icon>
-                  {{ s.address }}
-                </p>
-              }
             </div>
 
+            <!-- Footer (sin tocar) -->
             <div
-              class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-black dark:text-white"
+              class="mt-1 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-black dark:text-white"
             >
               <span class="text-xs">{{ s.gym?.name ?? '—' }}</span>
               <mat-icon svgIcon="heroicons_outline:chevron-right" class="!w-4 !h-4"></mat-icon>
@@ -398,57 +387,67 @@
           <p class="text-xs text-gray-400">No hay sucursales con esos filtros</p>
         </div>
       }
-
-      <!-- ── Pagination ──────────────────────────────────────────────── -->
-      @if (totalPages > 1) {
-        <div class="flex items-center justify-center gap-2 mt-8">
-          <button
-            (click)="prevPage()"
-            [disabled]="currentPage === 1"
-            class="flex items-center justify-center w-8 h-8 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
-          >
-            <svg
-              class="w-4 h-4 text-black dark:text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-          @for (page of [].constructor(totalPages); track $index) {
-            <button
-              (click)="goToPage($index + 1)"
-              [class]="
-                ($index + 1 === currentPage
-                  ? 'bg-black dark:bg-white text-white dark:text-black'
-                  : 'border border-black/10 dark:border-white/10 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/10') +
-                ' w-8 h-8 rounded-lg text-sm font-medium transition-all duration-150'
-              "
-            >
-              {{ $index + 1 }}
-            </button>
-          }
-          <button
-            (click)="nextPage()"
-            [disabled]="currentPage === totalPages"
-            class="flex items-center justify-center w-8 h-8 rounded-lg border border-black/10 dark:border-white/10 hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-150"
-          >
-            <svg
-              class="w-4 h-4 text-black dark:text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-      }
     }
   </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+     PAGINACIÓN — fixed en mobile (pegado abajo, sobre el bottom nav),
+     estático dentro del flex en desktop
+  ══════════════════════════════════════════════════════════════════ -->
+  @if (!loading && !error && totalPages > 1) {
+    <div
+      class="fixed bottom-16 left-0 right-0 z-30 py-3 bg-white dark:bg-black border-t border-black/5 dark:border-white/5 md:static md:bottom-auto md:left-auto md:right-auto md:z-auto md:border-t-0"
+    >
+      <div class="flex items-center justify-center gap-1.5 md:gap-2">
+        <button
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+          class="h-8 w-8 md:h-9 md:w-9 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
+        >
+          <mat-icon
+            svgIcon="heroicons_outline:chevron-left"
+            class="!text-sm !h-4 !w-4 text-black"
+          ></mat-icon>
+        </button>
+
+        @for (page of visiblePages; track page) {
+          <button
+            (click)="goToPage(page)"
+            [class]="
+              (page === currentPage
+                ? 'bg-accent-500 text-white font-bold'
+                : 'bg-primary-500 border border-white/10 text-white') +
+              ' h-8 w-8 md:h-9 md:w-9 shrink-0 rounded-xl text-xs md:text-sm font-medium transition-all duration-150'
+            "
+          >
+            {{ page }}
+          </button>
+        }
+
+        @if (visiblePages[visiblePages.length - 1] < totalPages) {
+          <span class="text-xs text-gray-400 px-0.5">…</span>
+
+          <button
+            (click)="goToPage(totalPages)"
+            class="h-8 w-8 md:h-9 md:w-9 shrink-0 rounded-xl bg-primary-500 border border-white/10 text-white text-xs md:text-sm font-medium"
+          >
+            {{ totalPages }}
+          </button>
+        }
+
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+          class="h-8 w-8 md:h-9 md:w-9 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
+        >
+          <mat-icon
+            svgIcon="heroicons_outline:chevron-right"
+            class="!text-sm !h-4 !w-4 text-black"
+          ></mat-icon>
+        </button>
+      </div>
+    </div>
+  }
 
   <!-- ════════════════════════════════════════════════════════════════════
      MODALES (componentes separados)

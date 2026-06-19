@@ -35,11 +35,8 @@ import { SucursalesLockComponent } from '../../modals/Sucursales/lock/sucursales
 import { SucursalesSubscriptionComponent } from '../../modals/Sucursales/Suscripcion/sucursales-subscriptionmodal.component';
 import { SucursalesPaymentComponent } from '../../modals/Sucursales/Payments/sucursales-paymentmodal.component';
 
-
-
 type FilterStatus = '' | 'active' | 'inactive';
 type FilterSubStatus = '' | 'sub_active' | 'sub_expiring' | 'sub_expired' | 'no_sub';
-
 type ModalMode =
   | 'create-edit'
   | 'detail'
@@ -67,22 +64,25 @@ type ModalMode =
   ],
 })
 export class SucursalesComponent implements OnInit, OnDestroy {
+  // ── Estado ────────────────────────────────────────────────────────────
   sucursales: Sucursal[] = [];
   metrics: SucursalMetrics | null = null;
   loading = true;
   error: string | null = null;
-
   gymOptions: GymOption[] = [];
-  selectedGymFilter: number | null = null;
 
+  // ── Filtros ───────────────────────────────────────────────────────────
+  selectedGymFilter: number | null = null;
   activeFilter: FilterStatus = '';
   activeSubFilter: FilterSubStatus = '';
   searchTerm = '';
-
+  showFilters = false;
+  // ── Modales ───────────────────────────────────────────────────────────
   modalMode: ModalMode | null = null;
   selectedSucursal: Sucursal | null = null;
   selectedSubscription: Subscription | null = null;
 
+  // ── Paginación ────────────────────────────────────────────────────────
   currentPage = 1;
   itemsPerPage = 6;
 
@@ -92,6 +92,7 @@ export class SucursalesComponent implements OnInit, OnDestroy {
     { label: 'Inactivas', value: 'inactive', metric: 'inactive' },
   ];
 
+  // ── Inyecciones ───────────────────────────────────────────────────────
   private destroy$ = new Subject<void>();
   private load$ = new Subject<SucursalFilters>();
   private search$ = new Subject<string>();
@@ -99,7 +100,25 @@ export class SucursalesComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
   private svc = inject(SucursalesService);
 
+  // ── Resize handler (guardado para poder removerlo en destroy) ─────────
+  private resizeHandler = (): void => {
+    this.zone.run(() => {
+      this.calculateItemsPerPage();
+      this.currentPage = 1;
+      this.cdr.markForCheck();
+    });
+  };
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Lifecycle
+  // ─────────────────────────────────────────────────────────────────────
+
   ngOnInit(): void {
+    this.calculateItemsPerPage();
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('resize', this.resizeHandler);
+    });
+
     this.svc
       .getGymsList()
       .pipe(takeUntil(this.destroy$))
@@ -137,7 +156,7 @@ export class SucursalesComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.cdr.markForCheck();
       });
-
+      
     this.search$
       .pipe(debounceTime(350), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(() => this.triggerLoad());
@@ -146,9 +165,38 @@ export class SucursalesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('resize', this.resizeHandler);
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Cálculo dinámico de items por página
+  // ─────────────────────────────────────────────────────────────────────
+
+  private calculateItemsPerPage(): void {
+    const viewportH = window.innerHeight;
+    const mobile = window.innerWidth < 768;
+
+    if (mobile) {
+      const reservedH = 260;
+      const cardH = 85;
+
+      this.itemsPerPage = Math.max(1, Math.floor((viewportH - reservedH) / cardH));
+    } else {
+      const reservedH = 280;
+      const cardH = 190;
+      const cols = window.innerWidth >= 1024 ? 3 : 2;
+
+      const rows = Math.max(1, Math.floor((viewportH - reservedH) / cardH));
+
+      this.itemsPerPage = rows * cols;
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Carga de datos
+  // ─────────────────────────────────────────────────────────────────────
 
   private triggerLoad(): void {
     const filters: SucursalFilters = {
@@ -162,7 +210,9 @@ export class SucursalesComponent implements OnInit, OnDestroy {
     this.load$.next(filters);
   }
 
-  // ── Filtros / búsqueda ──────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────
+  // Filtros y búsqueda
+  // ─────────────────────────────────────────────────────────────────────
 
   setFilter(value: FilterStatus): void {
     this.activeFilter = value;
@@ -171,6 +221,11 @@ export class SucursalesComponent implements OnInit, OnDestroy {
 
   setSubFilter(value: FilterSubStatus): void {
     this.activeSubFilter = this.activeSubFilter === value ? '' : value;
+
+    if (window.innerWidth < 640) {
+      this.showFilters = false;
+    }
+
     this.triggerLoad();
   }
 
@@ -181,6 +236,11 @@ export class SucursalesComponent implements OnInit, OnDestroy {
 
   onGymFilterChange(gymId: number | null): void {
     this.selectedGymFilter = gymId;
+
+    if (window.innerWidth < 640) {
+      this.showFilters = false;
+    }
+
     this.triggerLoad();
   }
 
@@ -188,7 +248,9 @@ export class SucursalesComponent implements OnInit, OnDestroy {
     return this.metrics?.[key] ?? 0;
   }
 
-  // ── Apertura de modales ──────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────
+  // Apertura de modales
+  // ─────────────────────────────────────────────────────────────────────
 
   openAddSucursal(): void {
     this.selectedSucursal = null;
@@ -257,7 +319,9 @@ export class SucursalesComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  // ── Cierre de modales ────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────
+  // Cierre de modales
+  // ─────────────────────────────────────────────────────────────────────
 
   closeModal(): void {
     this.modalMode = null;
@@ -266,7 +330,6 @@ export class SucursalesComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  /** Cierra el sub-modal (suscripción/pago) pero regresa al detalle. */
   closeSubModal(): void {
     if (this.selectedSucursal) {
       this.selectedSubscription = null;
@@ -277,7 +340,9 @@ export class SucursalesComponent implements OnInit, OnDestroy {
     }
   }
 
-  // ── Callbacks de éxito (recargan datos) ─────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────
+  // Callbacks de éxito
+  // ─────────────────────────────────────────────────────────────────────
 
   onSucursalSaved(): void {
     this.closeModal();
@@ -305,6 +370,7 @@ export class SucursalesComponent implements OnInit, OnDestroy {
   private reloadDetail(): void {
     if (!this.selectedSucursal) return;
     const id = this.selectedSucursal.id;
+
     this.svc
       .getOne(id)
       .pipe(takeUntil(this.destroy$))
@@ -321,11 +387,9 @@ export class SucursalesComponent implements OnInit, OnDestroy {
       });
   }
 
-  // ── Helpers de presentación ─────────────────────────────────────────
-
-  trackById(_: number, item: Sucursal): number {
-    return item.id;
-  }
+  // ─────────────────────────────────────────────────────────────────────
+  // Paginación
+  // ─────────────────────────────────────────────────────────────────────
 
   get totalPages(): number {
     return Math.ceil(this.sucursales.length / this.itemsPerPage);
@@ -334,6 +398,26 @@ export class SucursalesComponent implements OnInit, OnDestroy {
   get paginatedSucursales(): Sucursal[] {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     return this.sucursales.slice(start, start + this.itemsPerPage);
+  }
+
+  get visiblePages(): number[] {
+    const total = this.totalPages;
+    const windowSize = 5;
+
+    if (total <= windowSize) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    let start = this.currentPage - Math.floor(windowSize / 2);
+    start = Math.max(1, start);
+
+    let end = start + windowSize - 1;
+    if (end > total) {
+      end = total;
+      start = end - windowSize + 1;
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
   goToPage(page: number): void {
@@ -356,6 +440,14 @@ export class SucursalesComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ─────────────────────────────────────────────────────────────────────
+  // Helpers de presentación
+  // ─────────────────────────────────────────────────────────────────────
+
+  trackById(_: number, item: Sucursal): number {
+    return item.id;
+  }
+
   planLabel(plan: string): string {
     return { monthly: 'Mensual', quarterly: 'Trimestral', yearly: 'Anual' }[plan] ?? plan;
   }
@@ -376,5 +468,15 @@ export class SucursalesComponent implements OnInit, OnDestroy {
     if (days < 0) return `Venció hace ${Math.abs(days)}d`;
     if (days === 0) return 'Vence hoy';
     return `${days} día${days === 1 ? '' : 's'} restante${days === 1 ? '' : 's'}`;
+  }
+
+  toggleFilters(): void {
+    this.showFilters = !this.showFilters;
+    this.cdr.markForCheck();
+  }
+
+  closeFilters(): void {
+    this.showFilters = false;
+    this.cdr.markForCheck();
   }
 }

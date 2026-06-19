@@ -1,41 +1,47 @@
+<!-- gestion.component.html -->
 <div class="min-h-screen bg-white dark:bg-black transition-colors duration-300 w-full h-full p-4">
   <div class="absolute inset-0 overflow-auto bg-white dark:bg-black p-4 md:p-6">
     <!-- HEADER -->
     <div class="mb-6">
-      <h1 class="text-xl md:text-2xl font-bold text-black dark:text-white">Gestión de Roles</h1>
-      <p class="text-sm text-gray-400 mt-1">Administra usuarios, roles y subroles</p>
+      <h1 class="text-xl md:text-2xl font-bold text-black dark:text-white">Gestión de datos</h1>
     </div>
 
-    <!-- TABS -->
+    <!-- Pills gestión -->
     <div class="mb-4">
-      <!-- Desktop -->
-      <div class="hidden md:inline-flex gap-1 bg-secondary-400/30 dark:bg-secondary-400/5 border border-black/10 dark:border-white/10 rounded-[14px] p-1">
-        <button (click)="activeTab = 'users'" class="rounded-[10px] px-5 py-2 text-sm transition"
-          [ngClass]="activeTab === 'users' ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium shadow-sm border border-black/10 dark:border-white/10' : 'text-black dark:text-white hover:text-black dark:hover:text-white'">
+      <div class="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
+        <button
+          (click)="activeTab = 'users'"
+          class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors shrink-0"
+          [ngClass]="
+            activeTab === 'users'
+              ? 'bg-primary-500 border-primary-500 text-white '
+              : 'bg-white dark:bg-black border-default-200 dark:border-dark-400 text-default-700 dark:text-default-300 hover:border-primary-400'
+          "
+        >
           Usuarios
         </button>
-        <button (click)="activeTab = 'roles'" class="rounded-[10px] px-5 py-2 text-sm transition"
-          [ngClass]="activeTab === 'roles' ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium shadow-sm border border-black/10 dark:border-white/10' : 'text-black dark:text-white hover:text-black dark:hover:text-white'">
-          Roles
-        </button>
-        <button (click)="activeTab = 'subroles'" class="rounded-[10px] px-5 py-2 text-sm transition"
-          [ngClass]="activeTab === 'subroles' ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium shadow-sm border border-black/10 dark:border-white/10' : 'text-black dark:text-white hover:text-black dark:hover:text-white'">
-          Subroles
-        </button>
-      </div>
 
-      <!-- Mobile -->
-      <div class="flex md:hidden bg-secondary-400/30 dark:bg-secondary-400/5 border border-black/10 dark:border-white/10 rounded-[14px] p-1">
-        <button (click)="activeTab = 'users'" class="flex-1 rounded-[10px] py-3 text-sm text-center transition"
-          [ngClass]="activeTab === 'users' ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium border border-black/10 dark:border-white/10' : 'text-black dark:text-white'">
-          Usuarios
-        </button>
-        <button (click)="activeTab = 'roles'" class="flex-1 rounded-[10px] py-3 text-sm text-center transition"
-          [ngClass]="activeTab === 'roles' ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium border border-black/10 dark:border-white/10' : 'text-black dark:text-white'">
+        <button
+          (click)="activeTab = 'roles'"
+          class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors shrink-0"
+          [ngClass]="
+            activeTab === 'roles'
+              ? 'bg-primary-500 border-primary-500 text-white '
+              : 'bg-white dark:bg-black border-default-200 dark:border-dark-400 text-default-700 dark:text-default-300 hover:border-primary-400'
+          "
+        >
           Roles
         </button>
-        <button (click)="activeTab = 'subroles'" class="flex-1 rounded-[10px] py-3 text-sm text-center transition"
-          [ngClass]="activeTab === 'subroles' ? 'bg-white dark:bg-white/10 text-black dark:text-white font-medium border border-black/10 dark:border-white/10' : 'text-black dark:text-white'">
+
+        <button
+          (click)="activeTab = 'subroles'"
+          class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors shrink-0"
+          [ngClass]="
+            activeTab === 'subroles'
+              ? 'bg-primary-500 border-primary-500 text-white '
+              : 'bg-white dark:bg-black border-default-200 dark:border-dark-400 text-default-700 dark:text-default-300 hover:border-primary-400'
+          "
+        >
           Subroles
         </button>
       </div>
@@ -43,271 +49,455 @@
 
     <!-- USERS -->
     @if (activeTab === 'users') {
-      <div class="rounded-2xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 p-4 md:p-6 mb-[7.5rem]">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-semibold text-black dark:text-white">Usuarios</h2>
-          <button class="rounded-xl bg-primary-500 px-3 md:px-4 py-2 text-sm">
-            <span class="text-white">+ Usuario</span>
-          </button>
-        </div>
-
-        <!-- Desktop table -->
-        <div class="hidden md:block overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-black/10 dark:border-white/10 text-primary-500 dark:text-accent-500">
-                <th class="p-3 text-left text-sm font-medium">Nombre</th>
-                <th class="p-3 text-left text-sm font-medium">Correo</th>
-                <th class="p-3 text-left text-sm font-medium">Gym</th>
-                <th class="p-3 text-left text-sm font-medium">Sucursal</th>
-                <th class="p-3 text-left text-sm font-medium">Rol</th>
-                <th class="p-3 text-left text-sm font-medium">Subrol</th>
-                <th class="p-3 text-left text-sm font-medium">Estado</th>
-                <th class="p-3 text-right text-sm font-medium">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (user of pagedUsers; track user.id) {
-                <tr class="border-b border-black/5 dark:border-white/5 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition">
-                  <td class="p-3 text-sm">{{ user.name }}</td>
-                  <td class="p-3 text-sm text-black dark:text-white">{{ user.email }}</td>
-                  <td class="p-3 text-sm text-black dark:text-white">{{ user.gym?.name ?? '—' }}</td>
-                  <td class="p-3 text-sm text-black dark:text-white">{{ user.branch?.name ?? '—' }}</td>
-                  <td class="p-3 text-sm text-black dark:text-white">{{ user.role?.name ?? '—' }}</td>
-                  <td class="p-3 text-sm text-black dark:text-white">{{ user.sub_role?.name ?? '—' }}</td>
-                  <td class="p-3">
-                    <span [class]="user.is_active
-                      ? 'inline-block rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400'
-                      : 'inline-block rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-500 dark:text-red-400'">
-                      {{ user.is_active ? 'Activo' : 'Inactivo' }}
-                    </span>
-                  </td>
-                  <td class="p-3">
-                    <div class="flex justify-end gap-2">
-                      <button class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition">Editar</button>
-                      <button class="rounded-lg border border-red-500/30 px-3 py-1 text-xs text-red-500 dark:text-red-400 hover:bg-red-500/5 transition">Eliminar</button>
-                    </div>
-                  </td>
-                </tr>
+      <div class="flex flex-col gap-6 mb-[7.5rem]">
+        <!-- SUPERADMINS -->
+        <div class="rounded-2xl border border-black/10 dark:border-white/10 p-4 md:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold text-black dark:text-white">Superadmins</h2>
+            <button
+              (click)="openAddUser('superadmin', $event)"
+              class="rounded-xl bg-primary-500 px-3 md:px-4 py-2 text-sm"
+            >
+              <span class="text-white">+ Usuario</span>
+            </button>
+          </div>
+          @if (superadmins.length) {
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              @for (user of superadminsVisible; track user.id) {
+                <ng-container *ngTemplateOutlet="userCard; context: { user: user }"></ng-container>
               }
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Mobile cards -->
-        <div class="flex md:hidden flex-col gap-3">
-          @for (user of pagedUsers; track user.id) {
-            <div class="rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 p-4">
-              <div class="flex items-start justify-between mb-2">
-                <div>
-                  <p class="font-medium text-sm text-black dark:text-white">{{ user.name }}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">{{ user.email }}</p>
-                </div>
-                <span [class]="user.is_active
-                  ? 'inline-block rounded-full bg-green-500/10 px-2 py-0.5 text-xs text-green-600 dark:text-green-400'
-                  : 'inline-block rounded-full bg-red-500/10 px-2 py-0.5 text-xs text-red-500 dark:text-red-400'">
-                  {{ user.is_active ? 'Activo' : 'Inactivo' }}
-                </span>
-              </div>
-              <div class="flex flex-wrap gap-x-4 gap-y-1 mb-3">
-                <p class="text-xs text-gray-400">
-                  <span class="text-gray-500 dark:text-gray-300">Gym:</span> {{ user.gym?.name ?? '—' }}
-                </p>
-                <p class="text-xs text-gray-400">
-                  <span class="text-gray-500 dark:text-gray-300">Sucursal:</span> {{ user.branch?.name ?? '—' }}
-                </p>
-                <p class="text-xs text-gray-400">
-                  <span class="text-gray-500 dark:text-gray-300">Rol:</span> {{ user.role?.name ?? '—' }}
-                </p>
-                <p class="text-xs text-gray-400">
-                  <span class="text-gray-500 dark:text-gray-300">Subrol:</span> {{ user.sub_role?.name ?? '—' }}
-                </p>
-              </div>
-              <div class="flex gap-2 pt-3 border-t border-black/5 dark:border-white/5">
-                <button class="flex-1 rounded-lg border border-black/10 dark:border-white/10 py-2 text-xs text-black dark:text-white text-center">Editar</button>
-                <button class="flex-1 rounded-lg border border-red-500/30 py-2 text-xs text-red-500 dark:text-red-400 text-center">Eliminar</button>
-              </div>
             </div>
+
+            <!-- Colapsable -->
+            @if (superadmins.length > (isMobile ? 1 : 3)) {
+              <div class="mt-3">
+                <button
+                  (click)="superadminsExpanded = !superadminsExpanded"
+                  class="flex items-center gap-1.5 text-xs text-primary-500 hover:text-accent-500 transition-colors font-medium"
+                >
+                  <mat-icon
+                    [svgIcon]="
+                      superadminsExpanded
+                        ? 'heroicons_solid:chevron-up'
+                        : 'heroicons_solid:chevron-down'
+                    "
+                    class="!w-4 !h-4"
+                  ></mat-icon>
+                  {{
+                    superadminsExpanded
+                      ? 'Ver menos'
+                      : 'Ver ' + superadminsCollapsed.length + ' más'
+                  }}
+                </button>
+
+                @if (superadminsExpanded) {
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-3">
+                    @for (user of superadminsCollapsed; track user.id) {
+                      <ng-container
+                        *ngTemplateOutlet="userCard; context: { user: user }"
+                      ></ng-container>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Paginación -->
+            @if (superadminsTotalPages > 1) {
+              <div class="flex items-center justify-center gap-2 mt-4">
+                <button
+                  (click)="superadminsPage = superadminsPage - 1; superadminsExpanded = false"
+                  [disabled]="superadminsPage === 1"
+                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                >
+                  <mat-icon
+                    svgIcon="heroicons_solid:chevron-left"
+                    class="!w-4 !h-4 text-black dark:text-white"
+                  ></mat-icon>
+                </button>
+                @for (p of [].constructor(superadminsTotalPages); track $index) {
+                  <button
+                    (click)="superadminsPage = $index + 1; superadminsExpanded = false"
+                    class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-medium transition-colors"
+                    [ngClass]="
+                      superadminsPage === $index + 1
+                        ? 'bg-primary-500 text-white'
+                        : 'border border-default-200 dark:border-dark-400 text-black dark:text-white hover:border-primary-400'
+                    "
+                  >
+                    {{ $index + 1 }}
+                  </button>
+                }
+                <button
+                  (click)="superadminsPage = superadminsPage + 1; superadminsExpanded = false"
+                  [disabled]="superadminsPage === superadminsTotalPages"
+                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                >
+                  <mat-icon
+                    svgIcon="heroicons_solid:chevron-right"
+                    class="!w-4 !h-4 text-black dark:text-white"
+                  ></mat-icon>
+                </button>
+              </div>
+            }
+          } @else {
+            <p class="text-xs text-black dark:text-white">Sin superadmins registrados.</p>
           }
         </div>
 
-        <!-- Paginado -->
-        <div class="flex items-center justify-between mt-4 pt-4 border-t border-black/10 dark:border-white/10">
-          <p class="text-xs text-black dark:text-white">
-            {{ (usersPage - 1) * usersPageSize + 1 }}–{{ min(usersPage * usersPageSize, users.length) }} de {{ users.length }}
-          </p>
-          <div class="flex gap-1">
-            <button (click)="usersPage = usersPage - 1" [disabled]="usersPage === 1"
-              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition">‹</button>
-            @for (p of usersTotalPages; track p) {
-              <button (click)="usersPage = p"
-                [class]="usersPage === p
-                  ? 'rounded-lg bg-accent-500 dark:bg-primary-500 px-3 py-1 text-xs text-white'
-                  : 'rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition'">
-                {{ p }}
-              </button>
-            }
-            <button (click)="usersPage = usersPage + 1" [disabled]="usersPage === usersTotalPages.length"
-              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition">›</button>
+        <!-- ADMINS -->
+        <div class="rounded-2xl border border-black/10 dark:border-white/10 p-4 md:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold text-black dark:text-white">Admins</h2>
+            <button
+              (click)="openAddUser('admin', $event)"
+              class="rounded-xl bg-primary-500 px-3 md:px-4 py-2 text-sm"
+            >
+              <span class="text-white">+ Usuario</span>
+            </button>
           </div>
+          @if (admins.length) {
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+              @for (user of adminsVisible; track user.id) {
+                <ng-container *ngTemplateOutlet="userCard; context: { user: user }"></ng-container>
+              }
+            </div>
+
+            <!-- Colapsable -->
+            @if (admins.length > (isMobile ? 1 : 3)) {
+              <div class="mt-3">
+                <button
+                  (click)="adminsExpanded = !adminsExpanded"
+                  class="flex items-center gap-1.5 text-xs text-primary-500 hover:text-accent-500 transition-colors font-medium"
+                >
+                  <mat-icon
+                    [svgIcon]="
+                      adminsExpanded ? 'heroicons_solid:chevron-up' : 'heroicons_solid:chevron-down'
+                    "
+                    class="!w-4 !h-4"
+                  ></mat-icon>
+                  {{ adminsExpanded ? 'Ver menos' : 'Ver ' + adminsCollapsed.length + ' más' }}
+                </button>
+
+                @if (adminsExpanded) {
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 mt-3">
+                    @for (user of adminsCollapsed; track user.id) {
+                      <ng-container
+                        *ngTemplateOutlet="userCard; context: { user: user }"
+                      ></ng-container>
+                    }
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Paginación -->
+            @if (adminsTotalPages > 1) {
+              <div class="flex items-center justify-center gap-2 mt-4">
+                <button
+                  (click)="adminsPage = adminsPage - 1; adminsExpanded = false"
+                  [disabled]="adminsPage === 1"
+                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                >
+                  <mat-icon
+                    svgIcon="heroicons_solid:chevron-left"
+                    class="!w-4 !h-4 text-black dark:text-white"
+                  ></mat-icon>
+                </button>
+                @for (p of [].constructor(adminsTotalPages); track $index) {
+                  <button
+                    (click)="adminsPage = $index + 1; adminsExpanded = false"
+                    class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-medium transition-colors"
+                    [ngClass]="
+                      adminsPage === $index + 1
+                        ? 'bg-primary-500 text-white'
+                        : 'border border-default-200 dark:border-dark-400 text-black dark:text-white hover:border-primary-400'
+                    "
+                  >
+                    {{ $index + 1 }}
+                  </button>
+                }
+                <button
+                  (click)="adminsPage = adminsPage + 1; adminsExpanded = false"
+                  [disabled]="adminsPage === adminsTotalPages"
+                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                >
+                  <mat-icon
+                    svgIcon="heroicons_solid:chevron-right"
+                    class="!w-4 !h-4 text-black dark:text-white"
+                  ></mat-icon>
+                </button>
+              </div>
+            }
+          } @else {
+            <p class="text-xs text-black dark:text-white">Sin admins registrados.</p>
+          }
+        </div>
+
+        <!-- CLIENTES POR GYM -->
+        <div class="rounded-2xl border border-black/10 dark:border-white/10 p-4 md:p-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-semibold text-black dark:text-white">Clientes</h2>
+            <button
+              (click)="openAddUser('client', $event)"
+              class="rounded-xl bg-primary-500 px-3 md:px-4 py-2 text-sm"
+            >
+              <span class="text-white">+ Cliente</span>
+            </button>
+          </div>
+
+          @if (pagedClientGroups.length) {
+            <div class="flex flex-col gap-5">
+              @for (group of pagedClientGroups; track group.gym?.id ?? 'general') {
+                <div>
+                  <p class="text-xs font-medium uppercase tracking-wide text-black dark:text-white mb-2">
+                    {{ group.gym?.name ?? 'Usuarios generales' }}
+                  </p>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+                    @for (user of getGroupVisible(group); track user.id) {
+                      <ng-container
+                        *ngTemplateOutlet="userCard; context: { user: user }"
+                      ></ng-container>
+                    }
+                  </div>
+
+                  <!-- Colapsable por grupo — solo si hay más de 3 (desktop) o más de 1 (mobile) -->
+                  @if (getGroupCollapsed(group) > 0 || isGroupExpanded(gymKey(group.gym))) {
+                    <div class="mt-2">
+                      <button
+                        (click)="toggleGroupExpanded(gymKey(group.gym))"
+                        class="flex items-center gap-1.5 text-xs text-primary-500 hover:text-accent-500 transition-colors font-medium"
+                      >
+                        <mat-icon
+                          [svgIcon]="
+                            isGroupExpanded(gymKey(group.gym))
+                              ? 'heroicons_solid:chevron-up'
+                              : 'heroicons_solid:chevron-down'
+                          "
+                          class="!w-4 !h-4"
+                        ></mat-icon>
+                        {{
+                          isGroupExpanded(gymKey(group.gym))
+                            ? 'Ver menos'
+                            : 'Ver ' + getGroupCollapsed(group) + ' más'
+                        }}
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Paginación clientes -->
+            @if (clientsTotalPages > 1) {
+              <div class="flex items-center justify-center gap-2 mt-6">
+                <button
+                  (click)="clientsPage = clientsPage - 1"
+                  [disabled]="clientsPage === 1"
+                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                >
+                  <mat-icon
+                    svgIcon="heroicons_solid:chevron-left"
+                    class="!w-4 !h-4 text-black dark:text-white"
+                  ></mat-icon>
+                </button>
+                @for (p of [].constructor(clientsTotalPages); track $index) {
+                  <button
+                    (click)="clientsPage = $index + 1"
+                    class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-medium transition-colors"
+                    [ngClass]="
+                      clientsPage === $index + 1
+                        ? 'bg-primary-500 text-white'
+                        : 'border border-default-200 dark:border-dark-400 text-black dark:text-white hover:border-primary-400'
+                    "
+                  >
+                    {{ $index + 1 }}
+                  </button>
+                }
+                <button
+                  (click)="clientsPage = clientsPage + 1"
+                  [disabled]="clientsPage === clientsTotalPages"
+                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                >
+                  <mat-icon
+                    svgIcon="heroicons_solid:chevron-right"
+                    class="!w-4 !h-4 text-black dark:text-white"
+                  ></mat-icon>
+                </button>
+              </div>
+            }
+          } @else {
+            <p class="text-xs text-black dark:text-white">Sin clientes registrados.</p>
+          }
         </div>
       </div>
     }
 
-    <!-- ROLES -->
-    @if (activeTab === 'roles') {
-      <div class="rounded-2xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 p-4 md:p-6 mb-[7.5rem]">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-semibold text-black dark:text-white">Roles</h2>
-          <button class="rounded-xl bg-accent-500 dark:bg-primary-500 px-3 md:px-4 py-2 text-sm">
-            <span class="text-white">+ Rol</span>
-          </button>
-        </div>
+    <!-- Tarjeta reutilizable -->
+    <ng-template #userCard let-user="user">
+      <div
+        class="group relative overflow-hidden flex flex-col justify-between rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 p-4 hover:border-black/20 dark:hover:border-white/20 hover:bg-secondary-400/20 dark:hover:bg-secondary-400/10 transition-all duration-200 cursor-pointer"
+        [class.opacity-60]="!user.is_active"
+        (click)="openDetail(user)"
+      >
+        <!-- Blob superior -->
+        <div
+          class="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-accent-400/30 blur-3xl"
+        ></div>
+        <!-- Blob inferior -->
+        <div
+          class="pointer-events-none absolute -bottom-12 -left-12 h-28 w-28 rounded-full bg-secondary-400/30 blur-3xl"
+        ></div>
 
-        <!-- Desktop table -->
-        <div class="hidden md:block overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-black/10 dark:border-white/10 text-black dark:text-white">
-                <th class="p-3 text-left text-sm font-medium">Nombre</th>
-                <th class="p-3 text-left text-sm font-medium">Usuarios</th>
-                <th class="p-3 text-right text-sm font-medium">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (role of pagedRoles; track role.id) {
-                <tr class="border-b border-black/5 dark:border-white/5 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition">
-                  <td class="p-3 text-sm">{{ role.name }}</td>
-                  <td class="p-3 text-sm text-black dark:text-white">{{ role.users_count }}</td>
-                  <td class="p-3">
-                    <div class="flex justify-end gap-2">
-                      <button class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition">Editar</button>
-                      <button class="rounded-lg border border-red-500/30 px-3 py-1 text-xs text-red-500 dark:text-red-400 hover:bg-red-500/5 transition">Eliminar</button>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Mobile cards -->
-        <div class="flex md:hidden flex-col gap-3">
-          @for (role of pagedRoles; track role.id) {
-            <div class="rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 p-4">
-              <div class="flex items-start justify-between mb-3">
-                <div>
-                  <p class="font-medium text-sm text-black dark:text-white">{{ role.name }}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">{{ role.users_count }} usuarios</p>
-                </div>
-              </div>
-              <div class="flex gap-2 pt-3 border-t border-black/5 dark:border-white/5">
-                <button class="flex-1 rounded-lg border border-black/10 dark:border-white/10 py-2 text-xs text-black dark:text-white text-center">Editar</button>
-                <button class="flex-1 rounded-lg border border-red-500/30 py-2 text-xs text-red-500 dark:text-red-400 text-center">Eliminar</button>
-              </div>
+        <!-- Header de la card -->
+        <div class="flex items-center justify-between mb-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div
+              class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
+            >
+              <mat-icon
+                svgIcon="heroicons_outline:user"
+                class="icon-size-5 text-white dark:text-black"
+              ></mat-icon>
             </div>
-          }
-        </div>
+            <div class="min-w-0">
+              <p class="font-medium text-sm text-black dark:text-white leading-tight truncate">
+                {{ user.name }}
+              </p>
+              <p class="text-xs text-black dark:text-white truncate">{{ user.email }}</p>
+            </div>
+          </div>
 
-        <!-- Paginado -->
-        <div class="flex items-center justify-between mt-4 pt-4 border-t border-black/10 dark:border-white/10">
-          <p class="text-xs text-black dark:text-white">
-            {{ (rolesPage - 1) * rolesPageSize + 1 }}–{{ min(rolesPage * rolesPageSize, roles.length) }} de {{ roles.length }}
-          </p>
-          <div class="flex gap-1">
-            <button (click)="rolesPage = rolesPage - 1" [disabled]="rolesPage === 1"
-              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition">‹</button>
-            @for (p of rolesTotalPages; track p) {
-              <button (click)="rolesPage = p"
-                [class]="rolesPage === p
-                  ? 'rounded-lg bg-accent-500 dark:bg-primary-500 px-3 py-1 text-xs text-white'
-                  : 'rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition'">
-                {{ p }}
-              </button>
-            }
-            <button (click)="rolesPage = rolesPage + 1" [disabled]="rolesPage === rolesTotalPages.length"
-              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition">›</button>
+          <!-- Badge + acciones -->
+          <div class="flex items-center gap-1.5 shrink-0" (click)="$event.stopPropagation()">
+            <span
+              [ngClass]="{
+                'bg-accent-300 text-primary-500': user.is_active,
+                'bg-red-200 text-red-500': !user.is_active,
+              }"
+              class="text-xs px-2.5 py-1 rounded-full text-[10px] font-bold mr-1"
+            >
+              {{ user.is_active ? 'Activo' : 'Inactivo' }}
+            </span>
+
+            <button
+              (click)="openEdit(user, $event)"
+              class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
+            >
+              <mat-icon svgIcon="heroicons_solid:pencil-square" class="icon-size-4"></mat-icon>
+            </button>
+
+            <button
+              (click)="openDeleteConfirm(user, $event)"
+              class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-red-500 text-primary-500 hover:text-white dark:text-white transition-all duration-150"
+            >
+              <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
+            </button>
           </div>
         </div>
+
+        <!-- Cuerpo -->
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-black dark:text-white text-xs">
+          <p><span>Gym:</span> {{ user.gym?.name ?? '—' }}</p>
+          <p><span>Sucursal:</span> {{ user.branch?.name ?? '—' }}</p>
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-black dark:text-white"
+        >
+          <span class="text-xs">{{ user.role?.name ?? '—' }}</span>
+          <span class="text-xs">{{ user.sub_role?.name ?? '—' }}</span>
+
+          <mat-icon svgIcon="heroicons_outline:chevron-right" class="!w-4 !h-4"></mat-icon>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- ROLES -->
+    @if (activeTab === 'roles') {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        @for (role of pagedRoles; track role.id) {
+          <div
+            class="group relative overflow-hidden rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 p-4 hover:border-black/20 dark:hover:border-white/20 hover:bg-secondary-400/20 dark:hover:bg-secondary-400/10 transition-all duration-200"
+          >
+            <div
+              class="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-accent-400/30 blur-3xl"
+            ></div>
+            <div
+              class="pointer-events-none absolute -bottom-12 -left-12 h-28 w-28 rounded-full bg-secondary-400/30 blur-3xl"
+            ></div>
+
+            <div class="flex items-center justify-between">
+              <div class="min-w-0">
+                <p class="font-medium text-sm text-black dark:text-white truncate">
+                  {{ role.name }}
+                </p>
+                <p class="text-xs text-black dark:text-white mt-0.5">
+                  {{ role.users_count }} usuario{{ role.users_count === 1 ? '' : 's' }}
+                </p>
+              </div>
+
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
+                >
+                  <mat-icon svgIcon="heroicons_solid:pencil-square" class="icon-size-4"></mat-icon>
+                </button>
+                <button
+                  class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-red-500 text-primary-500 hover:text-white dark:text-white transition-all duration-150"
+                >
+                  <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
       </div>
     }
 
     <!-- SUBROLES -->
     @if (activeTab === 'subroles') {
-      <div class="rounded-2xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5p-4 md:p-6 mb-[7.5rem]">
-        <div class="flex items-center justify-between mb-4">
-          <h2 class="font-semibold text-black dark:text-white">Subroles</h2>
-          <button class="rounded-xl bg-accent-500 dark:bg-primary-500 px-3 md:px-4 py-2 text-sm">
-            <span class="text-white">+ Subrol</span>
-          </button>
-        </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        @for (subRole of pagedSubRoles; track subRole.id) {
+          <div
+            class="group relative overflow-hidden rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 p-4 hover:border-black/20 dark:hover:border-white/20 hover:bg-secondary-400/20 dark:hover:bg-secondary-400/10 transition-all duration-200"
+          >
+            <div
+              class="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-accent-400/30 blur-3xl"
+            ></div>
+            <div
+              class="pointer-events-none absolute -bottom-12 -left-12 h-28 w-28 rounded-full bg-secondary-400/30 blur-3xl"
+            ></div>
 
-        <!-- Desktop table -->
-        <div class="hidden md:block overflow-x-auto">
-          <table class="w-full">
-            <thead>
-              <tr class="border-b border-black/10 dark:border-white/10 text-black dark:text-white">
-                <th class="p-3 text-left text-sm font-medium">Nombre</th>
-                <th class="p-3 text-left text-sm font-medium">Usuarios</th>
-                <th class="p-3 text-right text-sm font-medium">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (subRole of pagedSubRoles; track subRole.id) {
-                <tr class="border-b border-black/5 dark:border-white/5 text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition">
-                  <td class="p-3 text-sm">{{ subRole.name }}</td>
-                  <td class="p-3 text-sm text-black dark:text-white">{{ subRole.users_count }}</td>
-                  <td class="p-3">
-                    <div class="flex justify-end gap-2">
-                      <button class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition">Editar</button>
-                      <button class="rounded-lg border border-red-500/30 px-3 py-1 text-xs text-red-500 dark:text-red-400 hover:bg-red-500/5 transition">Eliminar</button>
-                    </div>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Mobile cards -->
-        <div class="flex md:hidden flex-col gap-3">
-          @for (subRole of pagedSubRoles; track subRole.id) {
-            <div class="rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-white/5 p-4">
-              <div class="flex items-start justify-between mb-3">
-                <div>
-                  <p class="font-medium text-sm text-black dark:text-white">{{ subRole.name }}</p>
-                  <p class="text-xs text-gray-400 mt-0.5">{{ subRole.users_count }} usuarios</p>
-                </div>
+            <div class="flex items-center justify-between">
+              <div class="min-w-0">
+                <p class="font-medium text-sm text-black dark:text-white truncate">
+                  {{ subRole.name }}
+                </p>
+                <p class="text-xs text-black dark:text-white mt-0.5">
+                  {{ subRole.users_count }} usuario{{ subRole.users_count === 1 ? '' : 's' }}
+                </p>
               </div>
-              <div class="flex gap-2 pt-3 border-t border-black/5 dark:border-white/5">
-                <button class="flex-1 rounded-lg border border-black/10 dark:border-white/10 py-2 text-xs text-black dark:text-white text-center">Editar</button>
-                <button class="flex-1 rounded-lg border border-red-500/30 py-2 text-xs text-red-500 dark:text-red-400 text-center">Eliminar</button>
+
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button
+                  class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
+                >
+                  <mat-icon svgIcon="heroicons_solid:pencil-square" class="icon-size-4"></mat-icon>
+                </button>
+                <button
+                  class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-red-500 text-primary-500 hover:text-white dark:text-white transition-all duration-150"
+                >
+                  <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
+                </button>
               </div>
             </div>
-          }
-        </div>
-
-        <!-- Paginado -->
-        <div class="flex items-center justify-between mt-4 pt-4 border-t border-black/10 dark:border-white/10">
-          <p class="text-xs text-black dark:text-white">
-            {{ (subRolesPage - 1) * subRolesPageSize + 1 }}–{{ min(subRolesPage * subRolesPageSize, subRoles.length) }} de {{ subRoles.length }}
-          </p>
-          <div class="flex gap-1">
-            <button (click)="subRolesPage = subRolesPage - 1" [disabled]="subRolesPage === 1"
-              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition">‹</button>
-            @for (p of subRolesTotalPages; track p) {
-              <button (click)="subRolesPage = p"
-                [class]="subRolesPage === p
-                  ? 'rounded-lg bg-accent-500 dark:bg-primary-500 px-3 py-1 text-xs text-white'
-                  : 'rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white hover:bg-black/5 dark:hover:bg-white/5 transition'">
-                {{ p }}
-              </button>
-            }
-            <button (click)="subRolesPage = subRolesPage + 1" [disabled]="subRolesPage === subRolesTotalPages.length"
-              class="rounded-lg border border-black/10 dark:border-white/10 px-3 py-1 text-xs text-black dark:text-white disabled:opacity-40 hover:bg-black/5 dark:hover:bg-white/5 transition">›</button>
           </div>
-        </div>
+        }
       </div>
     }
   </div>
 </div>
+
+<!-- vista gestion -->

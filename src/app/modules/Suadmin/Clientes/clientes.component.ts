@@ -66,7 +66,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
   readonly filterPills: { label: string; value: FilterStatus; metric: keyof ClienteMetrics }[] = [
     { label: 'Todos', value: '', metric: 'total' },
     { label: 'Activos', value: 'active', metric: 'active' },
-    { label: 'Por vencer', value: 'expiring', metric: 'expiring' },
+    { label: 'Vence', value: 'expiring', metric: 'expiring' },
     { label: 'Vencidos', value: 'expired', metric: 'expired' },
     { label: 'Inactivos', value: 'inactive', metric: 'inactive' },
   ];
@@ -82,11 +82,25 @@ export class ClientesComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private svc = inject(ClientesService);
 
+  // ── Resize handler ────────────────────────────────────────────────────
+  private resizeHandler = (): void => {
+    this.zone.run(() => {
+      this.calculateItemsPerPage();
+      this.currentPage = 1;
+      this.cdr.markForCheck();
+    });
+  };
+
   constructor() {
     this.form = this.buildForm();
   }
 
   ngOnInit(): void {
+    this.calculateItemsPerPage();
+    this.zone.runOutsideAngular(() => {
+      window.addEventListener('resize', this.resizeHandler);
+    });
+
     this.load$
       .pipe(
         switchMap((filters) => {
@@ -126,9 +140,40 @@ export class ClientesComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    window.removeEventListener('resize', this.resizeHandler);
     this.destroy$.next();
     this.destroy$.complete();
   }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Cálculo dinámico de items por página
+  // ─────────────────────────────────────────────────────────────────────
+
+private calculateItemsPerPage(): void {
+  const viewportH = window.innerHeight;
+  const mobile = window.innerWidth < 768;
+
+  if (mobile) {
+    const reservedH = 220;
+    const cardH = 90;
+
+    this.itemsPerPage = Math.max(
+      1,
+      Math.floor((viewportH - reservedH) / cardH)
+    );
+  } else {
+    const reservedH = 290;
+    const cardH = 255;
+    const cols = window.innerWidth >= 1024 ? 3 : 2;
+    const rows = Math.max(
+      1,
+      Math.floor((viewportH - reservedH) / cardH)
+    );
+
+    // +1 fila extra
+    this.itemsPerPage = (rows + 1) * cols;
+  }
+}
 
   private triggerLoad(): void {
     const filters: ClienteFilters = {
@@ -343,6 +388,26 @@ export class ClientesComponent implements OnInit, OnDestroy {
   get paginatedClientes(): Cliente[] {
     const start = (this.currentPage - 1) * this.itemsPerPage;
     return this.clientes.slice(start, start + this.itemsPerPage);
+  }
+
+  get visiblePages(): number[] {
+    const total = this.totalPages;
+    const windowSize = 5;
+
+    if (total <= windowSize) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    let start = this.currentPage - Math.floor(windowSize / 2);
+    start = Math.max(1, start);
+
+    let end = start + windowSize - 1;
+    if (end > total) {
+      end = total;
+      start = end - windowSize + 1;
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
   goToPage(page: number): void {
