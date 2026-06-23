@@ -11,14 +11,14 @@ import {
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { Subscription, Sucursal } from '../../../Suadmin/Sucursales/sucursales.service';
-
+import { MatMenuModule } from '@angular/material/menu';
 @Component({
   selector: 'sucursalesdetails-modal',
   standalone: true,
   templateUrl: './sucursales-detailsmodal.component.html',
   styleUrls: ['./sucursales-detailsmodal.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, MatMenuModule],
 })
 export class SucursalesDetailsComponent implements OnInit, OnDestroy {
   @Input({ required: true }) sucursal!: Sucursal;
@@ -34,7 +34,7 @@ export class SucursalesDetailsComponent implements OnInit, OnDestroy {
   drawerStartY = 0;
   drawerDeltaY = 0;
   drawerDragging = false;
-
+  paymentsExpanded = false;
   ngOnInit(): void {}
 
   ngOnDestroy(): void {}
@@ -45,9 +45,8 @@ export class SucursalesDetailsComponent implements OnInit, OnDestroy {
 
   paymentStatusLabel(status: string): string {
     return (
-      { paid: 'Pagado', pending: 'Pendiente', failed: 'Fallido', cancelled: 'Cancelado' }[
-        status
-      ] ?? status
+      { paid: 'Pagado', pending: 'Pendiente', failed: 'Fallido', cancelled: 'Cancelado' }[status] ??
+      status
     );
   }
 
@@ -78,4 +77,29 @@ export class SucursalesDetailsComponent implements OnInit, OnDestroy {
     if (this.drawerDeltaY > 90) this.closed.emit();
     else this.drawerDeltaY = 0;
   }
+
+  togglePayments(): void {
+    this.paymentsExpanded = !this.paymentsExpanded;
+  }
+  mapsAddressUrl(address: string): string {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  }
+
+  whatsappUrl(phone: string): string {
+  return `https://wa.me/${phone.replace(/\D/g, '')}`;
+}
+
+
+callPhone(phone: string): void {
+  window.location.href = `tel:${phone}`;
+}
+
+openWhatsapp(phone: string): void {
+  const clean = phone.replace(/\D/g, '');
+  window.open(`https://wa.me/52${clean}`, '_blank');
+}
+
+copyPhone(phone: string): void {
+  navigator.clipboard.writeText(phone);
+}
 }

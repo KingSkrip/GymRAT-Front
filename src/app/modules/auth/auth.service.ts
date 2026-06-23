@@ -24,15 +24,15 @@ export class AuthService {
     }
   }
 
-  private checkStoredToken() {
-    const token = this.encrypt;
-    if (token && !AuthUtils.isTokenExpired(token)) {
-      this._authenticated = true;
-    } else {
-      this._authenticated = false;
-      localStorage.removeItem('encrypt');
-    }
+private checkStoredToken() {
+  const token = this.encrypt;
+  if (token && !AuthUtils.isTokenExpired(token)) {
+    this._authenticated = true; // ✅ se setea
+  } else {
+    this._authenticated = false;
+    localStorage.removeItem('encrypt');
   }
+}
 
   get authenticated(): boolean {
     return this._authenticated;
@@ -105,12 +105,16 @@ signInUsingToken(): Observable<any> {
       encrypt: this.encrypt,
     })
     .pipe(
-      timeout(5000), // ← clave: no esperar forever
-      catchError(() => {
-        localStorage.removeItem('encrypt');
-        this._authenticated = false;
-        return of(false);
-      }),
+      timeout(5000),
+
+catchError((error) => {
+  if (error?.status === 401) {
+    localStorage.removeItem('encrypt');
+    this._authenticated = false;
+  }
+  this._authenticated = false;
+  return of(false);
+}),
       switchMap((response: any) => {
         if (response?.encrypt) {
           this.encrypt = response.encrypt;
@@ -157,22 +161,27 @@ signOut(): Observable<any> {
   /**
    * Check Authentication
    */
+// auth.service.ts - check()
 check(): Observable<boolean> {
-  // Si no hay token en storage, limpiar estado y denegar
   if (!this.encrypt) {
     this._authenticated = false;
     return of(false);
   }
 
-  // Si el token expiró, limpiar y denegar
   if (AuthUtils.isTokenExpired(this.encrypt)) {
     this._authenticated = false;
     localStorage.removeItem('encrypt');
     return of(false);
   }
 
-  // Solo confiar en _authenticated si también hay token válido
+  // 🔴 AQUÍ ESTÁ EL BUG
   if (this._authenticated) return of(true);
+  //  ↑ Si _authenticated es false (ej: recarga de página),
+  //    cae al signInUsingToken() — que tiene timeout(5000)
+  //    Si la API tarda o falla silenciosamente → retorna of(false)
+  //    → AuthGuard redirige a /sign-in
+  //    → NoAuthGuard detecta que NO está autenticado → deja pasar
+  //    → Pero el token SÍ existe → race condition → PANTALLA BLANCA
 
   return this.signInUsingToken();
 }

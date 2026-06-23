@@ -3,7 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { UserService } from '../../../../../core/user/user.service';
 import { NavItem } from '../navigation/nav.type';
-import { menuAdmin, menuClientes, menuColaborador, menuSeniorCoach, menuBranchManager, menuSuAdmin } from '../navigation/data/data';
+import { menuAdmin, menuClientes, menuColaborador, menuSeniorCoach, menuBranchManager, menuSuAdmin, menuOwner } from '../navigation/data/data';
 import { RoleEnum, SubRoleEnum } from '../../../../../modules/auth/roles/dataroles';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DestroyRef } from '@angular/core';
@@ -57,7 +57,7 @@ export class MobileNavComponent {
     }
     switch (permissions) {
       case RoleEnum.superadmin: return [...menuSuAdmin];
-      case RoleEnum.gym_owner: return [...menuAdmin];
+      case RoleEnum.gym_owner: return [...menuOwner];
       case RoleEnum.admin: return [...menuAdmin];
       case RoleEnum.coach: return [...menuColaborador];
       case RoleEnum.client: return [...menuClientes];

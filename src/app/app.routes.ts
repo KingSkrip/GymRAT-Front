@@ -111,9 +111,7 @@ export const routes: Routes = [
         },
 
         loadComponent: () =>
-          import('./modules/Suadmin/Clientes/clientes.component').then(
-            (m) => m.ClientesComponent,
-          ),
+          import('./modules/Suadmin/Clientes/clientes.component').then((m) => m.ClientesComponent),
       },
       {
         path: 'GYM´s',
@@ -127,7 +125,7 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./modules/Suadmin/Gyms/gyms.component').then((m) => m.GymsComponent),
       },
-         {
+      {
         path: 'Sucursales',
 
         canActivate: [AuthGuard],
@@ -137,7 +135,9 @@ export const routes: Routes = [
         },
 
         loadComponent: () =>
-          import('./modules/Suadmin/Sucursales/sucursales.component').then((m) => m.SucursalesComponent),
+          import('./modules/Suadmin/Sucursales/sucursales.component').then(
+            (m) => m.SucursalesComponent,
+          ),
       },
       {
         path: 'Roles',
@@ -150,6 +150,33 @@ export const routes: Routes = [
 
         loadComponent: () =>
           import('./modules/Suadmin/Gestion/gestion.component').then((m) => m.GestionComponent),
+      },
+
+      //OWNER
+
+      {
+        path: 'MisGyms',
+
+        canActivate: [AuthGuard],
+
+        data: {
+          layout: 'vertical',
+        },
+
+        loadComponent: () =>
+          import('./modules/Dueños/Gyms/misgyms.component').then((m) => m.MisGymsComponent),
+      },
+      {
+        path: 'MisSucursales',
+
+        canActivate: [AuthGuard],
+
+        data: {
+          layout: 'vertical',
+        },
+
+        loadComponent: () =>
+          import('./modules/Dueños/Sucursales/missucursales.component').then((m) => m.MisSucursalesComponent),
       },
     ],
   },

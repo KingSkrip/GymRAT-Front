@@ -58,7 +58,7 @@
               (click)="openAddUser('superadmin', $event)"
               class="rounded-xl bg-primary-500 px-3 md:px-4 py-2 text-sm"
             >
-              <span class="text-white">+ Usuario</span>
+              <span class="text-white">+ SuAdmin</span>
             </button>
           </div>
           @if (superadmins.length) {
@@ -104,38 +104,52 @@
 
             <!-- Paginación -->
             @if (superadminsTotalPages > 1) {
-              <div class="flex items-center justify-center gap-2 mt-4">
+              <div class="flex items-center justify-center gap-1.5 mt-4">
                 <button
                   (click)="superadminsPage = superadminsPage - 1; superadminsExpanded = false"
                   [disabled]="superadminsPage === 1"
-                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                  class="h-8 w-8 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
                 >
                   <mat-icon
                     svgIcon="heroicons_solid:chevron-left"
-                    class="!w-4 !h-4 text-black dark:text-white"
+                    class="!w-4 !h-4 text-black"
                   ></mat-icon>
                 </button>
-                @for (p of [].constructor(superadminsTotalPages); track $index) {
+
+                @for (page of visibleSuperadminPages; track page) {
                   <button
-                    (click)="superadminsPage = $index + 1; superadminsExpanded = false"
-                    class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-medium transition-colors"
-                    [ngClass]="
-                      superadminsPage === $index + 1
-                        ? 'bg-primary-500 text-white'
-                        : 'border border-default-200 dark:border-dark-400 text-black dark:text-white hover:border-primary-400'
+                    (click)="superadminsPage = page; superadminsExpanded = false"
+                    [class]="
+                      (page === superadminsPage
+                        ? 'bg-accent-500 text-white font-bold'
+                        : 'bg-primary-500 border border-white/10 text-white') +
+                      ' h-8 w-8 shrink-0 rounded-xl text-xs font-medium transition-all duration-150'
                     "
                   >
-                    {{ $index + 1 }}
+                    {{ page }}
                   </button>
                 }
+
+                @if (
+                  visibleSuperadminPages[visibleSuperadminPages.length - 1] < superadminsTotalPages
+                ) {
+                  <span class="text-xs text-gray-400 px-0.5">…</span>
+                  <button
+                    (click)="superadminsPage = superadminsTotalPages; superadminsExpanded = false"
+                    class="h-8 w-8 shrink-0 rounded-xl bg-primary-500 border border-white/10 text-white text-xs font-medium"
+                  >
+                    {{ superadminsTotalPages }}
+                  </button>
+                }
+
                 <button
                   (click)="superadminsPage = superadminsPage + 1; superadminsExpanded = false"
                   [disabled]="superadminsPage === superadminsTotalPages"
-                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                  class="h-8 w-8 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
                 >
                   <mat-icon
                     svgIcon="heroicons_solid:chevron-right"
-                    class="!w-4 !h-4 text-black dark:text-white"
+                    class="!w-4 !h-4 text-black"
                   ></mat-icon>
                 </button>
               </div>
@@ -153,7 +167,7 @@
               (click)="openAddUser('admin', $event)"
               class="rounded-xl bg-primary-500 px-3 md:px-4 py-2 text-sm"
             >
-              <span class="text-white">+ Usuario</span>
+              <span class="text-white">+ Admin</span>
             </button>
           </div>
           @if (admins.length) {
@@ -193,38 +207,50 @@
 
             <!-- Paginación -->
             @if (adminsTotalPages > 1) {
-              <div class="flex items-center justify-center gap-2 mt-4">
+              <div class="flex items-center justify-center gap-1.5 mt-4">
                 <button
                   (click)="adminsPage = adminsPage - 1; adminsExpanded = false"
                   [disabled]="adminsPage === 1"
-                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                  class="h-8 w-8 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
                 >
                   <mat-icon
                     svgIcon="heroicons_solid:chevron-left"
-                    class="!w-4 !h-4 text-black dark:text-white"
+                    class="!w-4 !h-4 text-black"
                   ></mat-icon>
                 </button>
-                @for (p of [].constructor(adminsTotalPages); track $index) {
+
+                @for (page of visibleAdminPages; track page) {
                   <button
-                    (click)="adminsPage = $index + 1; adminsExpanded = false"
-                    class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-medium transition-colors"
-                    [ngClass]="
-                      adminsPage === $index + 1
-                        ? 'bg-primary-500 text-white'
-                        : 'border border-default-200 dark:border-dark-400 text-black dark:text-white hover:border-primary-400'
+                    (click)="adminsPage = page; adminsExpanded = false"
+                    [class]="
+                      (page === adminsPage
+                        ? 'bg-accent-500 text-white font-bold'
+                        : 'bg-primary-500 border border-white/10 text-white') +
+                      ' h-8 w-8 shrink-0 rounded-xl text-xs font-medium transition-all duration-150'
                     "
                   >
-                    {{ $index + 1 }}
+                    {{ page }}
                   </button>
                 }
+
+                @if (visibleAdminPages[visibleAdminPages.length - 1] < adminsTotalPages) {
+                  <span class="text-xs text-gray-400 px-0.5">…</span>
+                  <button
+                    (click)="adminsPage = adminsTotalPages; adminsExpanded = false"
+                    class="h-8 w-8 shrink-0 rounded-xl bg-primary-500 border border-white/10 text-white text-xs font-medium"
+                  >
+                    {{ adminsTotalPages }}
+                  </button>
+                }
+
                 <button
                   (click)="adminsPage = adminsPage + 1; adminsExpanded = false"
                   [disabled]="adminsPage === adminsTotalPages"
-                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                  class="h-8 w-8 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
                 >
                   <mat-icon
                     svgIcon="heroicons_solid:chevron-right"
-                    class="!w-4 !h-4 text-black dark:text-white"
+                    class="!w-4 !h-4 text-black"
                   ></mat-icon>
                 </button>
               </div>
@@ -250,7 +276,9 @@
             <div class="flex flex-col gap-5">
               @for (group of pagedClientGroups; track group.gym?.id ?? 'general') {
                 <div>
-                  <p class="text-xs font-medium uppercase tracking-wide text-black dark:text-white mb-2">
+                  <p
+                    class="text-xs font-medium uppercase tracking-wide text-black dark:text-white mb-2"
+                  >
                     {{ group.gym?.name ?? 'Usuarios generales' }}
                   </p>
                   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
@@ -290,38 +318,50 @@
 
             <!-- Paginación clientes -->
             @if (clientsTotalPages > 1) {
-              <div class="flex items-center justify-center gap-2 mt-6">
+              <div class="flex items-center justify-center gap-1.5 mt-6">
                 <button
                   (click)="clientsPage = clientsPage - 1"
                   [disabled]="clientsPage === 1"
-                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                  class="h-8 w-8 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
                 >
                   <mat-icon
                     svgIcon="heroicons_solid:chevron-left"
-                    class="!w-4 !h-4 text-black dark:text-white"
+                    class="!w-4 !h-4 text-black"
                   ></mat-icon>
                 </button>
-                @for (p of [].constructor(clientsTotalPages); track $index) {
+
+                @for (page of visibleClientPages; track page) {
                   <button
-                    (click)="clientsPage = $index + 1"
-                    class="w-8 h-8 flex items-center justify-center rounded-full text-xs font-medium transition-colors"
-                    [ngClass]="
-                      clientsPage === $index + 1
-                        ? 'bg-primary-500 text-white'
-                        : 'border border-default-200 dark:border-dark-400 text-black dark:text-white hover:border-primary-400'
+                    (click)="clientsPage = page"
+                    [class]="
+                      (page === clientsPage
+                        ? 'bg-accent-500 text-white font-bold'
+                        : 'bg-primary-500 border border-white/10 text-white') +
+                      ' h-8 w-8 shrink-0 rounded-xl text-xs font-medium transition-all duration-150'
                     "
                   >
-                    {{ $index + 1 }}
+                    {{ page }}
                   </button>
                 }
+
+                @if (visibleClientPages[visibleClientPages.length - 1] < clientsTotalPages) {
+                  <span class="text-xs text-gray-400 px-0.5">…</span>
+                  <button
+                    (click)="clientsPage = clientsTotalPages"
+                    class="h-8 w-8 shrink-0 rounded-xl bg-primary-500 border border-white/10 text-white text-xs font-medium"
+                  >
+                    {{ clientsTotalPages }}
+                  </button>
+                }
+
                 <button
                   (click)="clientsPage = clientsPage + 1"
                   [disabled]="clientsPage === clientsTotalPages"
-                  class="w-8 h-8 flex items-center justify-center rounded-full border border-default-200 dark:border-dark-400 disabled:opacity-30 hover:border-primary-400 transition-colors"
+                  class="h-8 w-8 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
                 >
                   <mat-icon
                     svgIcon="heroicons_solid:chevron-right"
-                    class="!w-4 !h-4 text-black dark:text-white"
+                    class="!w-4 !h-4 text-black"
                   ></mat-icon>
                 </button>
               </div>

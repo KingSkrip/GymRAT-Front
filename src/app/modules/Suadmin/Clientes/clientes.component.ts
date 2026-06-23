@@ -33,6 +33,7 @@ import {
   ClienteFilters,
   ClientePayload,
 } from './clientes.service';
+import { ClienteDetailsComponent } from '../../modals/Clientes/Details/clientes-detailsmodal.component';
 
 type FilterStatus = '' | 'active' | 'inactive' | 'expiring' | 'expired';
 type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-delete';
@@ -42,7 +43,7 @@ type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-dele
   standalone: true,
   templateUrl: './clientes.component.html',
   styleUrls: ['./clientes.component.scss'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, ClienteDetailsComponent],
 })
 export class ClientesComponent implements OnInit, OnDestroy {
   clientes: Cliente[] = [];
@@ -50,7 +51,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
   loading = true;
   saving = false;
   error: string | null = null;
-
+  detailLoading = false;
   activeFilter: FilterStatus = '';
   searchTerm = '';
 
@@ -149,31 +150,25 @@ export class ClientesComponent implements OnInit, OnDestroy {
   // Cálculo dinámico de items por página
   // ─────────────────────────────────────────────────────────────────────
 
-private calculateItemsPerPage(): void {
-  const viewportH = window.innerHeight;
-  const mobile = window.innerWidth < 768;
+  private calculateItemsPerPage(): void {
+    const viewportH = window.innerHeight;
+    const mobile = window.innerWidth < 768;
 
-  if (mobile) {
-    const reservedH = 220;
-    const cardH = 90;
+    if (mobile) {
+      const reservedH = 220;
+      const cardH = 90;
 
-    this.itemsPerPage = Math.max(
-      1,
-      Math.floor((viewportH - reservedH) / cardH)
-    );
-  } else {
-    const reservedH = 290;
-    const cardH = 255;
-    const cols = window.innerWidth >= 1024 ? 3 : 2;
-    const rows = Math.max(
-      1,
-      Math.floor((viewportH - reservedH) / cardH)
-    );
+      this.itemsPerPage = Math.max(1, Math.floor((viewportH - reservedH) / cardH));
+    } else {
+      const reservedH = 290;
+      const cardH = 255;
+      const cols = window.innerWidth >= 1024 ? 3 : 2;
+      const rows = Math.max(1, Math.floor((viewportH - reservedH) / cardH));
 
-    // +1 fila extra
-    this.itemsPerPage = (rows + 1) * cols;
+      // +1 fila extra
+      this.itemsPerPage = (rows + 1) * cols;
+    }
   }
-}
 
   private triggerLoad(): void {
     const filters: ClienteFilters = {
@@ -215,8 +210,8 @@ private calculateItemsPerPage(): void {
   openDetail(c: Cliente): void {
     this.selectedCliente = c;
     this.modalMode = 'detail';
+    this.detailLoading = true;
     this.cdr.markForCheck();
-
     this.svc
       .getOne(c.id)
       .pipe(takeUntil(this.destroy$))
@@ -224,6 +219,7 @@ private calculateItemsPerPage(): void {
         next: (res) => {
           this.zone.run(() => {
             this.selectedCliente = res.data;
+            this.detailLoading = false;
             this.cdr.markForCheck();
           });
         },

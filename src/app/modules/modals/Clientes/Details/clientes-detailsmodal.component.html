@@ -1,0 +1,154 @@
+<div
+  class="fixed z-50 left-0 right-0 bottom-[60px] md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh]"
+  [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : undefined"
+>
+  <div
+    class="md:hidden flex justify-center pt-3 pb-1 cursor-grab touch-none"
+    (touchstart)="onDrawerTouchStart($event)"
+    (touchmove)="onDrawerTouchMove($event)"
+    (touchend)="onDrawerTouchEnd()"
+  >
+    <div class="w-9 h-1 rounded-full bg-accent-500"></div>
+  </div>
+
+  <div class="px-5 pb-6 pt-2 md:pt-5">
+    <div class="flex items-center justify-between mb-5">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-xl bg-primary-500 flex items-center justify-center shrink-0">
+          <span class="text-white font-black text-base">{{ cliente.name.charAt(0) }}</span>
+        </div>
+        <div>
+          <p class="font-bold text-black dark:text-white leading-tight">{{ cliente.name }}</p>
+          <p class="text-xs text-gray-500 mt-0.5">{{ cliente.email }}</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span
+          [ngClass]="{
+            'bg-accent-300 text-primary-500': cliente.status_color === 'green',
+            'bg-yellow-500/10 text-yellow-600': cliente.status_color === 'yellow',
+            'bg-red-200 text-red-500': cliente.status_color === 'red',
+            'bg-white/5 text-gray-500': cliente.status_color === 'gray',
+          }"
+          class="text-[10px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap"
+        >
+          {{ cliente.status_label }}
+        </span>
+        <button
+          (click)="onClose()"
+          class="hidden md:flex w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-red-100 dark:hover:bg-red-500/20 items-center justify-center text-black dark:text-white transition-colors"
+        >
+          <mat-icon class="!text-[18px]">close</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="space-y-1.5 mb-4 text-sm text-black dark:text-white">
+      <div
+        class="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5"
+      >
+        <span class="text-xs text-black dark:text-white">Teléfono</span>
+        <span class="text-xs font-medium">{{ cliente.phone || '—' }}</span>
+      </div>
+      <div
+        class="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5"
+      >
+        <span class="text-xs text-black dark:text-white">Inicio suscripción</span>
+        <span class="text-xs font-medium">{{ cliente.subscription_start }}</span>
+      </div>
+      <div
+        class="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5"
+      >
+        <span class="text-xs text-black dark:text-white">Fin suscripción</span>
+        <span class="text-xs font-medium">{{ cliente.subscription_end }}</span>
+      </div>
+    </div>
+
+    @if (cliente.status_color === 'red' || cliente.status_color === 'yellow') {
+      <div
+        [ngClass]="
+          cliente.status_color === 'red'
+            ? 'border-red-400/20 bg-red-400/5'
+            : 'border-yellow-400/20 bg-yellow-400/5'
+        "
+        class="rounded-xl border px-4 py-3 mb-4"
+      >
+        <p
+          [ngClass]="cliente.status_color === 'red' ? 'text-red-500' : 'text-yellow-500'"
+          class="text-xs font-bold mb-1"
+        >
+          {{ cliente.status_color === 'red' ? '⚠ Suscripción vencida' : '⚡ Próximo vencimiento' }}
+        </p>
+        <p
+          [ngClass]="cliente.status_color === 'red' ? 'text-red-500/70' : 'text-yellow-500/70'"
+          class="text-xs"
+        >
+          Contacta al cliente para renovar su plan.
+        </p>
+      </div>
+    }
+
+    @if (loading) {
+      <div class="flex justify-center py-4">
+        <div
+          class="w-5 h-5 rounded-full border-2 border-gray-200 border-t-primary-500 animate-spin"
+        ></div>
+      </div>
+    } @else {
+      @if (cliente.gyms && cliente.gyms.length > 0) {
+        <div class="mb-5">
+          <p class="text-xs text-black dark:text-white mb-2.5">Gyms · {{ cliente.gym_count }}</p>
+          <div class="space-y-2">
+            @for (gym of cliente.gyms; track gym.id) {
+              <div class="rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm font-semibold text-black dark:text-white">{{ gym.name }}</p>
+                  <span
+                    [ngClass]="
+                      gym.is_active
+                        ? 'bg-accent-300 text-primary-500'
+                        : 'bg-gray-500/10 text-gray-500'
+                    "
+                    class="text-[10px] font-bold rounded-full px-2 py-0.5"
+                  >
+                    {{ gym.is_active ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </div>
+                @if (gym.branches && gym.branches.length > 0) {
+                  <div class="flex flex-wrap gap-1.5">
+                    @for (b of gym.branches; track b.id) {
+                      <span
+                        [ngClass]="
+                          b.is_active
+                            ? 'bg-secondary-400/30 dark:bg-secondary-400/5 text-primary-500'
+                            : 'text-gray-400 line-through'
+                        "
+                        class="text-[10px] rounded-md px-2 py-0.5"
+                      >
+                        {{ b.name }}
+                      </span>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    }
+    <div class="flex gap-2">
+      <button
+        (click)="onToggleConfirm()"
+        class="flex-1 py-2.5 rounded-xl bg-accent-500/10 border border-accent-500/30 text-sm font-bold text-accent-500 hover:bg-accent-500/20 transition-colors"
+      >
+        {{ cliente.is_active ? 'Desactivar' : 'Activar' }}
+      </button>
+      <button
+        (click)="onDeleteConfirm()"
+        class="flex-1 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-sm font-bold text-red-500 hover:bg-red-500/20 transition-colors"
+      >
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

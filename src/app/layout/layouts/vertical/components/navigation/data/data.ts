@@ -4,27 +4,6 @@ import { NavItem } from '../nav.type';
 // =====================
 // ROLES
 // =====================
-
-export const menuSeniorCoach: NavItem[] = [
-  {
-    id: 'dashboards.inicio',
-    title: 'Inicio',
-    type: 'basic',
-    icon: 'heroicons_outline:home',
-    link: '/dashboard',
-  },
-];
-
-export const menuBranchManager: NavItem[] = [
-  {
-    id: 'dashboards.inicio',
-    title: 'Inicio',
-    type: 'basic',
-    icon: 'heroicons_outline:home',
-    link: '/dashboard',
-  },
-];
-
 export const menuSuAdmin: NavItem[] = [
   {
     id: 'dashboards.inicio',
@@ -48,18 +27,62 @@ export const menuSuAdmin: NavItem[] = [
     link: '/GYM´s',
   },
   {
-  id: 'sucursales',
-  title: 'Sucursales',
-  type: 'basic',
-  icon: 'heroicons_outline:building-storefront',
-  link: '/Sucursales',
-},
+    id: 'sucursales',
+    title: 'Sucursales',
+    type: 'basic',
+    icon: 'heroicons_outline:building-storefront',
+    link: '/Sucursales',
+  },
   {
     id: 'roles',
     title: 'Roles',
     type: 'basic',
     icon: 'heroicons_outline:users',
     link: '/Roles',
+  },
+];
+export const menuOwner: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
+  },
+
+  {
+    id: 'MisGyms',
+    title: 'Mis gym´s',
+    type: 'basic',
+    icon: 'heroicons_outline:biceps-flexed',
+    link: '/MisGyms',
+  },
+  {
+    id: 'MisSucursales',
+    title: 'Mis sucursales',
+    type: 'basic',
+    icon: 'heroicons_outline:building-storefront',
+    link: '/MisSucursales',
+  },
+];
+
+export const menuSeniorCoach: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
+  },
+];
+
+export const menuBranchManager: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
   },
 ];
 

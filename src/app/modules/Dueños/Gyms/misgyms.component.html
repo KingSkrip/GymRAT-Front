@@ -1,0 +1,360 @@
+<div class="w-full h-full flex flex-col bg-white dark:bg-black transition-colors duration-300">
+  <!-- ══════════════════════════════════════════════════════════════════
+     ZONA QUE SCROLLEA (header + filtros + contenido)
+  ══════════════════════════════════════════════════════════════════ -->
+  <div class="flex-1 overflow-y-auto px-4 sm:px-6 pt-6">
+    <!-- HEADER -->
+    <div class="flex items-center justify-between">
+      <h1 class="text-2xl md:text-3xl font-bold text-black dark:text-white">Gyms</h1>
+      <button
+        (click)="openCreate()"
+        class="block md:hidden h-8 w-8 rounded-full bg-primary-500 hover:bg-accent-500 text-white flex items-center justify-center shadow-lg transition-all duration-200"
+      >
+        <mat-icon svgIcon="heroicons_solid:plus" class="!h-5 !w-5"></mat-icon>
+      </button>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+       FILTROS + BÚSQUEDA
+    ══════════════════════════════════════════════════════════════════ -->
+    <div class="flex flex-col gap-3 md:mb-6 mt-4">
+      <!-- Pills estado gym -->
+      <div class="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
+        <button
+          *ngFor="let p of filterPills"
+          class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors"
+          [ngClass]="
+            activeFilter === p.value
+              ? 'bg-primary-500 border-primary-500 text-white shadow-glow'
+              : 'bg-white dark:bg-black border-default-200 dark:border-dark-400 text-default-700 dark:text-default-300 hover:border-primary-400'
+          "
+          (click)="setFilter(p.value)"
+        >
+          {{ p.label }}
+          <span
+            class="inline-flex items-center justify-center min-w-[1.25rem] h-5 rounded-full px-1.5 text-xs"
+            [ngClass]="
+              activeFilter === p.value
+                ? 'bg-white/20 text-white'
+                : 'bg-default-100 dark:bg-dark-500 text-default-600 dark:text-default-300'
+            "
+            >{{ getMetricValue(p.metric) }}
+          </span>
+        </button>
+        <button
+          (click)="openCreate()"
+          class="hidden md:block shrink-0 inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-accent-500 text-white px-3 py-1.5 text-sm font-medium transition-colors ml-auto"
+        >
+          <mat-icon svgIcon="heroicons_solid:plus" class="!h-4 !w-4"></mat-icon>
+          Nuevo gym
+        </button>
+      </div>
+
+      <!-- Buscador -->
+      <div class="flex items-center gap-3">
+        <div class="relative flex-1">
+          <mat-icon
+            svgIcon="heroicons_outline:magnifying-glass"
+            class="absolute left-3 top-1/2 -translate-y-1/2 icon-size-4 text-black dark:text-white"
+          ></mat-icon>
+          <input
+            [value]="searchTerm"
+            (input)="onSearchChange($any($event.target).value)"
+            placeholder="Buscar gym o cliente..."
+            class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 pl-10 pr-4 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Loading ────────────────────────────────────────────────────── -->
+    @if (loading) {
+      <div class="flex justify-center py-20">
+        <div
+          class="w-6 h-6 rounded-full border-2 border-gray-200 border-t-black dark:border-white/10 dark:border-t-white animate-spin"
+        ></div>
+      </div>
+    }
+
+    <!-- ── Error ──────────────────────────────────────────────────────── -->
+    @if (error) {
+      <div class="rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-500">
+        {{ error }}
+      </div>
+    }
+
+    @if (!loading && !error) {
+      <!-- ── MOBILE: lista compacta ──────────────────────────────────── -->
+      <div
+        class="flex md:hidden flex-col divide-y divide-black/5 dark:divide-white/5 overflow-hidden mt-3"
+      >
+        @for (item of paginatedGyms; track item.id) {
+          <div
+            class="flex items-center gap-3 px-4 py-3 mb-3 rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 active:bg-gray-100 dark:active:bg-white/10 transition-colors cursor-pointer"
+            (click)="openDetail(item)"
+          >
+            <div
+              class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
+            >
+              <span class="text-white dark:text-black text-sm font-bold">
+                {{ item.name.charAt(0) }}
+              </span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-black dark:text-white truncate">{{ item.name }}</p>
+              @if (item.client) {
+                <p class="text-xs text-black dark:text-white truncate">{{ item.client.name }}</p>
+              }
+            </div>
+            <div class="flex flex-col items-end gap-1 shrink-0">
+              <span
+                [class]="
+                  (item.is_active
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-gray-500/10 text-gray-500') +
+                  ' text-[10px] px-2 py-0.5 rounded-full font-medium'
+                "
+              >
+                {{ item.status_label }}
+              </span>
+            </div>
+            <mat-icon
+              svgIcon="heroicons_outline:chevron-right"
+              class="!w-4 !h-4 text-black dark:text-white"
+            ></mat-icon>
+          </div>
+        }
+      </div>
+
+      <!-- ── DESKTOP: grid cards ─────────────────────────────────────── -->
+      <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+        @for (item of paginatedGyms; track item.id) {
+          <div
+            class="group relative overflow-hidden flex flex-col justify-between rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 p-5 hover:border-black/20 dark:hover:border-white/20 hover:bg-secondary-400/20 dark:hover:bg-secondary-400/10 transition-all duration-200 cursor-pointer"
+            [class.opacity-60]="!item.is_active"
+            (click)="openDetail(item)"
+          >
+            <!-- Blobs -->
+            <div
+              class="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-accent-400/30 blur-3xl"
+            ></div>
+            <div
+              class="pointer-events-none absolute -bottom-12 -left-12 h-28 w-28 rounded-full bg-secondary-400/30 blur-3xl"
+            ></div>
+
+            <!-- Header -->
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <!-- IZQUIERDA -->
+              <div class="flex items-start gap-3 min-w-0">
+                <div
+                  class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
+                >
+                  <span class="text-white dark:text-black text-sm font-bold">
+                    {{ item.name.charAt(0) }}
+                  </span>
+                </div>
+
+                <div class="min-w-0 flex flex-col gap-0.5">
+                  <p
+                    class="font-medium text-xs md:text-base text-black dark:text-white leading-tight truncate"
+                  >
+                    {{ item.name }}
+                  </p>
+
+                  <div class="flex items-center gap-3 flex-wrap">
+                    @if (item.client) {
+                      <p
+                        class="text-xs text-black/70 dark:text-white/70 truncate flex items-center gap-1"
+                      >
+                        <mat-icon
+                          svgIcon="heroicons_solid:user"
+                          class="!h-3 !w-3 shrink-0"
+                        ></mat-icon>
+                        {{ item.client.name }}
+                      </p>
+                    }
+                    @if (item.address) {
+                      <p
+                        class="text-xs text-black/70 dark:text-white/70 truncate flex items-center gap-1"
+                      >
+                        <mat-icon
+                          svgIcon="heroicons_solid:map-pin"
+                          class="!h-3 !w-3 shrink-0"
+                        ></mat-icon>
+                        {{ item.address }}
+                      </p>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- DERECHA: badge + acciones -->
+              <div class="flex items-center gap-2 shrink-0" (click)="$event.stopPropagation()">
+                <span
+                  [ngClass]="{
+                    'bg-accent-300 text-primary-500': item.is_active,
+                    'bg-red-200 text-red-500': !item.is_active,
+                  }"
+                  class="text-[10px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap"
+                >
+                  {{ item.status_label }}
+                </span>
+
+                <div class="flex items-center gap-1.5">
+                  <button
+                    (click)="openEdit(item, $event)"
+                    class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
+                  >
+                    <mat-icon
+                      svgIcon="heroicons_solid:pencil-square"
+                      class="icon-size-4"
+                    ></mat-icon>
+                  </button>
+
+                  <button
+                    (click)="openToggleConfirm(item, $event)"
+                    class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 hover:dark:text-primary-500 text-primary-500 dark:text-white transition-all duration-150"
+                  >
+                    <mat-icon svgIcon="heroicons_solid:power" class="icon-size-4"></mat-icon>
+                  </button>
+
+                  <button
+                    (click)="openDeleteConfirm(item, $event)"
+                    class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-red-500 text-primary-500 hover:text-white dark:text-white transition-all duration-150"
+                  >
+                    <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div
+              class="mt-1 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-black dark:text-white"
+            >
+              <span class="text-xs">
+                {{ item.branch_count }} sucursal{{ item.branch_count !== 1 ? 'es' : '' }}
+              </span>
+              <mat-icon svgIcon="heroicons_outline:chevron-right" class="!w-4 !h-4"></mat-icon>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- ── Empty state ─────────────────────────────────────────────── -->
+      @if (gyms.length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+          <div
+            class="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 flex items-center justify-center mb-4"
+          >
+            <mat-icon class="!text-2xl text-gray-400">fitness_center</mat-icon>
+          </div>
+          <p class="text-sm font-medium text-black dark:text-white mb-1">
+            Sin gyms registrados
+          </p>
+          <p class="text-xs text-gray-400">No hay gyms con esos filtros</p>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+     PAGINACIÓN — fixed en mobile, estático en desktop
+  ══════════════════════════════════════════════════════════════════ -->
+  @if (!loading && !error && totalPages > 1) {
+    <div
+      class="fixed bottom-16 left-0 right-0 z-30 py-3 bg-white dark:bg-black border-t border-black/5 dark:border-white/5 md:static md:bottom-auto md:left-auto md:right-auto md:z-auto md:border-t-0"
+    >
+      <div class="flex items-center justify-center gap-1.5 md:gap-2">
+        <button
+          (click)="prevPage()"
+          [disabled]="currentPage === 1"
+          class="h-8 w-8 md:h-9 md:w-9 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
+        >
+          <mat-icon
+            svgIcon="heroicons_outline:chevron-left"
+            class="!text-sm !h-4 !w-4 text-black"
+          ></mat-icon>
+        </button>
+
+        @for (page of visiblePages; track page) {
+          <button
+            (click)="goToPage(page)"
+            [class]="
+              (page === currentPage
+                ? 'bg-accent-500 text-white font-bold'
+                : 'bg-primary-500 border border-white/10 text-white') +
+              ' h-8 w-8 md:h-9 md:w-9 shrink-0 rounded-xl text-xs md:text-sm font-medium transition-all duration-150'
+            "
+          >
+            {{ page }}
+          </button>
+        }
+
+        @if (visiblePages[visiblePages.length - 1] < totalPages) {
+          <span class="text-xs text-gray-400 px-0.5">…</span>
+
+          <button
+            (click)="goToPage(totalPages)"
+            class="h-8 w-8 md:h-9 md:w-9 shrink-0 rounded-xl bg-primary-500 border border-white/10 text-white text-xs md:text-sm font-medium"
+          >
+            {{ totalPages }}
+          </button>
+        }
+
+        <button
+          (click)="nextPage()"
+          [disabled]="currentPage === totalPages"
+          class="h-8 w-8 md:h-9 md:w-9 flex items-center justify-center shrink-0 rounded-xl border border-white/10 bg-gray-400 text-black disabled:opacity-30"
+        >
+          <mat-icon
+            svgIcon="heroicons_outline:chevron-right"
+            class="!text-sm !h-4 !w-4 text-black"
+          ></mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ════════════════════════════════════════════════════════════════════
+     MODALES
+     ════════════════════════════════════════════════════════════════════ -->
+
+  @if (modalMode) {
+    <!-- Backdrop -->
+    <div class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" (click)="closeModal()"></div>
+
+    @if (modalMode === 'create' || modalMode === 'edit') {
+      <app-gym-form-modal
+        [mode]="modalMode"
+        [gym]="selectedGym"
+        [clientOptions]="clientOptions"
+        (closed)="closeModal()"
+        (saved)="onSaved()"
+      />
+    }
+
+    @if (modalMode === 'detail' && selectedGym) {
+      <gymdetails-modal
+        [gym]="selectedGym"
+        (closed)="closeModal()"
+        (gymUpdated)="onDetailGymUpdated($event)"
+        (openEdit)="onDetailOpenEdit($event)"
+        (openToggle)="onDetailOpenToggle($event)"
+        (openDelete)="onDetailOpenDelete($event)"
+      />
+    }
+
+    @if (modalMode === 'confirm-toggle' && selectedGym) {
+      <gymlock-modal [gym]="selectedGym" (closed)="closeModal()" (toggled)="onSaved()" />
+    }
+
+    @if (modalMode === 'confirm-delete' && selectedGym) {
+      <app-gym-delete-confirm-modal
+        [gym]="selectedGym"
+        (closed)="closeModal()"
+        (deleted)="onSaved()"
+      />
+    }
+  }
+</div>

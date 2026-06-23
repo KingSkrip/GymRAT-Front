@@ -10,6 +10,7 @@ import {
   menuBranchManager,
   menuClientes,
   menuColaborador,
+  menuOwner,
   menuSeniorCoach,
   menuSuAdmin,
 } from './data/data';
@@ -104,7 +105,7 @@ export class NavigationComponent implements OnInit {
       case RoleEnum.superadmin:
         return [...menuSuAdmin];
       case RoleEnum.gym_owner:
-        return [...menuAdmin];
+        return [...menuOwner];
       case RoleEnum.admin:
         return [...menuAdmin];
       case RoleEnum.coach:
