@@ -44,7 +44,14 @@ type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-dele
   standalone: true,
   templateUrl: './clientes.component.html',
   styleUrls: ['./clientes.component.scss'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, ClienteDetailsComponent, LoaderComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    MatIconModule,
+    ClienteDetailsComponent,
+    LoaderComponent,
+  ],
 })
 export class ClientesComponent implements OnInit, OnDestroy {
   clientes: Cliente[] = [];
@@ -255,34 +262,37 @@ export class ClientesComponent implements OnInit, OnDestroy {
   submit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      console.warn('[Clientes] submit bloqueado — form inválido');
       return;
     }
 
     this.saving = true;
     this.formError = null;
-    const payload = this.form.value as ClientePayload;
+
+    const raw = this.form.value as ClientePayload;
     const isCreate = this.modalMode === 'create';
+
+    // En edición no mandamos password si está vacío
+    const payload: ClientePayload = isCreate
+      ? raw
+      : (({ password, ...rest }) => (password ? { ...rest, password } : rest))(raw as any);
+
     const req$ = isCreate
       ? this.svc.create(payload)
       : this.svc.update(this.selectedCliente!.id, payload);
 
     req$.pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res) => {
+      next: () =>
         this.zone.run(() => {
           this.saving = false;
           this.closeModal();
           this.triggerLoad();
-        });
-      },
-      error: (err) => {
-        console.error('[Clientes] submit error:', err);
+        }),
+      error: (err) =>
         this.zone.run(() => {
           this.saving = false;
           this.formError = err?.error?.message ?? 'Ocurrió un error. Intenta de nuevo.';
           this.cdr.markForCheck();
-        });
-      },
+        }),
     });
   }
 
@@ -367,8 +377,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
       name: [c?.name ?? '', [Validators.required, Validators.maxLength(255)]],
       email: [c?.email ?? '', [Validators.required, Validators.email]],
       phone: [c?.phone ?? ''],
-      subscription_start: [c?.subscription_start ?? '', Validators.required],
-      subscription_end: [c?.subscription_end ?? '', Validators.required],
+      password: ['', c ? [] : [Validators.required, Validators.minLength(6)]],
       is_active: [c?.is_active ?? true],
     });
   }

@@ -106,15 +106,12 @@ signInUsingToken(): Observable<any> {
     })
     .pipe(
       timeout(5000),
-
-catchError((error) => {
-  if (error?.status === 401) {
-    localStorage.removeItem('encrypt');
-    this._authenticated = false;
-  }
-  this._authenticated = false;
-  return of(false);
-}),
+      catchError(() => {
+        // ✅ Limpia todo en cualquier error, no solo 401
+        localStorage.removeItem('encrypt');
+        this._authenticated = false;
+        return of(false);
+      }),
       switchMap((response: any) => {
         if (response?.encrypt) {
           this.encrypt = response.encrypt;
@@ -125,6 +122,10 @@ catchError((error) => {
           };
           return of(true);
         }
+
+        // ✅ Si la respuesta no trae encrypt, limpia también
+        localStorage.removeItem('encrypt');
+        this._authenticated = false;
         return of(false);
       }),
     );
@@ -161,7 +162,7 @@ signOut(): Observable<any> {
   /**
    * Check Authentication
    */
-// auth.service.ts - check()
+
 check(): Observable<boolean> {
   if (!this.encrypt) {
     this._authenticated = false;
@@ -174,18 +175,14 @@ check(): Observable<boolean> {
     return of(false);
   }
 
-  // 🔴 AQUÍ ESTÁ EL BUG
+  // ✅ Si hay token válido y ya está autenticado, no llames al backend
   if (this._authenticated) return of(true);
-  //  ↑ Si _authenticated es false (ej: recarga de página),
-  //    cae al signInUsingToken() — que tiene timeout(5000)
-  //    Si la API tarda o falla silenciosamente → retorna of(false)
-  //    → AuthGuard redirige a /sign-in
-  //    → NoAuthGuard detecta que NO está autenticado → deja pasar
-  //    → Pero el token SÍ existe → race condition → PANTALLA BLANCA
 
-  return this.signInUsingToken();
+  // ✅ Si hay token válido pero _authenticated es false (recarga),
+  // confía en el token local en lugar de ir al backend
+  this._authenticated = true;
+  return of(true);
 }
-
   /**
    * Obtener el rol principal del usuario
    */

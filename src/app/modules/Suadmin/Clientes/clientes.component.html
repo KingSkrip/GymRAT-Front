@@ -69,7 +69,7 @@
 
     <!-- ── Loading ────────────────────────────────────────────────────── -->
     @if (loading) {
-      <app-loader type="clientes"/>
+      <app-loader type="clientes" />
     }
 
     <!-- ── Error ──────────────────────────────────────────────────────── -->
@@ -92,9 +92,9 @@
             <div
               class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
             >
-              <span class="text-white dark:text-black text-sm font-bold">{{
-                c.name.charAt(0)
-              }}</span>
+              <span class="text-white dark:text-black text-sm font-bold">
+                {{ c.name.charAt(0) }}
+              </span>
             </div>
             <div class="flex-1 min-w-0">
               <p class="text-sm font-medium text-black dark:text-white truncate">{{ c.name }}</p>
@@ -204,20 +204,6 @@
 
             <!-- Stats row -->
             <div class="flex items-center gap-4 my-2 test-xs text-black dark:text-white">
-              <span class="flex items-center gap-1">
-                <mat-icon
-                  svgIcon="heroicons_solid:dumbbell"
-                  class="icon-size-5 text-primary-500"
-                ></mat-icon>
-                {{ c.gym_count }} gym{{ c.gym_count !== 1 ? 's' : '' }}
-              </span>
-              <span class="flex items-center gap-1">
-                <mat-icon
-                  svgIcon="heroicons_solid:building-storefront"
-                  class="icon-size-5 text-primary-500"
-                ></mat-icon>
-                {{ c.branch_count }} sucursal{{ c.branch_count !== 1 ? 'es' : '' }}
-              </span>
               @if (c.days_left > 0) {
                 <span class="flex items-center gap-1">
                   <mat-icon
@@ -233,7 +219,21 @@
             <div
               class="mt-1 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between text-black dark:text-white"
             >
-              <span class="text-xs">{{ c.subscription_end }}</span>
+              <!-- <span class="text-xs">{{ c.subscription_end }}</span> -->
+              <span class="flex items-center gap-1">
+                <mat-icon
+                  svgIcon="heroicons_solid:dumbbell"
+                  class="icon-size-5 text-primary-500"
+                ></mat-icon>
+                {{ c.gym_count }} gym{{ c.gym_count !== 1 ? 's' : '' }}
+              </span>
+              <span class="flex items-center gap-1">
+                <mat-icon
+                  svgIcon="heroicons_solid:building-storefront"
+                  class="icon-size-5 text-primary-500"
+                ></mat-icon>
+                {{ c.branch_count }} sucursal{{ c.branch_count !== 1 ? 'es' : '' }}
+              </span>
               <mat-icon svgIcon="heroicons_outline:chevron-right" class="!w-4 !h-4"></mat-icon>
             </div>
           </div>
@@ -404,6 +404,32 @@
               }
             </div>
 
+            <!-- Contraseña -->
+            <div>
+              <label class="block text-xs text-black/60 dark:text-white/60 mb-1">
+                Contraseña
+                @if (modalMode === 'edit') {
+                  <span class="text-black/30 dark:text-white/30">(opcional)</span>
+                }
+              </label>
+              <input
+                formControlName="password"
+                type="password"
+                placeholder="••••••••"
+                class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none transition-colors"
+                [ngClass]="
+                  hasError('password')
+                    ? 'border-red-500/60'
+                    : 'border-black/10 dark:border-white/10 focus:border-black/30 dark:focus:border-white/30'
+                "
+              />
+              @if (hasError('password')) {
+                <p class="text-[0.68rem] text-red-500 mt-1">
+                  Contraseña requerida (mín. 6 caracteres)
+                </p>
+              }
+            </div>
+
             <!-- Teléfono -->
             <div>
               <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Teléfono</label>
@@ -416,7 +442,7 @@
             </div>
 
             <!-- Fechas -->
-            <div class="grid grid-cols-2 gap-2.5">
+            <!-- <div class="grid grid-cols-2 gap-2.5">
               <div>
                 <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Inicio</label>
                 <input
@@ -443,7 +469,7 @@
                   "
                 />
               </div>
-            </div>
+            </div> -->
 
             <!-- Toggle activo -->
             <div
