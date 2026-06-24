@@ -1,0 +1,38 @@
+<div
+  class="fixed z-50 left-0 right-0 bottom-[60px] py-5 px-5 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[400px] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl"
+>
+  <div class="flex justify-center mb-4">
+    <div class="w-14 h-14 rounded-2xl bg-primary-500 flex items-center justify-center">
+      <mat-icon svgIcon="heroicons_solid:power" class="!w-6 !h-6 text-white"></mat-icon>
+    </div>
+  </div>
+
+  <h3 class="text-center font-extrabold text-black dark:text-white text-base mb-1.5">
+    {{ isDeactivate ? 'Desactivar cliente' : 'Activar cliente' }}
+  </h3>
+
+  <p class="text-center text-xs text-black/70 dark:text-white/70 leading-relaxed mb-5">
+    {{
+      isDeactivate
+        ? 'Se desactivarán en cascada todos sus gyms y sucursales.'
+        : 'Se activarán en cascada todos sus gyms y sucursales.'
+    }}
+    <br /><strong class="text-black dark:text-white">{{ cliente.name }}</strong>
+  </p>
+
+  <div class="flex gap-2">
+    <button
+      (click)="close.emit()"
+      class="flex-1 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 text-sm font-medium transition-colors"
+    >
+      Cancelar
+    </button>
+    <button
+      (click)="confirm.emit()"
+      [disabled]="saving"
+      class="flex-1 py-2.5 rounded-xl bg-primary-500 hover:bg-accent-500 text-sm font-medium text-white disabled:opacity-40 transition-colors"
+    >
+      {{ saving ? 'Procesando…' : 'Confirmar' }}
+    </button>
+  </div>
+</div>

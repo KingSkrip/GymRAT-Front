@@ -45,10 +45,11 @@ type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-dele
     GymDetailsModalComponent,
     GymLockModalComponent,
     GymDeleteConfirmModalComponent,
-    LoaderComponent
+    LoaderComponent,
   ],
 })
 export class GymsComponent implements OnInit, OnDestroy {
+  skeletonCount = 9;
   // ── Estado ────────────────────────────────────────────────────────────
   gyms: Gym[] = [];
   metrics: GymMetrics | null = null;
@@ -134,6 +135,7 @@ export class GymsComponent implements OnInit, OnDestroy {
         if (!res) return;
         this.gyms = [...res.data];
         this.metrics = { ...res.metrics };
+        this.skeletonCount = res.metrics.total; 
         this.currentPage = 1;
         this.loading = false;
         this.cdr.markForCheck();

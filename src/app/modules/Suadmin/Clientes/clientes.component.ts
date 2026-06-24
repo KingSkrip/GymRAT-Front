@@ -8,13 +8,7 @@ import {
   NgZone,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormsModule,
-  ReactiveFormsModule,
-  FormBuilder,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import {
   catchError,
@@ -35,6 +29,10 @@ import {
 } from './clientes.service';
 import { ClienteDetailsComponent } from '../../modals/Clientes/Details/clientes-detailsmodal.component';
 import { LoaderComponent } from '../../../layout/layouts/loader/loader.component';
+import { ClientesCreateComponent } from '../../modals/Clientes/Create/clientes-createmodal.component';
+import { ClienteDeleteComponent } from '../../modals/Clientes/Delete/clientes-deletemodal.component';
+import { ClienteLockComponent } from '../../modals/Clientes/lock/clientes-lockmodal.component';
+
 
 type FilterStatus = '' | 'active' | 'inactive' | 'expiring' | 'expired';
 type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-delete';
@@ -44,16 +42,21 @@ type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-dele
   standalone: true,
   templateUrl: './clientes.component.html',
   styleUrls: ['./clientes.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
     MatIconModule,
     ClienteDetailsComponent,
     LoaderComponent,
+    ClientesCreateComponent,
+    ClienteDeleteComponent,
+    ClienteLockComponent
+
   ],
 })
 export class ClientesComponent implements OnInit, OnDestroy {
+  skeletonCount = 9;
   clientes: Cliente[] = [];
   metrics: ClienteMetrics | null = null;
   loading = true;
@@ -65,12 +68,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
 
   modalMode: ModalMode | null = null;
   selectedCliente: Cliente | null = null;
-  form: FormGroup;
   formError: string | null = null;
-
-  drawerStartY = 0;
-  drawerDeltaY = 0;
-  drawerDragging = false;
 
   readonly filterPills: { label: string; value: FilterStatus; metric: keyof ClienteMetrics }[] = [
     { label: 'Todos', value: '', metric: 'total' },
@@ -88,10 +86,8 @@ export class ClientesComponent implements OnInit, OnDestroy {
   private search$ = new Subject<string>();
   private zone = inject(NgZone);
   private cdr = inject(ChangeDetectorRef);
-  private fb = inject(FormBuilder);
   private svc = inject(ClientesService);
 
-  // ── Resize handler ────────────────────────────────────────────────────
   private resizeHandler = (): void => {
     this.zone.run(() => {
       this.calculateItemsPerPage();
@@ -100,15 +96,9 @@ export class ClientesComponent implements OnInit, OnDestroy {
     });
   };
 
-  constructor() {
-    this.form = this.buildForm();
-  }
-
   ngOnInit(): void {
     this.calculateItemsPerPage();
-    this.zone.runOutsideAngular(() => {
-      window.addEventListener('resize', this.resizeHandler);
-    });
+    this.zone.runOutsideAngular(() => window.addEventListener('resize', this.resizeHandler));
 
     this.load$
       .pipe(
@@ -119,7 +109,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
 
           return this.svc.getAll(filters).pipe(
-            catchError((err) => {
+            catchError(() => {
               this.error = 'No se pudo cargar la lista de clientes.';
               this.loading = false;
               this.cdr.markForCheck();
@@ -131,9 +121,9 @@ export class ClientesComponent implements OnInit, OnDestroy {
       )
       .subscribe((res) => {
         if (!res) return;
-
         this.clientes = [...res.data];
         this.metrics = { ...res.metrics };
+        this.skeletonCount = res.metrics.total;
         this.currentPage = 1;
         this.loading = false;
         this.cdr.markForCheck();
@@ -141,9 +131,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
 
     this.search$
       .pipe(debounceTime(350), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe((term) => {
-        this.triggerLoad();
-      });
+      .subscribe(() => this.triggerLoad());
 
     this.triggerLoad();
   }
@@ -154,26 +142,17 @@ export class ClientesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // ─────────────────────────────────────────────────────────────────────
-  // Cálculo dinámico de items por página
-  // ─────────────────────────────────────────────────────────────────────
+  // ─── Helpers ──────────────────────────────────────────────────────────
 
   private calculateItemsPerPage(): void {
     const viewportH = window.innerHeight;
     const mobile = window.innerWidth < 768;
 
     if (mobile) {
-      const reservedH = 220;
-      const cardH = 90;
-
-      this.itemsPerPage = Math.max(1, Math.floor((viewportH - reservedH) / cardH));
+      this.itemsPerPage = Math.max(1, Math.floor((viewportH - 220) / 90));
     } else {
-      const reservedH = 290;
-      const cardH = 255;
       const cols = window.innerWidth >= 1024 ? 3 : 2;
-      const rows = Math.max(1, Math.floor((viewportH - reservedH) / cardH));
-
-      // +1 fila extra
+      const rows = Math.max(1, Math.floor((viewportH - 290) / 255));
       this.itemsPerPage = (rows + 1) * cols;
     }
   }
@@ -188,6 +167,8 @@ export class ClientesComponent implements OnInit, OnDestroy {
     this.load$.next(filters);
   }
 
+  // ─── Filtros ───────────────────────────────────────────────────────────
+
   setFilter(value: FilterStatus): void {
     this.activeFilter = value;
     this.triggerLoad();
@@ -198,9 +179,14 @@ export class ClientesComponent implements OnInit, OnDestroy {
     this.search$.next(value);
   }
 
+  getMetricValue(key: keyof ClienteMetrics): number {
+    return this.metrics?.[key] ?? 0;
+  }
+
+  // ─── Modales ───────────────────────────────────────────────────────────
+
   openCreate(): void {
     this.selectedCliente = null;
-    this.form = this.buildForm();
     this.formError = null;
     this.modalMode = 'create';
     this.cdr.markForCheck();
@@ -209,7 +195,6 @@ export class ClientesComponent implements OnInit, OnDestroy {
   openEdit(c: Cliente, event?: Event): void {
     event?.stopPropagation();
     this.selectedCliente = c;
-    this.form = this.buildForm(c);
     this.formError = null;
     this.modalMode = 'edit';
     this.cdr.markForCheck();
@@ -220,6 +205,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
     this.modalMode = 'detail';
     this.detailLoading = true;
     this.cdr.markForCheck();
+
     this.svc
       .getOne(c.id)
       .pipe(takeUntil(this.destroy$))
@@ -231,9 +217,7 @@ export class ClientesComponent implements OnInit, OnDestroy {
             this.cdr.markForCheck();
           });
         },
-        error: (err) => {
-          console.error('[Clientes] error al cargar detalle:', err);
-        },
+        error: (err) => console.error('[Clientes] error al cargar detalle:', err),
       });
   }
 
@@ -254,28 +238,17 @@ export class ClientesComponent implements OnInit, OnDestroy {
   closeModal(): void {
     this.modalMode = null;
     this.selectedCliente = null;
-    this.drawerDeltaY = 0;
     this.formError = null;
     this.cdr.markForCheck();
   }
 
-  submit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+  // ─── Acciones ──────────────────────────────────────────────────────────
 
+  onSubmitPayload(payload: ClientePayload): void {
     this.saving = true;
     this.formError = null;
 
-    const raw = this.form.value as ClientePayload;
     const isCreate = this.modalMode === 'create';
-
-    // En edición no mandamos password si está vacío
-    const payload: ClientePayload = isCreate
-      ? raw
-      : (({ password, ...rest }) => (password ? { ...rest, password } : rest))(raw as any);
-
     const req$ = isCreate
       ? this.svc.create(payload)
       : this.svc.update(this.selectedCliente!.id, payload);
@@ -299,23 +272,22 @@ export class ClientesComponent implements OnInit, OnDestroy {
   confirmToggle(): void {
     if (!this.selectedCliente) return;
     this.saving = true;
+
     this.svc
       .toggle(this.selectedCliente.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res) => {
+        next: () =>
           this.zone.run(() => {
             this.saving = false;
             this.closeModal();
             this.triggerLoad();
-          });
-        },
-        error: (err) => {
+          }),
+        error: () =>
           this.zone.run(() => {
             this.saving = false;
             this.cdr.markForCheck();
-          });
-        },
+          }),
       });
   }
 
@@ -327,64 +299,24 @@ export class ClientesComponent implements OnInit, OnDestroy {
       .delete(this.selectedCliente.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (res) => {
+        next: () =>
           this.zone.run(() => {
             this.saving = false;
             this.closeModal();
             this.triggerLoad();
-          });
-        },
-        error: (err) => {
+          }),
+        error: () =>
           this.zone.run(() => {
             this.saving = false;
             this.cdr.markForCheck();
-          });
-        },
+          }),
       });
   }
 
-  onDrawerTouchStart(e: TouchEvent): void {
-    this.drawerStartY = e.touches[0].clientY;
-    this.drawerDeltaY = 0;
-    this.drawerDragging = true;
-  }
-
-  onDrawerTouchMove(e: TouchEvent): void {
-    if (!this.drawerDragging) return;
-    this.drawerDeltaY = Math.max(0, e.touches[0].clientY - this.drawerStartY);
-  }
-
-  onDrawerTouchEnd(): void {
-    this.drawerDragging = false;
-    if (this.drawerDeltaY > 90) this.closeModal();
-    else this.drawerDeltaY = 0;
-  }
-
-  getMetricValue(key: keyof ClienteMetrics): number {
-    return this.metrics?.[key] ?? 0;
-  }
+  // ─── Paginación ────────────────────────────────────────────────────────
 
   trackById(_: number, item: Cliente): number {
     return item.id;
-  }
-
-  get isToggleDeactivate(): boolean {
-    return !!this.selectedCliente?.is_active;
-  }
-
-  private buildForm(c?: Cliente): FormGroup {
-    return this.fb.group({
-      name: [c?.name ?? '', [Validators.required, Validators.maxLength(255)]],
-      email: [c?.email ?? '', [Validators.required, Validators.email]],
-      phone: [c?.phone ?? ''],
-      password: ['', c ? [] : [Validators.required, Validators.minLength(6)]],
-      is_active: [c?.is_active ?? true],
-    });
-  }
-
-  hasError(field: string, error = 'required'): boolean {
-    const ctrl = this.form.get(field);
-    return !!(ctrl?.invalid && ctrl?.touched && ctrl?.hasError(error));
   }
 
   get totalPages(): number {
@@ -400,13 +332,9 @@ export class ClientesComponent implements OnInit, OnDestroy {
     const total = this.totalPages;
     const windowSize = 5;
 
-    if (total <= windowSize) {
-      return Array.from({ length: total }, (_, i) => i + 1);
-    }
+    if (total <= windowSize) return Array.from({ length: total }, (_, i) => i + 1);
 
-    let start = this.currentPage - Math.floor(windowSize / 2);
-    start = Math.max(1, start);
-
+    let start = Math.max(1, this.currentPage - Math.floor(windowSize / 2));
     let end = start + windowSize - 1;
     if (end > total) {
       end = total;

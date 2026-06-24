@@ -66,6 +66,7 @@ type ModalMode =
   ],
 })
 export class SucursalesComponent implements OnInit, OnDestroy {
+  skeletonCount = 9; 
   // ── Estado ────────────────────────────────────────────────────────────
   sucursales: Sucursal[] = [];
   metrics: SucursalMetrics | null = null;
@@ -156,6 +157,7 @@ export class SucursalesComponent implements OnInit, OnDestroy {
         if (!res) return;
         this.sucursales = [...res.data];
         this.metrics = { ...res.metrics };
+        this.skeletonCount = res.metrics.total;
         this.currentPage = 1;
         this.loading = false;
         this.cdr.markForCheck();

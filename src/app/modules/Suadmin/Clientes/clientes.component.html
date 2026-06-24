@@ -69,7 +69,7 @@
 
     <!-- ── Loading ────────────────────────────────────────────────────── -->
     @if (loading) {
-      <app-loader type="clientes" />
+      <app-loader type="clientes" [items]="skeletonCount" />
     }
 
     <!-- ── Error ──────────────────────────────────────────────────────── -->
@@ -314,6 +314,8 @@
     }
   </div>
 
+
+
   <!-- ════════════════════════════════════════════════════════════════════
      MODALES
      ════════════════════════════════════════════════════════════════════ -->
@@ -332,261 +334,36 @@
       />
     }
 
-    <!-- ── CREATE / EDIT ───────────────────────────────────────────────── -->
+      <!-- ── CREATE / EDIT ───────────────────────────────────────────────── -->
     @if (modalMode === 'create' || modalMode === 'edit') {
-      <div
-        class="fixed z-50 left-0 right-0 bottom-[60px] md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[500px] md:max-h-[85vh] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh]"
-        [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : undefined"
-      >
-        <!-- handle -->
-        <div
-          class="md:hidden flex justify-center pt-3 pb-2 cursor-grab touch-none"
-          (touchstart)="onDrawerTouchStart($event)"
-          (touchmove)="onDrawerTouchMove($event)"
-          (touchend)="onDrawerTouchEnd()"
-        >
-          <div class="w-9 h-1 rounded-full bg-accent-500"></div>
-        </div>
-
-        <div class="px-5 pb-8 pt-2 md:pt-5">
-          <!-- Header -->
-          <div class="flex items-center justify-between mb-5">
-            <h2 class="font-bold text-black dark:text-white text-lg">
-              {{ modalMode === 'create' ? 'Nuevo cliente' : 'Editar cliente' }}
-            </h2>
-            <button
-              (click)="closeModal()"
-              class="hidden md:flex w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-red-100 dark:hover:bg-red-500/20 items-center justify-center text-black dark:text-white transition-colors"
-            >
-              <mat-icon class="!text-[18px]">close</mat-icon>
-            </button>
-          </div>
-
-          <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3.5">
-            <!-- Nombre -->
-            <div>
-              <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Nombre</label>
-              <input
-                formControlName="name"
-                type="text"
-                placeholder="Nombre del cliente"
-                class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none transition-colors"
-                [ngClass]="
-                  hasError('name')
-                    ? 'border-red-500/60'
-                    : 'border-black/10 dark:border-white/10 focus:border-black/30 dark:focus:border-white/30'
-                "
-              />
-              @if (hasError('name')) {
-                <p class="text-[0.68rem] text-red-500 mt-1">Requerido</p>
-              }
-            </div>
-
-            <!-- Email -->
-            <div>
-              <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Email</label>
-              <input
-                formControlName="email"
-                type="email"
-                placeholder="correo@gym.com"
-                class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none transition-colors"
-                [ngClass]="
-                  hasError('email') || hasError('email', 'email')
-                    ? 'border-red-500/60'
-                    : 'border-black/10 dark:border-white/10 focus:border-black/30 dark:focus:border-white/30'
-                "
-              />
-              @if (hasError('email')) {
-                <p class="text-[0.68rem] text-red-500 mt-1">Email requerido</p>
-              }
-              @if (hasError('email', 'email')) {
-                <p class="text-[0.68rem] text-red-500 mt-1">Email inválido</p>
-              }
-            </div>
-
-            <!-- Contraseña -->
-            <div>
-              <label class="block text-xs text-black/60 dark:text-white/60 mb-1">
-                Contraseña
-                @if (modalMode === 'edit') {
-                  <span class="text-black/30 dark:text-white/30">(opcional)</span>
-                }
-              </label>
-              <input
-                formControlName="password"
-                type="password"
-                placeholder="••••••••"
-                class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none transition-colors"
-                [ngClass]="
-                  hasError('password')
-                    ? 'border-red-500/60'
-                    : 'border-black/10 dark:border-white/10 focus:border-black/30 dark:focus:border-white/30'
-                "
-              />
-              @if (hasError('password')) {
-                <p class="text-[0.68rem] text-red-500 mt-1">
-                  Contraseña requerida (mín. 6 caracteres)
-                </p>
-              }
-            </div>
-
-            <!-- Teléfono -->
-            <div>
-              <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Teléfono</label>
-              <input
-                formControlName="phone"
-                type="tel"
-                placeholder="+52 55 1234 5678"
-                class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border border-black/10 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors"
-              />
-            </div>
-
-            <!-- Fechas -->
-            <!-- <div class="grid grid-cols-2 gap-2.5">
-              <div>
-                <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Inicio</label>
-                <input
-                  formControlName="subscription_start"
-                  type="date"
-                  class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white outline-none transition-colors"
-                  [ngClass]="
-                    hasError('subscription_start')
-                      ? 'border-red-500/60'
-                      : 'border-black/10 dark:border-white/10 focus:border-black/30 dark:focus:border-white/30'
-                  "
-                />
-              </div>
-              <div>
-                <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Fin</label>
-                <input
-                  formControlName="subscription_end"
-                  type="date"
-                  class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white outline-none transition-colors"
-                  [ngClass]="
-                    hasError('subscription_end')
-                      ? 'border-red-500/60'
-                      : 'border-black/10 dark:border-white/10 focus:border-black/30 dark:focus:border-white/30'
-                  "
-                />
-              </div>
-            </div> -->
-
-            <!-- Toggle activo -->
-            <div
-              class="flex items-center justify-between bg-secondary-400/30 dark:bg-secondary-400/5 rounded-xl px-3.5 py-3"
-            >
-              <span class="text-sm text-black dark:text-white">Activo al crear</span>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" formControlName="is_active" class="sr-only peer" />
-                <div
-                  class="w-11 h-6 bg-accent-300 rounded-full peer peer-checked:bg-accent-500/30 transition-colors"
-                ></div>
-                <div
-                  class="absolute left-0.5 top-0.5 w-5 h-5 bg-primary-500 rounded-full transition-all peer-checked:translate-x-5 peer-checked:bg-primary-500"
-                ></div>
-              </label>
-            </div>
-
-            <!-- Form error -->
-            @if (formError) {
-              <div
-                class="rounded-xl border border-red-500/20 bg-red-500/5 px-3.5 py-2.5 text-xs text-red-500"
-              >
-                {{ formError }}
-              </div>
-            }
-
-            <!-- Submit -->
-            <button
-              type="submit"
-              [disabled]="saving"
-              class="w-full py-3 rounded-xl bg-primary-500 hover:bg-accent-500 disabled:opacity-40 text-white font-medium text-sm transition-colors mt-1"
-            >
-              {{
-                saving ? 'Guardando…' : modalMode === 'create' ? 'Crear cliente' : 'Guardar cambios'
-              }}
-            </button>
-          </form>
-        </div>
-      </div>
+      <clientecrate-modal
+       [mode]="modalMode"
+        [cliente]="selectedCliente"
+        [saving]="saving"
+        [formError]="formError"
+        (submitPayload)="onSubmitPayload($event)"
+        (close)="closeModal()"
+      />
     }
 
     <!-- ── CONFIRM TOGGLE ──────────────────────────────────────────────── -->
     @if (modalMode === 'confirm-toggle' && selectedCliente) {
-      <div
-        class="fixed z-50 left-0 right-0 bottom-[60px] py-5 px-5 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[400px] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl"
-      >
-        <div class="flex justify-center mb-4">
-          <div class="w-14 h-14 rounded-2xl bg-primary-500 flex items-center justify-center">
-            <mat-icon svgIcon="heroicons_solid:power" class="!w-6 !h-6 text-white"></mat-icon>
-          </div>
-        </div>
-        <h3 class="text-center font-extrabold text-black dark:text-white text-base mb-1.5">
-          {{ isToggleDeactivate ? 'Desactivar cliente' : 'Activar cliente' }}
-        </h3>
-        <p class="text-center text-xs text-black/70 dark:text-white/70 leading-relaxed mb-5">
-          {{
-            isToggleDeactivate
-              ? 'Se desactivarán en cascada todos sus gyms y sucursales.'
-              : 'Se activarán en cascada todos sus gyms y sucursales.'
-          }}
-          <br /><strong class="text-black dark:text-white">{{ selectedCliente.name }}</strong>
-        </p>
-        <div class="flex gap-2">
-          <button
-            (click)="closeModal()"
-            class="flex-1 py-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 text-sm font-medium transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            (click)="confirmToggle()"
-            [disabled]="saving"
-            class="flex-1 py-2.5 rounded-xl bg-primary-500 hover:bg-accent-500 text-sm font-medium text-white disabled:opacity-40 transition-colors"
-          >
-            {{ saving ? 'Procesando…' : 'Confirmar' }}
-          </button>
-        </div>
-      </div>
+    <clientelock-modal
+        [cliente]="selectedCliente"
+        [saving]="saving"
+        (confirm)="confirmToggle()"
+        (close)="closeModal()"
+      />
     }
 
     <!-- ── CONFIRM DELETE ──────────────────────────────────────────────── -->
     @if (modalMode === 'confirm-delete' && selectedCliente) {
-      <div
-        class="fixed z-50 left-0 right-0 bottom-[60px] py-5 px-5 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[400px] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl"
-      >
-        <div class="flex justify-center mb-4">
-          <div
-            class="w-14 h-14 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center"
-          >
-            <mat-icon svgIcon="heroicons_solid:trash" class="!w-6 !h-6 text-red-500"></mat-icon>
-          </div>
-        </div>
-        <h3 class="text-center font-extrabold text-black dark:text-white text-base mb-1.5">
-          Eliminar cliente
-        </h3>
-        <p class="text-center text-xs text-black/70 dark:text-white/70 leading-relaxed mb-5">
-          Esta acción es <strong class="text-red-500">irreversible</strong>. Se eliminarán todos los
-          gyms, sucursales y usuarios asociados a
-          <strong class="text-black dark:text-white">{{ selectedCliente.name }}</strong
-          >.
-        </p>
-        <div class="flex gap-2">
-          <button
-            (click)="closeModal()"
-            class="flex-1 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm font-medium text-black dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
-          >
-            Cancelar
-          </button>
-          <button
-            (click)="confirmDelete()"
-            [disabled]="saving"
-            class="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-sm font-bold text-white disabled:opacity-40 transition-colors"
-          >
-            {{ saving ? 'Eliminando…' : 'Eliminar' }}
-          </button>
-        </div>
-      </div>
+  <clientedelete-modal
+        [cliente]="selectedCliente"
+        [saving]="saving"
+        (confirm)="confirmDelete()"
+        (close)="closeModal()"
+      />
     }
   }
 </div>

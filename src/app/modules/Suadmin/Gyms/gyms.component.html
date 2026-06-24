@@ -69,7 +69,7 @@
 
     <!-- ── Loading ────────────────────────────────────────────────────── -->
   @if (loading) {
-      <app-loader type="gyms"/>
+      <app-loader type="gyms" [items]="skeletonCount" />
   }
 
     <!-- ── Error ──────────────────────────────────────────────────────── -->

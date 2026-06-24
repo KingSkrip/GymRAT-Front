@@ -51,18 +51,18 @@ export const menuOwner: NavItem[] = [
   },
 
   {
-    id: 'MisGyms',
-    title: 'Mis gym´s',
+    id: 'gyms',
+    title: 'Mis Gym´s',
     type: 'basic',
     icon: 'heroicons_outline:biceps-flexed',
-    link: '/MisGyms',
+    link: '/GYM´s',
   },
   {
-    id: 'MisSucursales',
-    title: 'Mis sucursales',
+    id: 'sucursales',
+    title: 'Mis Sucursales',
     type: 'basic',
     icon: 'heroicons_outline:building-storefront',
-    link: '/MisSucursales',
+    link: '/Sucursales',
   },
 ];
 
