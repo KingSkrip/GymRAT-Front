@@ -1,0 +1,72 @@
+@if (loading) {
+  <app-loader type="roles" />
+} @else {
+  <div class="flex items-center justify-between mb-4">
+    <button
+      (click)="openCreate()"
+      class="flex items-center gap-2 rounded-xl bg-primary-500 hover:bg-accent-500 text-white px-4 py-2.5 text-sm font-medium transition-all duration-150"
+    >
+      <mat-icon svgIcon="heroicons_solid:plus" class="icon-size-4"></mat-icon>
+      Nuevo subrol
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+    @for (subRole of pagedSubRoles; track subRole.id) {
+      <div
+        (click)="openDetail(subRole)"
+        class="group relative overflow-hidden rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 p-4 hover:bg-secondary-400/20 dark:hover:bg-secondary-400/10 transition-all duration-200 cursor-pointer"
+      >
+        <div class="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-accent-400/30 blur-3xl"></div>
+        <div class="pointer-events-none absolute -bottom-12 -left-12 h-28 w-28 rounded-full bg-secondary-400/30 blur-3xl"></div>
+
+        <div class="flex items-center justify-between">
+          <div class="min-w-0">
+            <p class="font-medium text-sm text-black dark:text-white truncate">{{ subRole.name }}</p>
+            <p class="text-xs text-black dark:text-white mt-0.5">
+              {{ subRole.users_count }} usuario{{ subRole.users_count === 1 ? '' : 's' }}
+            </p>
+          </div>
+
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button
+              (click)="openEdit(subRole, $event)"
+              class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 text-primary-500 dark:text-white transition-all duration-150"
+            >
+              <mat-icon svgIcon="heroicons_solid:pencil-square" class="icon-size-4"></mat-icon>
+            </button>
+            <button
+              (click)="openDeleteConfirm(subRole, $event)"
+              class="opacity-0 group-hover:opacity-100 w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-red-500 text-primary-500 hover:text-white dark:text-white transition-all duration-150"
+            >
+              <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (modalMode === 'create-edit') {
+    <subroles-create-modal
+      [subRole]="selectedSubRole"
+      (closed)="closeModal()"
+      (saved)="onSaved()"
+    />
+  }
+  @if (modalMode === 'detail' && selectedSubRole) {
+    <subroles-detail-modal
+      [subRole]="selectedSubRole"
+      (closed)="closeModal()"
+      (editSubRole)="openEdit($event)"
+      (deleteSubRole)="openDeleteConfirm($event)"
+    />
+  }
+  @if (modalMode === 'confirm-delete' && selectedSubRole) {
+    <subroles-delete-modal
+      [subRole]="selectedSubRole"
+      (closed)="closeModal()"
+      (deleted)="onDeleted()"
+    />
+  }
+}

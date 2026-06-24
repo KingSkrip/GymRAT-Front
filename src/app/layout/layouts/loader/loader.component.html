@@ -1,0 +1,306 @@
+@if (type === 'roles') {
+  <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+    @for (item of [1, 2, 3, 4, 5]; track item) {
+      <div class="rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
+        <div class="flex items-center justify-between">
+          <div class="min-w-0">
+            <div class="skeleton h-4 w-28 rounded mb-2"></div>
+            <div class="skeleton h-3 w-20 rounded"></div>
+          </div>
+
+          <div class="flex gap-2">
+            <div class="skeleton w-8 h-8 rounded-full"></div>
+            <div class="skeleton w-8 h-8 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@if (type === 'users') {
+  <div class="flex flex-col gap-6 mb-[7.5rem]">
+    @for (section of [1, 2, 3]; track section) {
+      <div class="rounded-2xl border border-black/10 dark:border-white/10 p-4 md:p-6">
+        <!-- Section header: título + botón -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="skeleton h-5 w-32 rounded-lg"></div>
+          <div class="skeleton h-9 w-28 rounded-xl"></div>
+        </div>
+
+        <!-- MOBILE: 1 sola card -->
+        <div class="md:hidden">
+          <ng-container *ngTemplateOutlet="userCardSkeleton"></ng-container>
+        </div>
+
+        <!-- DESKTOP: 3 cards en grid -->
+        <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+          @for (card of [1, 2, 3]; track card) {
+            <ng-container *ngTemplateOutlet="userCardSkeleton"></ng-container>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<ng-template #userCardSkeleton>
+  <div class="rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 p-4">
+    <!-- Header: avatar + nombre/email + badge + 2 botones -->
+    <div class="flex items-center justify-between mb-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="skeleton w-10 h-10 rounded-xl shrink-0"></div>
+        <div class="flex flex-col gap-2 min-w-0">
+          <div class="skeleton h-4 w-28 rounded"></div>
+          <!-- nombre -->
+          <div class="skeleton h-3 w-40 rounded"></div>
+          <!-- email -->
+        </div>
+      </div>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <div class="skeleton h-6 w-14 rounded-full"></div>
+        <!-- badge -->
+        <div class="skeleton w-8 h-8 rounded-full"></div>
+        <!-- edit -->
+        <div class="skeleton w-8 h-8 rounded-full"></div>
+        <!-- delete -->
+      </div>
+    </div>
+
+    <!-- Body: gym · sucursal -->
+    <div class="flex flex-wrap gap-x-4 gap-y-1">
+      <div class="skeleton h-3 w-28 rounded"></div>
+      <div class="skeleton h-3 w-32 rounded"></div>
+    </div>
+
+    <!-- Footer: role · sub-role · chevron -->
+    <div class="mt-4 pt-3 border-t border-black/5 dark:border-white/5 flex justify-between">
+      <div class="skeleton h-3 w-16 rounded"></div>
+      <div class="skeleton h-3 w-16 rounded"></div>
+      <div class="skeleton h-4 w-4 rounded"></div>
+    </div>
+  </div>
+</ng-template>
+
+@if (type === 'sucursales') {
+  <!-- MOBILE -->
+  <div class="flex md:hidden flex-col gap-3 mt-3">
+    @for (item of [1, 2, 3, 4, 5]; track item) {
+      <div
+        class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-secondary-400/20 dark:bg-secondary-400/5"
+      >
+        <div class="skeleton w-10 h-10 rounded-xl shrink-0"></div>
+        <div class="flex-1 min-w-0 flex flex-col gap-2">
+          <div class="skeleton h-4 w-32 rounded"></div>
+          <!-- nombre sucursal -->
+          <div class="skeleton h-3 w-24 rounded"></div>
+          <!-- gym -->
+        </div>
+        <div class="skeleton h-5 w-14 rounded-full shrink-0"></div>
+        <!-- badge -->
+        <div class="skeleton w-4 h-4 rounded shrink-0"></div>
+        <!-- chevron -->
+      </div>
+    }
+  </div>
+
+  <!-- DESKTOP -->
+  <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+    @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+      <div
+        class="rounded-2xl border border-black/10 dark:border-white/10 p-5 bg-secondary-400/30 dark:bg-secondary-400/5"
+      >
+        <!-- Header -->
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="skeleton w-10 h-10 rounded-xl shrink-0"></div>
+            <div class="flex flex-col gap-2 min-w-0">
+              <div class="skeleton h-4 w-32 rounded"></div>
+              <!-- nombre -->
+              <div class="flex flex-col gap-1">
+                <div class="skeleton h-3 w-20 rounded"></div>
+                <!-- gym -->
+                <div class="skeleton h-3 w-28 rounded"></div>
+                <!-- cliente -->
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="skeleton h-6 w-14 rounded-full"></div>
+            <div class="flex gap-1">
+              <div class="skeleton w-8 h-8 rounded-full"></div>
+              <div class="skeleton w-8 h-8 rounded-full"></div>
+              <div class="skeleton w-8 h-8 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cuerpo: bloque suscripción -->
+        <div class="flex flex-col gap-2.5">
+          <div
+            class="flex items-center justify-between gap-3 rounded-xl bg-secondary-400/20 dark:bg-secondary-400/5 p-2"
+          >
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="skeleton w-6 h-6 rounded shrink-0"></div>
+              <div class="flex flex-col gap-2">
+                <div class="skeleton h-4 w-28 rounded"></div>
+                <!-- plan -->
+                <div class="skeleton h-3 w-20 rounded"></div>
+                <!-- precio -->
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <div class="skeleton w-4 h-4 rounded"></div>
+              <div class="skeleton h-3 w-16 rounded"></div>
+              <!-- días restantes -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between"
+        >
+          <div class="skeleton h-3 w-24 rounded"></div>
+          <!-- gym name -->
+          <div class="skeleton w-4 h-4 rounded"></div>
+          <!-- chevron -->
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@if (type === 'gyms') {
+  <!-- MOBILE: lista compacta (igual que la vista real) -->
+  <div class="flex md:hidden flex-col gap-3 mt-3">
+    @for (item of [1, 2, 3, 4, 5]; track item) {
+      <div
+        class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-secondary-400/20 dark:bg-secondary-400/5"
+      >
+        <div class="skeleton w-10 h-10 rounded-xl shrink-0"></div>
+        <div class="flex-1 min-w-0 flex flex-col gap-2">
+          <div class="skeleton h-4 w-32 rounded"></div>
+          <!-- nombre gym -->
+          <div class="skeleton h-3 w-24 rounded"></div>
+          <!-- cliente -->
+        </div>
+        <div class="skeleton h-5 w-14 rounded-full shrink-0"></div>
+        <!-- badge -->
+        <div class="skeleton w-4 h-4 rounded shrink-0"></div>
+        <!-- chevron -->
+      </div>
+    }
+  </div>
+
+  <!-- DESKTOP: grid cards -->
+  <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+    @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+      <div
+        class="rounded-2xl border border-black/10 dark:border-white/10 p-5 bg-secondary-400/30 dark:bg-secondary-400/5"
+      >
+        <!-- Header -->
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="skeleton w-10 h-10 rounded-xl shrink-0"></div>
+            <div class="flex flex-col gap-2 min-w-0">
+              <div class="skeleton h-4 w-32 rounded"></div>
+              <!-- nombre -->
+              <div class="flex flex-col gap-1">
+                <div class="skeleton h-3 w-24 rounded"></div>
+                <!-- cliente -->
+                <div class="skeleton h-3 w-28 rounded"></div>
+                <!-- dirección -->
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <div class="skeleton h-6 w-14 rounded-full"></div>
+            <!-- badge -->
+            <div class="flex gap-1">
+              <div class="skeleton w-8 h-8 rounded-full"></div>
+              <div class="skeleton w-8 h-8 rounded-full"></div>
+              <div class="skeleton w-8 h-8 rounded-full"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div
+          class="mt-4 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between"
+        >
+          <div class="skeleton h-3 w-24 rounded"></div>
+          <!-- "X sucursales" -->
+          <div class="skeleton w-4 h-4 rounded"></div>
+          <!-- chevron -->
+        </div>
+      </div>
+    }
+  </div>
+}
+
+@if (type === 'clientes') {
+  <!-- MOBILE -->
+  <div class="flex md:hidden flex-col gap-3 mt-3">
+    @for (item of [1, 2, 3, 4, 5]; track item) {
+      <div
+        class="flex items-center gap-3 px-4 py-3 rounded-2xl bg-secondary-400/20 dark:bg-secondary-400/5"
+      >
+        <div class="skeleton w-10 h-10 rounded-xl shrink-0"></div>
+        <div class="flex-1 min-w-0 flex flex-col gap-2">
+          <div class="skeleton h-4 w-32 rounded"></div>
+          <!-- nombre -->
+          <div class="skeleton h-3 w-44 rounded"></div>
+          <!-- email -->
+        </div>
+        <div class="skeleton h-5 w-14 rounded-full shrink-0"></div>
+        <!-- badge status -->
+        <div class="skeleton w-4 h-4 rounded shrink-0"></div>
+        <!-- chevron -->
+      </div>
+    }
+  </div>
+
+  <!-- DESKTOP -->
+  <div class="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+    @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+      <div
+        class="rounded-2xl border border-black/10 dark:border-white/10 p-5 bg-secondary-400/30 dark:bg-secondary-400/5"
+      >
+        <!-- Header -->
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <div class="flex items-start gap-3 min-w-0">
+            <div class="skeleton w-10 h-10 rounded-xl shrink-0"></div>
+            <div class="flex flex-col gap-2 min-w-0">
+              <div class="skeleton h-4 w-36 rounded"></div>
+              <!-- nombre -->
+              <div class="skeleton h-3 w-44 rounded"></div>
+              <!-- email -->
+            </div>
+          </div>
+          <div class="skeleton h-6 w-14 rounded-full shrink-0"></div>
+          <!-- badge -->
+        </div>
+
+        <!-- Stats row: gyms · sucursales · días -->
+        <div class="flex items-center gap-4 my-2">
+          <div class="skeleton h-4 w-16 rounded"></div>
+          <!-- X gyms -->
+          <div class="skeleton h-4 w-20 rounded"></div>
+          <!-- X sucursales -->
+          <div class="skeleton h-4 w-10 rounded"></div>
+          <!-- Xd -->
+        </div>
+
+        <!-- Footer -->
+        <div
+          class="mt-1 pt-4 border-t border-black/5 dark:border-white/5 flex items-center justify-between"
+        >
+          <div class="skeleton h-3 w-24 rounded"></div>
+          <!-- fecha fin suscripción -->
+          <div class="skeleton w-4 h-4 rounded"></div>
+          <!-- chevron -->
+        </div>
+      </div>
+    }
+  </div>
+}

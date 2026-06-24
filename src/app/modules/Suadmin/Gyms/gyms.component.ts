@@ -25,6 +25,7 @@ import { GymFormModalComponent } from '../../modals/Gyms/GymForm/gym-form-modal.
 import { GymDetailsModalComponent } from '../../modals/Gyms/Details/gyms-detailsmodal.component';
 import { GymLockModalComponent } from '../../modals/Gyms/lock/gyms-lockmodal.component';
 import { GymDeleteConfirmModalComponent } from '../../modals/Gyms/GymDelete/gym-delete-confirm-modal.component';
+import { LoaderComponent } from '../../../layout/layouts/loader/loader.component';
 
 type FilterStatus = '' | 'active' | 'inactive';
 type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-delete';
@@ -44,6 +45,7 @@ type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-dele
     GymDetailsModalComponent,
     GymLockModalComponent,
     GymDeleteConfirmModalComponent,
+    LoaderComponent
   ],
 })
 export class GymsComponent implements OnInit, OnDestroy {

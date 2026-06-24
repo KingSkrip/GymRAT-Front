@@ -34,6 +34,7 @@ import { SucursalesDetailsComponent } from '../../modals/Sucursales/Details/sucu
 import { SucursalesLockComponent } from '../../modals/Sucursales/lock/sucursales-lockmodal.component';
 import { SucursalesSubscriptionComponent } from '../../modals/Sucursales/Suscripcion/sucursales-subscriptionmodal.component';
 import { SucursalesPaymentComponent } from '../../modals/Sucursales/Payments/sucursales-paymentmodal.component';
+import { LoaderComponent } from '../../../layout/layouts/loader/loader.component';
 
 type FilterStatus = '' | 'active' | 'inactive';
 type FilterSubStatus = '' | 'sub_active' | 'sub_expiring' | 'sub_expired' | 'no_sub';
@@ -61,6 +62,7 @@ type ModalMode =
     SucursalesLockComponent,
     SucursalesSubscriptionComponent,
     SucursalesPaymentComponent,
+    LoaderComponent
   ],
 })
 export class SucursalesComponent implements OnInit, OnDestroy {
@@ -92,6 +94,8 @@ export class SucursalesComponent implements OnInit, OnDestroy {
     { label: 'Inactivas', value: 'inactive', metric: 'inactive' },
   ];
 
+
+  
   // ── Inyecciones ───────────────────────────────────────────────────────
   private destroy$ = new Subject<void>();
   private load$ = new Subject<SucursalFilters>();

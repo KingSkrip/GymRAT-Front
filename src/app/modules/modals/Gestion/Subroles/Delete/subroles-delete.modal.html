@@ -1,0 +1,49 @@
+<div class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" (click)="closed.emit()"></div>
+
+<div
+  class="fixed z-50 bg-white dark:bg-black border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[440px] md:rounded-3xl flex flex-col transition-transform duration-150"
+  [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : ''"
+>
+  <div class="md:hidden flex justify-center pt-4 pb-1 touch-none"
+    (touchstart)="onDrawerTouchStart($event)"
+    (touchmove)="onDrawerTouchMove($event)"
+    (touchend)="onDrawerTouchEnd()">
+    <div class="w-10 h-1 rounded-full bg-primary-500"></div>
+  </div>
+
+  <div class="px-6 pt-5 pb-6 flex flex-col gap-4">
+    <h2 class="text-base font-semibold text-black dark:text-white">Eliminar subrol</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400">
+      ¿Estás seguro de que deseas eliminar <span class="font-medium text-black dark:text-white">{{ subRole?.name }}</span>? Esta acción no se puede deshacer.
+    </p>
+
+    @if (masterError) {
+      <p class="text-red-500 text-xs">{{ masterError }}</p>
+    }
+
+    <div class="flex gap-3">
+      <button
+        type="button"
+        (click)="closed.emit()"
+        class="flex-1 rounded-xl py-3 text-sm bg-black/5 dark:bg-white/10 text-black dark:text-white hover:bg-black/10 transition-colors"
+      >
+        Cancelar
+      </button>
+      <button
+        type="button"
+        (click)="requestDelete()"
+        [disabled]="saving"
+        class="flex-1 rounded-xl py-3 text-sm bg-red-500 hover:bg-red-600 text-white font-medium disabled:opacity-40 transition-colors"
+      >
+        {{ saving ? 'Eliminando…' : 'Eliminar' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+@if (showMasterModal) {
+  <master-password-modal
+    (confirmed)="onMasterConfirmed($event)"
+    (cancelled)="onMasterCancelled()"
+  />
+}

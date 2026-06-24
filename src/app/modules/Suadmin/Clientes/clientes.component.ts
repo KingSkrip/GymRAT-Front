@@ -34,6 +34,7 @@ import {
   ClientePayload,
 } from './clientes.service';
 import { ClienteDetailsComponent } from '../../modals/Clientes/Details/clientes-detailsmodal.component';
+import { LoaderComponent } from '../../../layout/layouts/loader/loader.component';
 
 type FilterStatus = '' | 'active' | 'inactive' | 'expiring' | 'expired';
 type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-delete';
@@ -43,7 +44,7 @@ type ModalMode = 'create' | 'edit' | 'detail' | 'confirm-toggle' | 'confirm-dele
   standalone: true,
   templateUrl: './clientes.component.html',
   styleUrls: ['./clientes.component.scss'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, ClienteDetailsComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule, ClienteDetailsComponent, LoaderComponent],
 })
 export class ClientesComponent implements OnInit, OnDestroy {
   clientes: Cliente[] = [];

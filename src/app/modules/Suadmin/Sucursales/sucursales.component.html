@@ -138,14 +138,10 @@
       }
     </div>
 
-    <!-- ── Loading ────────────────────────────────────────────────────── -->
     @if (loading) {
-      <div class="flex justify-center py-20">
-        <div
-          class="w-6 h-6 rounded-full border-2 border-gray-200 border-t-black dark:border-white/10 dark:border-t-white animate-spin"
-        ></div>
-      </div>
+      <app-loader type="sucursales"/>
     }
+
 
     <!-- ── Error ──────────────────────────────────────────────────────── -->
     @if (error) {
@@ -394,6 +390,7 @@
      PAGINACIÓN — fixed en mobile (pegado abajo, sobre el bottom nav),
      estático dentro del flex en desktop
   ══════════════════════════════════════════════════════════════════ -->
+
   @if (!loading && !error && totalPages > 1) {
     <div
       class="fixed bottom-16 left-0 right-0 z-30 py-3 bg-white dark:bg-black border-t border-black/5 dark:border-white/5 md:static md:bottom-auto md:left-auto md:right-auto md:z-auto md:border-t-0"

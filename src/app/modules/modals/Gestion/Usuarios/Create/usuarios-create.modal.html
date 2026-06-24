@@ -1,0 +1,246 @@
+<!-- Backdrop -->
+<div class="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm" (click)="closed.emit()"></div>
+
+<div
+  class="fixed z-50 bg-white dark:bg-black border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:rounded-3xl max-h-[90vh] flex flex-col transition-transform duration-150"
+  [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : ''"
+>
+  <!-- Drag handle -->
+  <div
+    class="md:hidden flex justify-center pt-4 pb-1 cursor-grab active:cursor-grabbing touch-none"
+    (touchstart)="onDrawerTouchStart($event)"
+    (touchmove)="onDrawerTouchMove($event)"
+    (touchend)="onDrawerTouchEnd()"
+  >
+    <div class="w-10 h-1 rounded-full bg-primary-500"></div>
+  </div>
+
+  <!-- Header -->
+  <div class="flex items-center justify-between px-6 pt-4 pb-4 md:pt-6">
+    <h2 class="text-base font-semibold text-black dark:text-white">
+      {{ user ? 'Editar usuario' : 'Nuevo usuario' }}
+    </h2>
+    <button
+      (click)="closed.emit()"
+      class="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+    >
+      <svg
+        class="w-4 h-4 text-gray-500"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+
+  <!-- Form -->
+  <div class="overflow-y-auto flex-1 px-6 pb-6">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
+      <!-- <div class="flex flex-col gap-1.5">
+  <label class="text-sm font-medium text-black dark:text-white">
+    Nombre <span class="text-red-500">*</span>
+  </label>
+  <mat-form-field appearance="outline" class="w-full" [hideRequiredMarker]="true">
+    <input matInput type="text" formControlName="name" placeholder="Ej. Juan García"
+     class="flex items-center justify-between rounded-xl border border-black dark:border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white" />
+    @if (form.get('name')?.invalid && (form.get('name')?.dirty || form.get('name')?.touched)) {
+      <mat-error>El nombre es requerido</mat-error>
+    }
+  </mat-form-field>
+</div> -->
+
+      <!-- Nombre -->
+      <div class="flex flex-col gap-1.5">
+        <label class="textblack dark:text-white">
+          Nombre
+          @if (esRequerido('name')) {
+            <span class="text-red-500">*</span>
+          }
+        </label>
+
+        <input
+          type="text"
+          formControlName="name"
+          class="flex items-center justify-between rounded-xl border border-black dark:border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+        />
+
+        @if (form.get('name')?.invalid && (form.get('name')?.dirty || form.get('name')?.touched)) {
+          <p class="text-red-500 text-xs">
+            @if (form.get('name')?.hasError('required')) {
+              El nombre es requerido
+            }
+          </p>
+        }
+      </div>
+
+      <!-- Email -->
+      <div class="flex flex-col gap-1.5">
+        <label class="textblack dark:text-white">
+          Correo electrónico
+          @if (esRequerido('email')) {
+            <span class="text-red-500">*</span>
+          }
+        </label>
+
+        <input
+          type="email"
+          formControlName="email"
+          class="flex items-center justify-between rounded-xl border border-black dark:border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+        />
+
+        @if (
+          form.get('email')?.invalid && (form.get('email')?.dirty || form.get('email')?.touched)
+        ) {
+          <p class="text-red-500 text-xs">
+            @if (form.get('email')?.hasError('required')) {
+              El correo es requerido
+            }
+
+            @if (form.get('email')?.hasError('email')) {
+              El formato del correo no es válido
+            }
+          </p>
+        }
+      </div>
+
+      <!-- Password -->
+      <div class="flex flex-col gap-1.5">
+        <label class="textblack dark:text-white">
+          Contraseña
+          @if (!user) {
+            <span class="text-red-500">*</span>
+          }
+        </label>
+
+        <input
+          type="password"
+          formControlName="password"
+          [placeholder]="user ? '*****************' : 'Mínimo 8 caracteres'"
+          class="flex items-center justify-between rounded-xl border border-black dark:border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+        />
+
+        @if (
+          form.get('password')?.invalid &&
+          (form.get('password')?.dirty || form.get('password')?.touched)
+        ) {
+          <p class="text-red-500 text-xs">
+            @if (form.get('password')?.hasError('required')) {
+              La contraseña es requerida
+            }
+            @if (form.get('password')?.hasError('minlength')) {
+              Mínimo 8 caracteres
+            }
+          </p>
+        }
+      </div>
+
+      <!-- Rol -->
+      <div class="flex flex-col gap-1.5">
+        <label class="textblack dark:text-white">
+          Rol
+          @if (esRequerido('role_id')) {
+            <span class="text-red-500">*</span>
+          }
+        </label>
+
+        <select
+          formControlName="role_id"
+          class="flex items-center justify-between rounded-xl border border-black dark:border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+        >
+          <option [ngValue]="null">Sin rol</option>
+
+          @for (r of roles; track r.id) {
+            <option [ngValue]="r.id">{{ r.name }}</option>
+          }
+        </select>
+
+        @if (
+          form.get('role_id')?.invalid &&
+          (form.get('role_id')?.dirty || form.get('role_id')?.touched)
+        ) {
+          <p class="text-red-500 text-xs">El rol es obligatorio</p>
+        }
+      </div>
+
+      <!-- Subrol -->
+      <div class="flex flex-col gap-1.5">
+        <label class="textblack dark:text-white"> Subrol </label>
+
+        <select
+          formControlName="sub_role_id"
+          class="flex items-center justify-between rounded-xl border border-black dark:border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+        >
+          <option [ngValue]="null">Sin subrol</option>
+
+          @for (s of subRoles; track s.id) {
+            <option [ngValue]="s.id">{{ s.name }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Estado activo -->
+      <div
+        class="flex items-center justify-between rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3"
+      >
+        <!-- Texto dinámico -->
+        <span
+          class="text-sm font-medium"
+          [ngClass]="form.get('is_active')?.value ? 'text-green-500' : 'text-red-500'"
+        >
+          {{ form.get('is_active')?.value ? 'Activo' : 'Inactivo' }}
+        </span>
+
+        <!-- Toggle -->
+        <label class="relative inline-flex items-center cursor-pointer">
+          <input type="checkbox" formControlName="is_active" class="sr-only peer" />
+
+          <!-- fondo -->
+          <div
+            class="w-11 h-6 rounded-full transition-colors bg-accent-300 peer-checked:bg-accent-500/40"
+          ></div>
+
+          <!-- bolita -->
+          <div
+            class="absolute left-0.5 top-0.5 w-5 h-5 bg-primary-500 rounded-full transition-transform peer-checked:translate-x-5"
+          ></div>
+        </label>
+      </div>
+
+      @if (formError) {
+        <div
+          class="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-xs text-red-500"
+        >
+          {{ formError }}
+        </div>
+      }
+
+      <!-- Actions -->
+      <div class="flex gap-3 pt-1">
+        <button
+          type="button"
+          (click)="closed.emit()"
+          class="flex-1 rounded-xl py-3 text-sm bg-red-500/10 border border-red-500/30 text-red-500 hover:bg-red-500/20 transition-colors duration-150"
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          [disabled]="saving"
+          class="flex-1 rounded-xl bg-primary-500 hover:bg-accent-500 text-white py-3 text-sm font-medium disabled:opacity-40 transition-all duration-150"
+        >
+          {{ saving ? 'Guardando…' : user ? 'Guardar cambios' : 'Crear usuario' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+@if (showMasterModal) {
+  <master-password-modal
+    (confirmed)="onMasterConfirmed($event)"
+    (cancelled)="onMasterCancelled()"
+  />
+}
