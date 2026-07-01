@@ -1,0 +1,143 @@
+@if (loading) {
+  <!-- aquí tu loader, ej: -->
+  <app-loader type="clientes" [items]="6" />
+} @else {
+  <div class="flex items-center justify-between mb-4">
+    <p class="text-xs font-semibold uppercase tracking-widest text-black/60 dark:text-white/60">
+      Dietas
+    </p>
+    <button
+      (click)="openDietaModal()"
+      class="inline-flex items-center gap-1.5 rounded-full bg-primary-500 hover:bg-accent-500 text-white px-3 py-1.5 text-sm font-medium transition-colors"
+    >
+      <mat-icon svgIcon="heroicons_solid:plus" class="!h-4 !w-4"></mat-icon>
+      Nueva dieta
+    </button>
+  </div>
+
+  @if (dietas.length === 0) {
+    <div class="flex flex-col items-center justify-center py-20 text-center">
+      <div
+        class="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 flex items-center justify-center mb-4"
+      >
+        <mat-icon class="!text-2xl text-gray-400">restaurant_menu</mat-icon>
+      </div>
+      <p class="text-sm font-medium text-black dark:text-white mb-1">Sin dietas asignadas</p>
+      <p class="text-xs text-gray-400">Crea el primer plan alimenticio</p>
+    </div>
+  }
+
+  <div class="grid sm:grid-cols-2 gap-3">
+    @for (d of dietas; track d.id) {
+      <div
+        class="rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 p-4 cursor-pointer"
+        (click)="openShowModal(d)"
+      >
+        <div class="flex items-start justify-between gap-2 mb-2">
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-0.5 flex-wrap">
+              <span class="font-medium text-sm text-black dark:text-white truncate">{{
+                d.title
+              }}</span>
+              <span
+                class="text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap"
+                [ngClass]="
+                  d.is_active ? 'bg-accent-300 text-primary-500' : 'bg-red-200 text-red-500'
+                "
+              >
+                {{ d.is_active ? 'Activa' : 'Inactiva' }}
+              </span>
+            </div>
+            @if (d.description) {
+              <p class="text-xs text-black/60 dark:text-white/60 truncate">
+                {{ d.description }}
+              </p>
+            }
+          </div>
+        </div>
+
+        @if (d?.meals?.length) {
+          <div class="flex flex-wrap gap-1.5 pt-2 mt-1 border-t border-black/5 dark:border-white/5">
+            @for (m of d.meals; track m.id) {
+              <span
+                class="text-[11px] bg-white dark:bg-black border border-black/10 dark:border-white/10 rounded-full px-2 py-0.5 text-black/70 dark:text-white/70"
+              >
+                {{ m.meal }}: {{ m.food }} ({{ m.quantity }}{{ m.unit }})
+              </span>
+            }
+          </div>
+        }
+
+        <div
+          class="mt-3 pt-3 border-t border-black/5 dark:border-white/5 flex items-center justify-end gap-1.5"
+        >
+          <button
+            (click)="$event.stopPropagation(); openConfirmToggle(d)"
+            class="w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 text-primary-500 dark:text-white transition-colors"
+          >
+            <mat-icon class="!text-[18px]">{{ d.is_active ? 'toggle_on' : 'toggle_off' }}</mat-icon>
+          </button>
+          <button
+            (click)="$event.stopPropagation(); duplicateDieta(d.id)"
+            class="w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 text-primary-500 dark:text-white transition-colors"
+          >
+            <mat-icon class="!text-[18px]">content_copy</mat-icon>
+          </button>
+          <button
+            (click)="$event.stopPropagation(); openDietaModal(d)"
+            class="w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-accent-200 text-primary-500 dark:text-white transition-colors"
+          >
+            <mat-icon svgIcon="heroicons_solid:pencil-square" class="icon-size-4"></mat-icon>
+          </button>
+          <button
+            (click)="$event.stopPropagation(); openConfirmDelete(d)"
+            class="w-8 h-8 flex items-center justify-center rounded-full bg-accent-300 dark:bg-secondary-500 hover:bg-red-500 hover:text-white text-primary-500 dark:text-white transition-colors"
+          >
+            <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- ══════════════════════════════════════════════════════════════
+     MODALES DE DIETA
+══════════════════════════════════════════════════════════════ -->
+
+<!-- Crear / Editar -->
+<dieta-form-modal
+  [show]="showDietaModal"
+  [editingDieta]="editingDieta"
+  [form]="dietaForm"
+  (closeModal)="closeDietaModal()"
+  (saveDieta)="saveDieta($event)"
+/>
+
+<!-- Ver detalle -->
+<dieta-show-modal
+  [show]="showShowModal"
+  [dieta]="viewingDieta"
+  (closeModal)="closeShowModal()"
+  (editDieta)="onShowEdit($event)"
+  (toggleDieta)="onShowToggle($event)"
+  (deleteDieta)="onShowDelete($event)"
+/>
+
+<!-- Activar / Desactivar -->
+<dieta-toggle-modal
+  [show]="!!toggleTarget"
+  [dieta]="toggleTarget"
+  [saving]="savingConfirm"
+  (closeModal)="closeToggleModal()"
+  (confirmToggle)="confirmToggle($event)"
+/>
+
+<!-- Eliminar -->
+<dieta-delete-modal
+  [show]="!!deleteTarget"
+  [dieta]="deleteTarget"
+  [saving]="savingConfirm"
+  (closeModal)="closeDeleteModal()"
+  (confirmDelete)="confirmDelete($event)"
+/>

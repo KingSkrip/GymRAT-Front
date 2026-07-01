@@ -8,6 +8,8 @@ import { GestionUser, UsersResponse } from './users.types';
 export type { ClientGymGroup } from './users.types';
 export type { GestionUser, UsersResponse } from './users.types';
 
+
+
 @Injectable({
   providedIn: 'root',
 })

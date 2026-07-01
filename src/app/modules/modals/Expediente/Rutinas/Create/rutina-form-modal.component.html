@@ -1,0 +1,414 @@
+<div *ngIf="show" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" (click)="onClose()"></div>
+
+<div
+  *ngIf="show"
+  class="fixed z-50 bg-white dark:bg-black border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[640px] md:rounded-3xl max-h-[90vh] flex flex-col transition-transform duration-150"
+>
+  <div class="md:hidden flex justify-center pt-4 pb-1">
+    <div class="w-10 h-1 rounded-full bg-gray-300 dark:bg-gray-600"></div>
+  </div>
+
+  <div
+    class="flex items-center justify-between px-6 pt-2 pb-4 md:pt-6 border-b border-gray-200 dark:border-gray-800 flex-shrink-0"
+  >
+    <h3 class="font-semibold text-black dark:text-white">
+      {{ editingRutina ? 'Editar rutina' : 'Nueva rutina' }}
+    </h3>
+    <button
+      (click)="onClose()"
+      class="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+    >
+      <mat-icon class="text-gray-500">close</mat-icon>
+    </button>
+  </div>
+
+  <div class="overflow-y-auto flex-1 px-6 py-5 grid gap-4">
+    <div>
+      <label class="text-black dark:text-white"> Título * </label>
+      <input
+        [(ngModel)]="form.title"
+        type="text"
+        placeholder="Ej: Plan de entrenamiento"
+        class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+      />
+    </div>
+
+    <div>
+      <label class="text-black dark:text-white"> Recomendaciones generales </label>
+      <textarea
+        [(ngModel)]="form.description"
+        rows="4"
+        placeholder="Calentar y estirar antes y después del entrenamiento. Descanso máximo 1 min entre serie..."
+        class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+      ></textarea>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-black dark:text-white"> Objetivo </label>
+        <select
+          [(ngModel)]="form.goal"
+          class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+        >
+          <option *ngFor="let g of goals" [value]="g">{{ g }}</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="text-black dark:text-white">Nivel</label>
+        <select
+          [(ngModel)]="form.level"
+          class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+        >
+          <option *ngFor="let l of levels" [value]="l">{{ l }}</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-black dark:text-white"> Días/semana </label>
+        <input
+          [(ngModel)]="form.days_per_week"
+          type="number"
+          min="1"
+          max="7"
+          class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+        />
+      </div>
+      <div>
+        <label class="text-black dark:text-white"> Duración est. (min) </label>
+        <input
+          [(ngModel)]="form.estimated_duration"
+          type="number"
+          min="1"
+          class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="text-black dark:text-white"> Inicio </label>
+        <div class="relative">
+          <input
+            #startDate
+            [(ngModel)]="form.starts_at"
+            type="date"
+            class="date-input w-full rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 pr-12 text-black dark:text-white"
+            (click)="openDatePicker(startDate)"
+          />
+          <mat-icon
+            svgIcon="heroicons_outline:calendar"
+            class="icon-size-2 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-black dark:text-white"
+          ></mat-icon>
+        </div>
+      </div>
+
+      <div>
+        <label class="text-black dark:text-white"> Fin </label>
+
+        <div class="relative">
+          <input
+            #endDate
+            [(ngModel)]="form.ends_at"
+            type="date"
+            class="date-input w-full rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 pr-12 text-black dark:text-white"
+            (click)="openDatePicker(endDate)"
+          />
+
+          <mat-icon
+            svgIcon="heroicons_outline:calendar"
+            class="absolute right-4 top-1/2 -translate-y-1/2 icon-size-2 text-black dark:text-white cursor-pointer"
+            (click)="openDatePicker(endDate)"
+          ></mat-icon>
+        </div>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-200 dark:border-gray-800 pt-4">
+      <div class="flex items-center justify-between mb-3">
+        <label class="text-black dark:text-white">
+          Días de entrenamiento ({{ form.days?.length || 0 }})
+        </label>
+        <button
+          type="button"
+          (click)="addDay()"
+          class="font-medium text-accent-500 flex items-center gap-1"
+        >
+          <mat-icon class="!text-base !w-4 !h-4">add</mat-icon>
+          Agregar día
+        </button>
+      </div>
+
+      <div class="grid gap-4">
+        <div
+          *ngFor="let day of form.days; let dayIndex = index"
+          class="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+        >
+          <div class="bg-gray-50 dark:bg-gray-900 px-3 py-2 flex items-center gap-2">
+            <div class="flex flex-col">
+              <button
+                type="button"
+                (click)="moveDay(dayIndex, -1)"
+                [disabled]="dayIndex === 0"
+                class="disabled:opacity-20"
+              >
+                <mat-icon class="!text-sm !w-4 !h-4 text-gray-400">expand_less</mat-icon>
+              </button>
+              <button
+                type="button"
+                (click)="moveDay(dayIndex, 1)"
+                [disabled]="dayIndex === (form.days?.length || 0) - 1"
+                class="disabled:opacity-20"
+              >
+                <mat-icon class="!text-sm !w-4 !h-4 text-gray-400">expand_more</mat-icon>
+              </button>
+            </div>
+
+            <input
+              [(ngModel)]="day.label"
+              [name]="'label_' + dayIndex"
+              type="text"
+              placeholder="Ej: Espalda lumbar y hombro"
+              class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+            />
+
+            <button
+              type="button"
+              (click)="removeDay(dayIndex)"
+              class="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg"
+            >
+              <mat-icon
+                svgIcon="heroicons_outline:trash"
+                class="icon-size-2 text-red-500"
+              ></mat-icon>
+            </button>
+          </div>
+
+          <div class="px-3 pt-2 flex flex-wrap gap-1.5">
+            <button
+              type="button"
+              *ngFor="let wd of weekdayOptions"
+              (click)="toggleWeekday(dayIndex, wd.value)"
+              [class.bg-primary-500]="isWeekdaySelected(dayIndex, wd.value)"
+              [class.text-white]="isWeekdaySelected(dayIndex, wd.value)"
+              class="text-[11px] px-2 py-1 rounded-md border border-default-200 dark:border-dark-400 text-default-700 dark:text-default-300 hover:border-primary-400 transition-colors"
+            >
+              {{ wd.label }}
+            </button>
+          </div>
+
+          <div class="px-3 pt-2">
+            <input
+              [(ngModel)]="day.notes"
+              [name]="'notes_' + dayIndex"
+              type="text"
+              placeholder="Nota del día (ej: al finalizar 10 min elíptica)"
+              class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+            />
+          </div>
+
+          <div class="px-3 py-2 grid gap-2">
+            <div
+              *ngFor="let item of day.exercises; let exIndex = index"
+              class="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-700 px-2 py-2"
+            >
+              <div class="flex flex-col">
+                <button
+                  type="button"
+                  (click)="moveExercise(dayIndex, exIndex, -1)"
+                  [disabled]="exIndex === 0"
+                  class="disabled:opacity-20"
+                >
+                  <mat-icon class="!text-sm !w-4 !h-4 text-gray-400">expand_less</mat-icon>
+                </button>
+                <button
+                  type="button"
+                  (click)="moveExercise(dayIndex, exIndex, 1)"
+                  [disabled]="exIndex === day.exercises.length - 1"
+                  class="disabled:opacity-20"
+                >
+                  <mat-icon class="!text-sm !w-4 !h-4 text-gray-400">expand_more</mat-icon>
+                </button>
+              </div>
+
+              <div class="flex-1 min-w-0 grid gap-1">
+                <input
+                  [(ngModel)]="item.name"
+                  [name]="'exname_' + dayIndex + '_' + exIndex"
+                  type="text"
+                  placeholder="Nombre del ejercicio"
+                  [readonly]="!!item.exercise_id"
+                  class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-2 py-3 dark:text-white"
+                />
+
+                <div class="flex flex-wrap gap-1.5">
+                  <input
+                    [(ngModel)]="item.sets"
+                    [name]="'sets_' + dayIndex + '_' + exIndex"
+                    type="number"
+                    min="1"
+                    placeholder="series"
+                    class="w-16 flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-2 py-3 dark:text-white"
+                  />
+                  <input
+                    [(ngModel)]="item.reps"
+                    [name]="'reps_' + dayIndex + '_' + exIndex"
+                    type="text"
+                    placeholder="reps (ej: 10-12)"
+                    class="w-24 flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-2 py-3 dark:text-white"
+                  />
+                  <input
+                    [(ngModel)]="item.weight_kg"
+                    [name]="'weight_' + dayIndex + '_' + exIndex"
+                    type="number"
+                    min="0"
+                    placeholder="kg"
+                    class="w-16 flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-2 py-3 dark:text-white"
+                  />
+                  <input
+                    [(ngModel)]="item.duration_sec"
+                    [name]="'duration_' + dayIndex + '_' + exIndex"
+                    type="number"
+                    min="0"
+                    placeholder="seg"
+                    class="w-16 flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-2 py-3 dark:text-white"
+                  />
+                  <input
+                    [(ngModel)]="item.note"
+                    [name]="'note_' + dayIndex + '_' + exIndex"
+                    type="text"
+                    placeholder="nota (ej: AL FALLO)"
+                    class="w-full flex-1 items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="button"
+                (click)="removeExercise(dayIndex, exIndex)"
+                class="p-1 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg self-start"
+              >
+                <mat-icon
+                  svgIcon="heroicons_outline:trash"
+                  class="icon-size-2 text-red-500"
+                ></mat-icon>
+              </button>
+            </div>
+
+            <div *ngIf="day.exercises.length === 0" class="text-black dark:text-white">
+              Sin ejercicios en este día.
+            </div>
+
+            <div class="flex gap-3 pt-1">
+              <button
+                type="button"
+                (click)="togglePicker(dayIndex)"
+                class="text-accent-500 flex items-center gap-1"
+              >
+                <mat-icon
+                  [svgIcon]="
+                    activePickerDay === dayIndex
+                      ? 'heroicons_outline:chevron-up'
+                      : 'heroicons_outline:plus'
+                  "
+                  class="icon-size-5"
+                >
+                </mat-icon>
+
+                {{ activePickerDay === dayIndex ? 'Ocultar catálogo' : 'Agregar del catálogo' }}
+              </button>
+              <button
+                type="button"
+                (click)="addFreeExercise(dayIndex)"
+                class="text-black dark:text-white flex items-center gap-1"
+              >
+                <mat-icon
+                  svgIcon="heroicons_outline:pencil"
+                  class="icon-size-5 text-black dark:text-white"
+                ></mat-icon>
+                Ejercicio libre
+              </button>
+            </div>
+
+            <div
+              *ngIf="activePickerDay === dayIndex"
+              class="mt-1 border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden"
+            >
+              <div
+                class="p-2 flex gap-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+              >
+                <input
+                  [(ngModel)]="searchTerm"
+                  (ngModelChange)="onSearchChange()"
+                  type="text"
+                  placeholder="Buscar ejercicio..."
+                  class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+                />
+                <select
+                  [(ngModel)]="muscleGroupFilter"
+                  (ngModelChange)="onMuscleGroupChange()"
+                  class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
+                >
+                  <option value="">Todos</option>
+                  <option *ngFor="let mg of muscleGroups" [value]="mg[0]">{{ mg[1] }}</option>
+                </select>
+              </div>
+
+              <div class="max-h-48 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800">
+                <div *ngIf="loadingCatalog" class="p-3 text-xs text-gray-400 text-center">
+                  Cargando...
+                </div>
+                <div
+                  *ngIf="!loadingCatalog && catalog.length === 0"
+                  class="p-3 text-xs text-gray-400 text-center"
+                >
+                  Sin resultados
+                </div>
+                <button
+                  type="button"
+                  *ngFor="let ex of catalog"
+                  (click)="addExerciseFromCatalog(dayIndex, ex)"
+                  [disabled]="isSelected(dayIndex, ex)"
+                 class="w-full flex items-center justify-between rounded-xl border border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-2 py-3 text-black dark:text-white"
+                 >
+                  <span >{{ ex.name }}</span>
+                  <span class="text-[10px] text-accent-500 dark:text-secondary-500">
+                    {{ muscleGroupLabel(ex.muscle_group) }}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+      <input
+        [(ngModel)]="form.is_active"
+        type="checkbox"
+        class="rounded border-gray-300 dark:border-gray-600 text-indigo-600"
+      />
+      Activar inmediatamente
+    </label>
+  </div>
+
+  <div
+    class="flex gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-800 flex-shrink-0 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+  >
+    <button
+      (click)="onClose()"
+      class="flex-1 md:flex-none px-4 py-3 md:py-2 text-sm rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+    >
+      Cancelar
+    </button>
+    <button
+      (click)="onSave()"
+      class="flex-1 md:flex-none px-4 py-3 md:py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors"
+    >
+      {{ editingRutina ? 'Guardar cambios' : 'Crear rutina' }}
+    </button>
+  </div>
+</div>

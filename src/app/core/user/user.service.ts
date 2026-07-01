@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, PLATFORM_ID, Injectable, inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { catchError, map, Observable, of, ReplaySubject, Subject, take, tap } from 'rxjs';
+import { catchError, map, Observable, of, ReplaySubject, Subject, take, tap, timeout } from 'rxjs';
 import { User } from './user.types';
 import { APP_CONFIG } from '../../core/config/app-config';
 import { AuthUtils } from '../../modules/auth/auth.utils';
@@ -42,41 +42,41 @@ export class UserService {
   // @ Public methods
   // -----------------------------------------------------------------------------------------------------
 
-init(): Observable<void> {
-  let token: string | null = null;
+  init(): Observable<void> {
+    let token: string | null = null;
 
-  if (isPlatformBrowser(this.platformId)) {
-    token = localStorage.getItem('encrypt');
-  }
-
-  // Sin token o token expirado → limpiar y salir sin llamar al backend
-  if (!token || AuthUtils.isTokenExpired(token)) {
     if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem('encrypt');
+      token = localStorage.getItem('encrypt');
     }
-    this._user.next(null);
-    return of(void 0);
-  }
 
-  return this._httpClient
-    .get(`${this.apiUrl}dash/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-    .pipe(
-      tap((resp: any) => {
-        this._user.next(resp.user);
-      }),
-      map(() => void 0),
-      catchError(() => {
-        // Backend caído o 401 → limpiar token y continuar sin romper la app
-        if (isPlatformBrowser(this.platformId)) {
-          localStorage.removeItem('encrypt');
-        }
-        this._user.next(null);
-        return of(void 0);
-      }),
-    );
-}
+    // Sin token o token expirado → limpiar y salir sin llamar al backend
+    if (!token || AuthUtils.isTokenExpired(token)) {
+      if (isPlatformBrowser(this.platformId)) {
+        localStorage.removeItem('encrypt');
+      }
+      this._user.next(null);
+      return of(void 0);
+    }
+
+    return this._httpClient
+      .get(`${this.apiUrl}dash/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .pipe(
+        timeout(8000),
+        tap((resp: any) => {
+          this._user.next(resp.user);
+        }),
+        map(() => void 0),
+        catchError(() => {
+          if (isPlatformBrowser(this.platformId)) {
+            localStorage.removeItem('encrypt');
+          }
+          this._user.next(null);
+          return of(void 0);
+        }),
+      );
+  }
 
   /**
    * Update user info
@@ -133,7 +133,6 @@ init(): Observable<void> {
    * 🔥 CORRECCIÓN: Simplificar normalización
    */
   normalizeUser(apiUser: any): Partial<User> {
-
     if (apiUser.email && apiUser.name) {
       return apiUser;
     }
@@ -167,28 +166,28 @@ init(): Observable<void> {
     }
 
     // ─── AGREGAR ESTO ───────────────────────
-  if (apiUser.workout !== undefined) {
-    normalized.workout = apiUser.workout;
-  }
-  if (apiUser.access_sessions !== undefined) {
-    normalized.access_sessions = apiUser.access_sessions;
-  }
-  if (apiUser.membership !== undefined) {
-    normalized.membership = apiUser.membership;
-  }
-  if (apiUser.qr !== undefined) {
-    normalized.qr = apiUser.qr;
-  }
-  if (apiUser.biometrics !== undefined) {
-    normalized.biometrics = apiUser.biometrics;
-  }
-  if (apiUser.last_access !== undefined) {
-    normalized.last_access = apiUser.last_access;
-  }
-  if (apiUser.gym !== undefined) {
-    normalized.gym = apiUser.gym;
-  }
+    if (apiUser.workout !== undefined) {
+      normalized.workout = apiUser.workout;
+    }
+    if (apiUser.access_sessions !== undefined) {
+      normalized.access_sessions = apiUser.access_sessions;
+    }
+    if (apiUser.membership !== undefined) {
+      normalized.membership = apiUser.membership;
+    }
+    if (apiUser.qr !== undefined) {
+      normalized.qr = apiUser.qr;
+    }
+    if (apiUser.biometrics !== undefined) {
+      normalized.biometrics = apiUser.biometrics;
+    }
+    if (apiUser.last_access !== undefined) {
+      normalized.last_access = apiUser.last_access;
+    }
+    if (apiUser.gym !== undefined) {
+      normalized.gym = apiUser.gym;
+    }
 
-  return normalized;
+    return normalized;
   }
 }

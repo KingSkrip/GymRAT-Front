@@ -1,0 +1,108 @@
+<!-- foto-viewer-modal.component.html -->
+<div *ngIf="isOpen" class="fixed inset-0 z-40 bg-black/90 backdrop-blur-sm" (click)="close()"></div>
+
+<div *ngIf="isOpen" class="fixed inset-0 z-50 flex flex-col">
+  <!-- Header -->
+  <div
+    class="flex items-center justify-between px-4 sm:px-6 py-4 shrink-0"
+    (click)="$event.stopPropagation()"
+  >
+    <div class="text-white">
+      <p class="text-sm font-semibold">{{ currentLabel }}</p>
+      <p *ngIf="assessment?.created_at" class="text-[11px] text-white/50">
+        {{ assessment?.created_at | date: 'dd/MM/yyyy' }}
+      </p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button
+        (click)="edit()"
+        class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+        title="Editar foto"
+      >
+        <mat-icon class="!text-[18px]">edit</mat-icon>
+      </button>
+      <button
+        *ngIf="currentPhoto"
+        (click)="remove()"
+        class="w-9 h-9 rounded-full bg-white/10 hover:bg-red-500 text-white flex items-center justify-center transition-colors"
+        title="Eliminar foto"
+      >
+        <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
+      </button>
+      <button
+        (click)="close()"
+        class="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+        title="Cerrar"
+      >
+        <mat-icon class="!text-[18px]">close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Imagen principal -->
+  <div
+    class="flex-1 flex items-center justify-center px-4 relative min-h-0"
+    (click)="$event.stopPropagation()"
+  >
+    <button
+      *ngIf="photoPositions.length > 1"
+      (click)="prev()"
+      class="absolute left-2 sm:left-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+    >
+      <mat-icon svgIcon="heroicons_outline:chevron-left"></mat-icon>
+    </button>
+
+    <ng-container *ngIf="currentPhoto; else emptyState">
+      <img
+        [src]="'/storage/' + currentPhoto"
+        [alt]="currentLabel"
+        class="max-h-[70vh] max-w-full rounded-2xl object-contain"
+      />
+    </ng-container>
+    <ng-template #emptyState>
+      <div class="flex flex-col items-center justify-center text-white/40 gap-2">
+        <mat-icon class="!text-5xl">person</mat-icon>
+        <p class="text-sm">Sin foto en esta posición</p>
+      </div>
+    </ng-template>
+
+    <button
+      *ngIf="photoPositions.length > 1"
+      (click)="next()"
+      class="absolute right-2 sm:right-6 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+    >
+      <mat-icon svgIcon="heroicons_outline:chevron-right"></mat-icon>
+    </button>
+  </div>
+
+  <!-- Thumbnails -->
+  <div
+    class="flex items-center justify-center gap-3 px-4 py-5 shrink-0"
+    (click)="$event.stopPropagation()"
+  >
+    @for (pos of photoPositions; track pos.key) {
+      <button
+        (click)="selectKey(pos.key)"
+        class="flex flex-col items-center gap-1.5 transition-opacity"
+        [class.opacity-40]="pos.key !== activeKey"
+      >
+        <div
+          class="w-12 h-16 rounded-lg overflow-hidden border-2"
+          [ngClass]="pos.key === activeKey ? 'border-primary-500' : 'border-white/20'"
+        >
+          @if (assessment?.photos?.[pos.key]) {
+            <img
+              [src]="'/storage/' + assessment!.photos![pos.key]"
+              class="w-full h-full object-cover"
+            />
+          } @else {
+            <div class="w-full h-full bg-white/10 flex items-center justify-center">
+              <mat-icon class="!text-sm text-white/30">person</mat-icon>
+            </div>
+          }
+        </div>
+        <span class="text-[10px] text-white/70">{{ pos.label }}</span>
+      </button>
+    }
+  </div>
+</div>

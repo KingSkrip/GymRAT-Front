@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ChangeDetectorRef, HostListener } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { forkJoin } from 'rxjs';
@@ -11,8 +11,11 @@ import { LoaderComponent } from '../../../../layout/layouts/loader/loader.compon
 import { UsuariosCreateModal } from '../../../modals/Gestion/Usuarios/Create/usuarios-create.modal';
 import { UsuariosDeleteModal } from '../../../modals/Gestion/Usuarios/Delete/usuarios-delete.modal';
 import { UsuariosDetailModal } from '../../../modals/Gestion/Usuarios/Detail/usuarios-detail.modal';
+import { RoleEnum, Roles, SubRoles } from '../../../auth/roles/dataroles';
+import { AuthService } from '../../../auth/auth.service';
+import { MembershipModalComponent } from '../../../modals/Membresias/membership-modal.component';
 
-type ModalMode = 'create-edit' | 'detail' | 'confirm-delete' | null;
+type ModalMode = 'create-edit' | 'detail' | 'confirm-delete' | 'membership' | null;
 type UserRoleContext = 'superadmin' | 'admin' | 'client' | null;
 
 @Component({
@@ -25,14 +28,17 @@ type UserRoleContext = 'superadmin' | 'admin' | 'client' | null;
     UsuariosCreateModal,
     UsuariosDeleteModal,
     UsuariosDetailModal,
+    MembershipModalComponent,
   ],
   templateUrl: './usuarios.component.html',
 })
 export class UsuariosComponent implements OnInit {
+  @Input() user!: GestionUser;
   private rolesService = inject(RolesService);
   private cdr = inject(ChangeDetectorRef);
+  private authService = inject(AuthService);
   activeTab: 'users' | 'roles' | 'subroles' = 'users';
-
+  currentUserRole: string | null = null;
   superadmins: GestionUser[] = [];
   admins: GestionUser[] = [];
   clientGroups: ClientGymGroup[] = [];
@@ -47,7 +53,7 @@ export class UsuariosComponent implements OnInit {
   clientGroupsExpanded: Record<string, boolean> = {};
   clientsPage = 1;
   roles: any[] = [];
-subRoles: any[] = [];
+  subRoles: any[] = [];
 
   loading = true;
   @HostListener('window:resize')
@@ -234,41 +240,99 @@ subRoles: any[] = [];
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   }
 
-
   onUserSaved() {
-  this.closeModal();
-  this.reloadUsers();
-}
+    this.closeModal();
+    this.reloadUsers();
+  }
 
-onUserDeleted() {
-  this.closeModal();
-  this.reloadUsers();
-}
+  onUserDeleted() {
+    this.closeModal();
+    this.reloadUsers();
+  }
 
+  reloadUsers() {
+    this.loading = true;
 
-reloadUsers() {
-  this.loading = true;
-
-  forkJoin({
+    forkJoin({
       rolesResp: this.rolesService.getRoles(),
       subRolesResp: this.rolesService.getSubRoles(),
       usersResp: this.rolesService.getUsers(),
-  }).subscribe({
-    next: ({ rolesResp, usersResp, subRolesResp }) => {
-      this.superadmins = usersResp.superadmins ?? [];
-      this.admins = usersResp.admins ?? [];
-      this.clientGroups = usersResp.clients ?? [];
+    }).subscribe({
+      next: ({ rolesResp, usersResp, subRolesResp }) => {
+        this.superadmins = usersResp.superadmins ?? [];
+        this.admins = usersResp.admins ?? [];
+        this.clientGroups = usersResp.clients ?? [];
         this.roles = rolesResp.roles ?? [];
         this.subRoles = subRolesResp.sub_roles ?? [];
-      this.loading = false;
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      this.loading = false;
-      console.error(err);
-    },
-  });
+        this.loading = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error(err);
+      },
+    });
+  }
 
+  // Getters de visibilidad de secciones
 
-}
+  get isSuperAdmin(): boolean {
+    return Number(this.authService.getUser()?.permissions) === RoleEnum.superadmin;
+  }
+
+  get showAdmins(): boolean {
+    return this.admins.length > 0;
+  }
+  get showClients(): boolean {
+    return this.clientGroups.length > 0;
+  }
+
+  // Label dinámico para la sección de superadmins según el rol
+  get superadminsLabel(): string {
+    // Si no es superadmin viendo su propio panel, es el contacto del sistema
+    return this.currentUserRole === 'superadmin' ? 'Superadministradores' : 'Contacto del sistema';
+  }
+
+  get roleName(): string {
+    return this.user.permissions != null
+      ? (Roles[this.user.permissions as keyof typeof Roles] ?? '—')
+      : '—';
+  }
+
+  get subRoleName(): string {
+    return this.user.sub_permissions != null
+      ? (SubRoles[this.user.sub_permissions as keyof typeof SubRoles] ?? '—')
+      : '—';
+  }
+
+  getRoleName(user: GestionUser): string {
+    return user.permissions != null ? (Roles[user.permissions as keyof typeof Roles] ?? '—') : '—';
+  }
+
+  getSubRoleName(user: GestionUser): string {
+    return user.sub_permissions != null
+      ? (SubRoles[user.sub_permissions as keyof typeof SubRoles] ?? '—')
+      : '—';
+  }
+
+  getMembershipType(type: string): string {
+    const types: Record<string, string> = {
+      monthly: 'Mensual',
+      yearly: 'Anual',
+      visit: 'Visita',
+      custom: 'Personalizada',
+    };
+    return types[type] ?? type;
+  }
+
+  openMembershipModal(user: GestionUser): void {
+    this.selectedUser = user;
+    this.modalMode = 'membership';
+    this.cdr.markForCheck();
+  }
+
+  onMembershipSaved(): void {
+    this.closeModal();
+    this.reloadUsers();
+  }
 }

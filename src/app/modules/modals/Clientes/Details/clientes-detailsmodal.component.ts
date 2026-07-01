@@ -25,6 +25,7 @@ import { Cliente } from '../../../Suadmin/Clientes/clientes.service';
   imports: [CommonModule, FormsModule, ReactiveFormsModule, MatIconModule],
 })
 export class ClienteDetailsComponent implements OnInit, OnChanges, OnDestroy {
+  
   @Input({ required: true }) cliente!: Cliente;
   @Input() loading = false;
 

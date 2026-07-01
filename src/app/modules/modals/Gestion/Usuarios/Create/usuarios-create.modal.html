@@ -54,7 +54,7 @@
 
       <!-- Nombre -->
       <div class="flex flex-col gap-1.5">
-        <label class="textblack dark:text-white">
+        <label class="text-black dark:text-white">
           Nombre
           @if (esRequerido('name')) {
             <span class="text-red-500">*</span>
@@ -78,7 +78,7 @@
 
       <!-- Email -->
       <div class="flex flex-col gap-1.5">
-        <label class="textblack dark:text-white">
+        <label class="text-black dark:text-white">
           Correo electrónico
           @if (esRequerido('email')) {
             <span class="text-red-500">*</span>
@@ -108,7 +108,7 @@
 
       <!-- Password -->
       <div class="flex flex-col gap-1.5">
-        <label class="textblack dark:text-white">
+        <label class="text-black dark:text-white">
           Contraseña
           @if (!user) {
             <span class="text-red-500">*</span>
@@ -139,7 +139,7 @@
 
       <!-- Rol -->
       <div class="flex flex-col gap-1.5">
-        <label class="textblack dark:text-white">
+        <label class="text-black dark:text-white">
           Rol
           @if (esRequerido('role_id')) {
             <span class="text-red-500">*</span>
@@ -150,11 +150,10 @@
           formControlName="role_id"
           class="flex items-center justify-between rounded-xl border border-black dark:border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
         >
-          <option [ngValue]="null">Sin rol</option>
-
-          @for (r of roles; track r.id) {
-            <option [ngValue]="r.id">{{ r.name }}</option>
-          }
+         <option [ngValue]="null">Sin rol</option>
+  @for (r of filteredRoles; track r.id) {
+    <option [ngValue]="r.id">{{ r.name }}</option>
+  }
         </select>
 
         @if (
@@ -166,20 +165,21 @@
       </div>
 
       <!-- Subrol -->
+       @if (showSubRoles) {
       <div class="flex flex-col gap-1.5">
-        <label class="textblack dark:text-white"> Subrol </label>
+        <label class="text-black dark:text-white"> Subrol </label>
 
         <select
           formControlName="sub_role_id"
           class="flex items-center justify-between rounded-xl border border-black dark:border-accent-500 bg-secondary-400/30 dark:bg-secondary-400/5 px-4 py-3 dark:text-white"
         >
           <option [ngValue]="null">Sin subrol</option>
-
-          @for (s of subRoles; track s.id) {
-            <option [ngValue]="s.id">{{ s.name }}</option>
-          }
+      @for (s of filteredSubRoles; track s.id) {
+        <option [ngValue]="s.id">{{ s.name }}</option>
+      }
         </select>
       </div>
+    }
 
       <!-- Estado activo -->
       <div
@@ -244,3 +244,6 @@
     (cancelled)="onMasterCancelled()"
   />
 }
+
+
+<!-- create -->

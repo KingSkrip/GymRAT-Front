@@ -6,6 +6,8 @@ import { forkJoin } from 'rxjs';
 import { UsuariosComponent } from '../../Tabs/Gestion/Usuarios/usuarios.component';
 import { SubrolesComponent } from '../../Tabs/Gestion/Subroles/subroles.component';
 import { RolesComponent } from '../../Tabs/Gestion/Roles/roles.component';
+import { AuthService } from '../../auth/auth.service';
+import { RoleEnum } from '../../auth/roles/dataroles';
 
 type ModalMode = 'create-edit' | 'detail' | 'confirm-delete' | null;
 type UserRoleContext = 'superadmin' | 'admin' | 'client' | null;
@@ -17,6 +19,7 @@ type UserRoleContext = 'superadmin' | 'admin' | 'client' | null;
   templateUrl: './gestion.component.html',
 })
 export class GestionComponent implements OnInit {
+  private authService = inject(AuthService);
   private rolesService = inject(RolesService);
   private cdr = inject(ChangeDetectorRef);
   activeTab: 'users' | 'roles' | 'subroles' = 'users';
@@ -40,15 +43,16 @@ export class GestionComponent implements OnInit {
   clientGroupsExpanded: Record<string, boolean> = {};
   clientsPage = 1;
   @HostListener('window:resize')
-  ngOnInit(): void { 
-    
-  }
+  ngOnInit(): void {}
 
   onResize() {
     this.isMobile = window.innerWidth < 640;
     this.cdr.markForCheck();
   }
 
+  get isSuperAdmin(): boolean {
+    return Number(this.authService.getUser()?.permissions) === RoleEnum.superadmin;
+  }
   // ── Superadmins ──
 
   // ── Admins ──

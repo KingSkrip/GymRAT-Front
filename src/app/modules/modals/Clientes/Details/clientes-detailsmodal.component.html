@@ -53,40 +53,10 @@
       <div
         class="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5"
       >
-        <span class="text-xs text-black dark:text-white">Inicio suscripción</span>
-        <span class="text-xs font-medium">{{ cliente.subscription_start }}</span>
-      </div>
-      <div
-        class="flex justify-between items-center py-2.5 px-3.5 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5"
-      >
-        <span class="text-xs text-black dark:text-white">Fin suscripción</span>
-        <span class="text-xs font-medium">{{ cliente.subscription_end }}</span>
+        <span class="text-xs text-black dark:text-white">Correo electrónico</span>
+        <span class="text-xs font-medium">{{ cliente.email || '—' }}</span>
       </div>
     </div>
-
-    @if (cliente.status_color === 'red' || cliente.status_color === 'yellow') {
-      <div
-        [ngClass]="
-          cliente.status_color === 'red'
-            ? 'border-red-400/20 bg-red-400/5'
-            : 'border-yellow-400/20 bg-yellow-400/5'
-        "
-        class="rounded-xl border px-4 py-3 mb-4"
-      >
-        <p
-          [ngClass]="cliente.status_color === 'red' ? 'text-red-500' : 'text-yellow-500'"
-          class="text-xs font-bold mb-1"
-        >
-          {{ cliente.status_color === 'red' ? '⚠ Suscripción vencida' : '⚡ Próximo vencimiento' }}
-        </p>
-        <p
-          [ngClass]="cliente.status_color === 'red' ? 'text-red-500/70' : 'text-yellow-500/70'"
-          class="text-xs"
-        >
-          Contacta al cliente para renovar su plan.
-        </p>
-      </div>
-    }
 
     @if (loading) {
       <div class="flex justify-center py-4">

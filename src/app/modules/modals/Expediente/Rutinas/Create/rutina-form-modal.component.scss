@@ -1,0 +1,22 @@
+.date-input {
+  color-scheme: light dark; // adapta el calendario al tema
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  margin-left: auto;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.dark .date-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  display: none;
+}
+
+.date-input::-webkit-inner-spin-button {
+  display: none;
+}

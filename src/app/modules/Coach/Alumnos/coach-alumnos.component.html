@@ -1,0 +1,120 @@
+<!-- ── Vista expediente ──────────────────────────────────────────── -->
+<div *ngIf="selectedClient" class="h-full flex flex-col">
+  <div
+    class="flex items-center gap-3 px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0"
+  >
+    <button
+      (click)="back()"
+      class="p-1.5 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-500 transition-colors"
+    >
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div class="flex items-center gap-2 min-w-0">
+      <div
+        class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center flex-shrink-0"
+      >
+        <mat-icon class="text-indigo-600 dark:text-indigo-400 text-base">person</mat-icon>
+      </div>
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+          {{ selectedClient.name }}
+        </p>
+        <p class="text-xs text-zinc-400 truncate">{{ selectedClient.email }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="flex-1 overflow-hidden">
+    <coach-expediente [userId]="selectedClient.id" [coachId]="coachId" />
+  </div> -->
+</div>
+
+<!-- ── Lista de clientes ─────────────────────────────────────────── -->
+<div *ngIf="!selectedClient" class="h-full flex flex-col">
+  <div class="px-4 py-4 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0">
+    <h1 class="text-base font-semibold text-zinc-900 dark:text-zinc-100">Mis alumnos</h1>
+    <p class="text-xs text-zinc-400 mt-0.5">
+      {{ clientes.length }} cliente{{ clientes.length !== 1 ? 's' : '' }} asignado{{
+        clientes.length !== 1 ? 's' : ''
+      }}
+    </p>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="flex-1 flex items-center justify-center text-zinc-400">
+    <mat-icon class="animate-spin mr-2">autorenew</mat-icon>
+    <span class="text-sm">Cargando alumnos…</span>
+  </div>
+
+  <!-- Sin clientes -->
+  <div
+    *ngIf="!loading && clientes.length === 0"
+    class="flex-1 flex flex-col items-center justify-center text-zinc-400 gap-2"
+  >
+    <mat-icon class="text-4xl">group_off</mat-icon>
+    <p class="text-sm">No tienes alumnos asignados aún.</p>
+  </div>
+
+  <!-- Grid de clientes -->
+  <div *ngIf="!loading && clientes.length > 0" class="flex-1 overflow-y-auto p-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div
+        *ngFor="let c of clientes"
+        (click)="selectClient(c)"
+        class="group relative overflow-hidden flex flex-col rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-4 cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 hover:shadow-md transition-all duration-200"
+      >
+        <!-- Header -->
+        <div class="flex items-center gap-3 mb-3">
+          <div
+            class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center flex-shrink-0"
+          >
+            <mat-icon class="text-indigo-600 dark:text-indigo-400">person</mat-icon>
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="font-semibold text-sm text-zinc-900 dark:text-zinc-100 truncate">
+              {{ c.name }}
+            </p>
+            <p class="text-xs text-zinc-400 truncate">{{ c.email }}</p>
+          </div>
+          <span
+            class="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0"
+            [class.bg-green-100]="c.is_active"
+            [class.text-green-700]="c.is_active"
+            [class.bg-zinc-100]="!c.is_active"
+            [class.text-zinc-500]="!c.is_active"
+          >
+            {{ c.is_active ? 'Activo' : 'Inactivo' }}
+          </span>
+        </div>
+
+        <!-- Info -->
+        <div class="flex flex-wrap gap-x-3 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400 mb-3">
+          <span class="flex items-center gap-1">
+            <mat-icon class="text-sm">fitness_center</mat-icon>{{ c.gym?.name ?? '—' }}
+          </span>
+          <span *ngIf="c.branch" class="flex items-center gap-1">
+            <mat-icon class="text-sm">location_on</mat-icon>{{ c.branch.name }}
+          </span>
+        </div>
+
+        <!-- Membresía -->
+        <div
+          class="mt-auto pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between"
+        >
+          <span
+            *ngIf="c.membership"
+            class="text-xs"
+            [class.text-green-500]="c.membership.is_valid"
+            [class.text-red-400]="!c.membership.is_valid"
+          >
+            {{ c.membership.is_valid ? '● Membresía activa' : '● Membresía vencida' }}
+          </span>
+          <span *ngIf="!c.membership" class="text-xs text-red-400">● Sin membresía</span>
+          <mat-icon class="text-zinc-400 group-hover:text-indigo-500 transition-colors text-base"
+            >chevron_right</mat-icon
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

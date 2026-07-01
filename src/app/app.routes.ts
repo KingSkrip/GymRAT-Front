@@ -140,7 +140,7 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'Roles',
+        path: 'Gestion',
 
         canActivate: [AuthGuard],
 
@@ -176,7 +176,39 @@ export const routes: Routes = [
         },
 
         loadComponent: () =>
-          import('./modules/Dueños/Sucursales/missucursales.component').then((m) => m.MisSucursalesComponent),
+          import('./modules/Dueños/Sucursales/missucursales.component').then(
+            (m) => m.MisSucursalesComponent,
+          ),
+      },
+
+      //COACH
+      {
+        path: 'alumnos',
+
+        canActivate: [AuthGuard],
+
+        data: {
+          layout: 'vertical',
+        },
+
+        loadComponent: () =>
+          import('./modules/Dueños/Sucursales/missucursales.component').then(
+            (m) => m.MisSucursalesComponent,
+          ),
+      },
+        {
+        path: 'Expediente',
+
+        canActivate: [AuthGuard],
+
+        data: {
+          layout: 'vertical',
+        },
+
+        loadComponent: () =>
+          import('./modules/Coach/Expediente/expediente.component').then(
+            (m) => m.ExpedienteComponent,
+          ),
       },
     ],
   },

@@ -1,0 +1,43 @@
+<!-- rutina-delete-modal.component.html -->
+<div
+  *ngIf="show"
+  class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+  (click)="onClose()"
+></div>
+
+<div
+  *ngIf="show && rutina"
+  class="fixed z-50 left-0 right-0 bottom-[60px] py-5 px-5 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[400px] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl"
+>
+  <div class="flex justify-center mb-4">
+    <div class="w-14 h-14 rounded-2xl flex items-center justify-center bg-red-500/10 border border-red-500/30">
+      <mat-icon svgIcon="heroicons_solid:trash" class="!w-6 !h-6 text-red-500"></mat-icon>
+    </div>
+  </div>
+
+  <h3 class="text-center font-extrabold text-black dark:text-white text-base mb-1.5">
+    Eliminar rutina
+  </h3>
+
+  <p class="text-center text-xs text-black/70 dark:text-white/70 leading-relaxed mb-5">
+    Esta acción es <strong class="text-red-500">irreversible</strong> y no se puede deshacer.
+    <br /><strong class="text-black dark:text-white">{{ rutina.title }}</strong>
+  </p>
+
+  <div class="flex gap-2">
+    <button
+      (click)="onClose()"
+      [disabled]="saving"
+      class="flex-1 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm font-medium text-black dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+    >
+      Cancelar
+    </button>
+    <button
+      (click)="onConfirm()"
+      [disabled]="saving"
+      class="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-sm font-bold text-white disabled:opacity-40 transition-colors"
+    >
+      {{ saving ? 'Eliminando…' : 'Eliminar' }}
+    </button>
+  </div>
+</div>

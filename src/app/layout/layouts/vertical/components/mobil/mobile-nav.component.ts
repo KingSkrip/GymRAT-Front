@@ -59,7 +59,7 @@ export class MobileNavComponent {
       case RoleEnum.superadmin: return [...menuSuAdmin];
       case RoleEnum.gym_owner: return [...menuOwner];
       case RoleEnum.admin: return [...menuAdmin];
-      case RoleEnum.coach: return [...menuColaborador];
+      case RoleEnum.coach: return [...menuSeniorCoach];
       case RoleEnum.client: return [...menuClientes];
       default: return [];
     }

@@ -1,0 +1,130 @@
+<div
+  class="fixed z-50 left-0 right-0 bottom-[60px] md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[460px] bg-white dark:bg-black border border-white/[0.08] md:rounded-2xl rounded-t-3xl overflow-y-auto max-h-[92vh] md:max-h-[85vh]"
+  [style.transform]="drawerDeltaY > 0 ? 'translateY(' + drawerDeltaY + 'px)' : undefined"
+>
+  <!-- Handle mobile -->
+  <div
+    class="md:hidden flex justify-center pt-3 pb-2 cursor-grab touch-none"
+    (touchstart)="onDrawerTouchStart($event)"
+    (touchmove)="onDrawerTouchMove($event)"
+    (touchend)="onDrawerTouchEnd()"
+  >
+    <div class="w-9 h-1 rounded-full bg-accent-500"></div>
+  </div>
+
+  <div class="px-5 pb-8 pt-2 md:pt-5">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="font-bold text-black dark:text-white text-base">Nueva membresía</h2>
+        <p class="text-xs text-black/50 dark:text-white/50 mt-0.5">{{ userName }}</p>
+      </div>
+      <button
+        (click)="close.emit()"
+        class="hidden md:flex w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-red-100 dark:hover:bg-red-500/20 items-center justify-center text-black dark:text-white transition-colors"
+      >
+        <mat-icon class="!text-[18px]">close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Membresía actual -->
+    @if (currentMembership) {
+      <div class="mb-4 rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 px-3.5 py-3 text-xs">
+        <p class="text-black/50 dark:text-white/50 mb-1">Membresía actual</p>
+        <div class="flex items-center gap-3 flex-wrap">
+          <span [ngClass]="currentMembership.is_valid ? 'text-green-500' : 'text-red-400'" class="font-bold">
+            {{ currentMembership.is_valid ? '● Activa' : '● Vencida' }}
+          </span>
+          <span class="text-black dark:text-white">
+{{ membershipTypeLabels[currentMembership.type] }}
+          </span>
+          <span class="text-black/60 dark:text-white/60">vence {{ currentMembership.end_date | date:'dd/MM/yyyy' }}</span>
+        </div>
+        <p class="text-black/40 dark:text-white/40 mt-1">Al guardar, esta membresía se reemplazará.</p>
+      </div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-3.5">
+
+      <!-- Tipo -->
+      <div>
+        <label class="block text-xs text-black/60 dark:text-white/60 mb-1.5">Tipo de membresía</label>
+        <div class="grid grid-cols-2 gap-2">
+          @for (t of types; track t.value) {
+            <button
+              type="button"
+              (click)="form.patchValue({ type: t.value })"
+              [ngClass]="form.get('type')?.value === t.value
+                ? 'bg-primary-500 text-white border-primary-500'
+                : 'bg-secondary-400/30 dark:bg-secondary-400/5 border-black/10 dark:border-white/10 text-black dark:text-white'"
+              class="py-2.5 rounded-xl border text-sm font-medium transition-all"
+            >
+              {{ t.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Precio -->
+      <div>
+        <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Precio (MXN)</label>
+        <input
+          formControlName="price"
+          type="number"
+          min="0"
+          class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border border-black/10 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors"
+        />
+      </div>
+
+      <!-- Fecha inicio -->
+      <div>
+        <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Fecha de inicio</label>
+        <input
+          formControlName="start_date"
+          type="date"
+          class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border border-black/10 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors"
+        />
+      </div>
+
+      <!-- Fecha fin — solo custom -->
+      @if (isCustom) {
+        <div>
+          <label class="block text-xs text-black/60 dark:text-white/60 mb-1">Fecha de vencimiento</label>
+          <input
+            formControlName="end_date"
+            type="date"
+            class="w-full bg-secondary-400/30 dark:bg-secondary-400/5 border border-black/10 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-black dark:text-white outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors"
+            [ngClass]="form.get('end_date')?.invalid && form.get('end_date')?.touched ? 'border-red-500/60' : ''"
+          />
+        </div>
+      } @else {
+        <!-- Info fecha calculada -->
+        <div class="rounded-xl bg-secondary-400/30 dark:bg-secondary-400/5 px-3.5 py-2.5 text-xs text-black/60 dark:text-white/60">
+          @if (form.get('type')?.value === 'visit') {
+            La membresía cubre solo el día de inicio.
+          } @else if (form.get('type')?.value === 'monthly') {
+            Vence 1 mes después de la fecha de inicio.
+          } @else if (form.get('type')?.value === 'yearly') {
+            Vence 1 año después de la fecha de inicio.
+          }
+        </div>
+      }
+
+      <!-- Error -->
+      @if (error) {
+        <div class="rounded-xl border border-red-500/20 bg-red-500/5 px-3.5 py-2.5 text-xs text-red-500">
+          {{ error }}
+        </div>
+      }
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        [disabled]="saving"
+        class="w-full py-3 rounded-xl bg-primary-500 hover:bg-accent-500 disabled:opacity-40 text-white font-medium text-sm transition-colors mt-1"
+      >
+        {{ saving ? 'Guardando…' : 'Registrar membresía' }}
+      </button>
+    </form>
+  </div>
+</div>

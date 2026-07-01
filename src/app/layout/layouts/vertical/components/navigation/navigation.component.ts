@@ -109,7 +109,7 @@ export class NavigationComponent implements OnInit {
       case RoleEnum.admin:
         return [...menuAdmin];
       case RoleEnum.coach:
-        return [...menuColaborador];
+        return [...menuSeniorCoach];
       case RoleEnum.client:
         return [...menuClientes];
       default:

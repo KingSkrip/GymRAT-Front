@@ -34,11 +34,11 @@ export const menuSuAdmin: NavItem[] = [
     link: '/Sucursales',
   },
   {
-    id: 'roles',
-    title: 'Roles',
+    id: 'gestión',
+    title: 'Gestión',
     type: 'basic',
     icon: 'heroicons_outline:users',
-    link: '/Roles',
+    link: '/Gestion',
   },
 ];
 export const menuOwner: NavItem[] = [
@@ -64,6 +64,32 @@ export const menuOwner: NavItem[] = [
     icon: 'heroicons_outline:building-storefront',
     link: '/Sucursales',
   },
+
+  {
+    id: 'gestión',
+    title: 'Gestión',
+    type: 'basic',
+    icon: 'heroicons_outline:users',
+    link: '/Gestion',
+  },
+];
+
+export const menuAdmin: NavItem[] = [
+  {
+    id: 'dashboards.inicio',
+    title: 'Inicio',
+    type: 'basic',
+    icon: 'heroicons_outline:home',
+    link: '/dashboard',
+  },
+
+  {
+    id: 'gestión',
+    title: 'Gestión',
+    type: 'basic',
+    icon: 'heroicons_outline:users',
+    link: '/Gestion',
+  },
 ];
 
 export const menuSeniorCoach: NavItem[] = [
@@ -74,19 +100,24 @@ export const menuSeniorCoach: NavItem[] = [
     icon: 'heroicons_outline:home',
     link: '/dashboard',
   },
-];
-
-export const menuBranchManager: NavItem[] = [
-  {
-    id: 'dashboards.inicio',
-    title: 'Inicio',
+   {
+    id: 'gestión',
+    title: 'Gestión',
     type: 'basic',
-    icon: 'heroicons_outline:home',
-    link: '/dashboard',
+    icon: 'heroicons_outline:users',
+    link: '/Gestion',
+  },
+
+  {
+    id: 'expediente',
+    title: 'Expediente',
+    type: 'basic',
+    icon: 'heroicons_outline:clipboard',
+    link: '/Expediente',
   },
 ];
 
-export const menuAdmin: NavItem[] = [
+export const menuBranchManager: NavItem[] = [
   {
     id: 'dashboards.inicio',
     title: 'Inicio',

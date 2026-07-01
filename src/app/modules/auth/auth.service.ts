@@ -176,13 +176,13 @@ check(): Observable<boolean> {
   }
 
   // ✅ Si hay token válido y ya está autenticado, no llames al backend
-  if (this._authenticated) return of(true);
+  if (this._authenticated) return of(true);  // 👈 AQUÍ
 
-  // ✅ Si hay token válido pero _authenticated es false (recarga),
-  // confía en el token local en lugar de ir al backend
   this._authenticated = true;
   return of(true);
 }
+
+
   /**
    * Obtener el rol principal del usuario
    */

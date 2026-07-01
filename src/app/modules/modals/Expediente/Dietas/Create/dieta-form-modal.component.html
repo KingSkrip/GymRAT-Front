@@ -1,0 +1,158 @@
+<!-- dieta-form-modal.component.html -->
+<div *ngIf="show" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" (click)="onClose()"></div>
+
+<div
+  *ngIf="show"
+  class="fixed z-50 bg-white dark:bg-black border border-black/10 dark:border-white/10 shadow-2xl bottom-[60px] left-0 right-0 rounded-t-3xl md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[480px] md:rounded-3xl max-h-[90vh] flex flex-col transition-transform duration-150"
+>
+  <div class="md:hidden flex justify-center pt-4 pb-1">
+    <div class="w-10 h-1 rounded-full bg-zinc-300 dark:bg-zinc-600"></div>
+  </div>
+
+  <div
+    class="flex items-center justify-between px-6 pt-2 pb-4 md:pt-6 border-b border-zinc-200 dark:border-zinc-800 flex-shrink-0"
+  >
+    <h3 class="font-semibold text-black dark:text-white">
+      {{ editingDieta ? 'Editar dieta' : 'Nueva dieta' }}
+    </h3>
+    <button
+      (click)="onClose()"
+      class="p-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+    >
+      <mat-icon class="text-zinc-500">close</mat-icon>
+    </button>
+  </div>
+
+  <div class="overflow-y-auto flex-1 px-6 py-5 grid gap-4">
+    <div>
+      <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1"
+        >Título *</label
+      >
+      <input
+        [(ngModel)]="form.title"
+        type="text"
+        placeholder="Ej: Plan hipocalórico"
+        class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm px-3 py-2 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      />
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1"
+        >Descripción</label
+      >
+      <textarea
+        [(ngModel)]="form.description"
+        rows="2"
+        placeholder="Notas para el cliente…"
+        class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm px-3 py-2 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+      ></textarea>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1"
+          >Inicio</label
+        >
+        <input
+          [(ngModel)]="form.starts_at"
+          type="date"
+          class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm px-3 py-2 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Fin</label>
+        <input
+          [(ngModel)]="form.ends_at"
+          type="date"
+          class="w-full rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-sm px-3 py-2 text-black dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        />
+      </div>
+    </div>
+
+    <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+      <input
+        [(ngModel)]="form.is_active"
+        type="checkbox"
+        class="rounded border-zinc-300 dark:border-zinc-600 text-indigo-600"
+      />
+      Activar inmediatamente
+    </label>
+
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <p class="text-xs font-semibold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+          Comidas
+        </p>
+        <button
+          (click)="addMeal()"
+          class="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+        >
+          <mat-icon class="text-sm leading-none">add</mat-icon> Agregar
+        </button>
+      </div>
+
+      <p *ngIf="!form.meals.length" class="text-xs text-zinc-400 italic py-1">
+        Sin comidas añadidas aún.
+      </p>
+
+      <div class="grid gap-2">
+        <div
+          *ngFor="let meal of form.meals; let i = index"
+          class="grid grid-cols-2 sm:flex sm:items-center gap-2 bg-zinc-50 dark:bg-zinc-800 rounded-lg px-3 py-2"
+        >
+          <input
+            [(ngModel)]="meal.meal"
+            placeholder="Comida"
+            type="text"
+            class="col-span-2 sm:flex-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black text-xs px-2 py-1.5 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+          <input
+            [(ngModel)]="meal.food"
+            placeholder="Alimento"
+            type="text"
+            class="col-span-2 sm:flex-[2] rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black text-xs px-2 py-1.5 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+          <input
+            [(ngModel)]="meal.quantity"
+            placeholder="Cant."
+            type="number"
+            class="sm:w-16 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black text-xs px-2 py-1.5 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          />
+          <select
+            [(ngModel)]="meal.unit"
+            class="sm:w-16 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-black text-xs px-2 py-1.5 text-black dark:text-white focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          >
+            <option value="g">g</option>
+            <option value="ml">ml</option>
+            <option value="pza">pza</option>
+            <option value="tz">tz</option>
+            <option value="cdas">cdas</option>
+          </select>
+          <button
+            (click)="removeMeal(i)"
+            class="justify-self-end sm:justify-self-auto text-red-400 hover:text-red-600 transition-colors"
+          >
+            <mat-icon class="text-[18px]">close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="flex gap-3 px-6 py-4 border-t border-zinc-200 dark:border-zinc-800 flex-shrink-0 pb-[calc(1rem+env(safe-area-inset-bottom))]"
+  >
+    <button
+      (click)="onClose()"
+      class="flex-1 md:flex-none px-4 py-3 md:py-2 text-sm rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+    >
+      Cancelar
+    </button>
+    <button
+      (click)="onSave()"
+      class="flex-1 md:flex-none px-4 py-3 md:py-2 text-sm rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors"
+    >
+      {{ editingDieta ? 'Guardar cambios' : 'Crear dieta' }}
+    </button>
+  </div>
+</div>

@@ -1,0 +1,209 @@
+<!-- expediente.component.html -->
+<div class="w-full h-full flex bg-white dark:bg-black transition-colors duration-300">
+  <!-- ══════════════════════════════════════════════════════════════════
+       PANEL LISTA DE ALUMNOS
+  ══════════════════════════════════════════════════════════════════ -->
+  <div
+    class="flex flex-col bg-white dark:bg-black border-r border-black/5 dark:border-white/5 transition-all duration-300"
+    [class.w-full]="!showExpediente"
+    [class.md:w-[380px]]="true"
+    [class.w-0]="showExpediente"
+    [class.md:w-[380px]]="showExpediente"
+    [class.overflow-hidden]="showExpediente"
+  >
+    <div class="flex-1 overflow-y-auto px-4 sm:px-6 pt-6">
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl md:text-3xl font-bold text-black dark:text-white">Mis alumnos</h1>
+      </div>
+
+      <!-- Buscador -->
+      <div class="flex items-center gap-3 mt-4 mb-4">
+        <div class="relative flex-1">
+          <mat-icon
+            svgIcon="heroicons_outline:magnifying-glass"
+            class="absolute left-3 top-1/2 -translate-y-1/2 icon-size-4 text-black dark:text-white"
+          ></mat-icon>
+          <input
+            [(ngModel)]="searchQuery"
+            (ngModelChange)="filtrarAlumnos()"
+            type="text"
+            placeholder="Buscar alumno..."
+            class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 pl-10 pr-4 py-2.5 text-sm text-black dark:text-white placeholder-gray-400 outline-none focus:border-black/30 dark:focus:border-white/30 transition-colors duration-150"
+          />
+        </div>
+      </div>
+
+      <!-- Loading -->
+      @if (loadingAlumnos) {
+        <app-loader type="clientes" [items]="6" />
+      }
+
+      <!-- Empty -->
+      @if (!loadingAlumnos && alumnosFiltrados.length === 0) {
+        <div class="flex flex-col items-center justify-center py-20 text-center">
+          <div
+            class="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 flex items-center justify-center mb-4"
+          >
+            <mat-icon class="!text-2xl text-gray-400">group_off</mat-icon>
+          </div>
+          <p class="text-sm font-medium text-black dark:text-white mb-1">Sin alumnos</p>
+          <p class="text-xs text-gray-400">
+            {{
+              searchQuery
+                ? 'No hay resultados para esa búsqueda'
+                : 'Aún no tienes alumnos asignados'
+            }}
+          </p>
+        </div>
+      }
+
+      <!-- Lista -->
+      @if (!loadingAlumnos && alumnosFiltrados.length > 0) {
+        <div class="flex flex-col divide-y divide-black/5 dark:divide-white/5 pb-6">
+          @for (a of alumnosFiltrados; track a.id) {
+            <div
+              class="flex items-center gap-3 px-3 py-3 mb-2 rounded-2xl transition-colors cursor-pointer"
+              [ngClass]="
+                alumnoActivo?.id === a.id
+                  ? 'bg-primary-500/10 dark:bg-primary-500/10'
+                  : 'bg-secondary-400/30 dark:bg-secondary-400/5 active:bg-gray-100 dark:active:bg-white/10'
+              "
+              (click)="abrirExpediente(a)"
+            >
+              <div
+                class="flex items-center justify-center w-10 h-10 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
+              >
+                <span class="text-white dark:text-black text-sm font-bold">
+                  {{ getInitials(a.name) }}
+                </span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-black dark:text-white truncate">{{ a.name }}</p>
+                <p class="text-xs text-black/60 dark:text-white/60 truncate">{{ a.email }}</p>
+              </div>
+              <mat-icon
+                svgIcon="heroicons_outline:chevron-right"
+                class="!w-4 !h-4 text-black dark:text-white shrink-0"
+              ></mat-icon>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+  <!-- /panel alumnos -->
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       PANEL EXPEDIENTE
+  ══════════════════════════════════════════════════════════════════ -->
+  <div
+    class="flex-1 flex flex-col overflow-hidden"
+    [class.hidden]="!showExpediente"
+    [class.md:flex]="true"
+  >
+    <!-- Placeholder desktop -->
+    @if (!alumnoActivo) {
+      <div class="hidden md:flex flex-1 flex-col items-center justify-center text-center">
+        <div
+          class="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 flex items-center justify-center mb-4"
+        >
+          <mat-icon class="!text-2xl text-gray-400">person_search</mat-icon>
+        </div>
+        <p class="text-sm font-medium text-black dark:text-white mb-1">
+          Ningún alumno seleccionado
+        </p>
+        <p class="text-xs text-gray-400">Elige un alumno para ver su expediente</p>
+      </div>
+    }
+
+    <!-- Expediente activo -->
+    @if (alumnoActivo) {
+      <!-- Header -->
+      <div class="flex-shrink-0 px-4 sm:px-6 pt-6">
+        <div class="flex items-center gap-3">
+          <button
+            (click)="cerrarExpediente()"
+            class="md:hidden h-9 w-9 rounded-full bg-secondary-400/30 dark:bg-secondary-400/5 flex items-center justify-center text-black dark:text-white shrink-0"
+          >
+            <mat-icon svgIcon="heroicons_outline:chevron-left" class="!w-4 !h-4"></mat-icon>
+          </button>
+
+          <div
+            class="flex items-center justify-center w-11 h-11 rounded-xl bg-primary-500 dark:bg-secondary-300/90 shrink-0"
+          >
+            <span class="text-white dark:text-black text-sm font-bold">
+              {{ getInitials(alumnoActivo.name) }}
+            </span>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <h1 class="text-xl md:text-2xl font-bold text-black dark:text-white truncate">
+              {{ alumnoActivo.name }}
+            </h1>
+            <p class="text-xs text-black/60 dark:text-white/60 truncate">
+              {{ alumnoActivo.email }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Pills tabs -->
+        <div class="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1 mt-4">
+          @for (t of tabs; track t.key) {
+            <button
+              class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium whitespace-nowrap transition-colors"
+              [ngClass]="
+                activeTab === t.key
+                  ? 'bg-primary-500 border-primary-500 text-white shadow-glow'
+                  : 'bg-white dark:bg-black border-default-200 dark:border-dark-400 text-default-700 dark:text-default-300 hover:border-primary-400'
+              "
+              (click)="setTab(t.key)"
+            >
+              <mat-icon class="!text-[16px] !w-4 !h-4">{{ t.icon }}</mat-icon>
+              {{ t.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Contenido tab -->
+      <div class="flex-1 overflow-y-auto px-4 sm:px-6 pt-5 pb-6">
+        @if (loading) {
+          <app-loader type="clientes" [items]="6" />
+        }
+
+        <!-- ══ RESUMEN ══ -->
+        @if (!loading && activeTab === 'resumen') {
+          <resumen-expediente-tab *ngIf="activeTab === 'resumen'" [alumno]="alumnoActivo">
+          </resumen-expediente-tab>
+        }
+
+        <!-- ══ RUTINAS ══ -->
+        @if (!loading && activeTab === 'rutinas') {
+          <coach-rutinas-tab *ngIf="activeTab === 'rutinas'" [alumno]="alumnoActivo">
+          </coach-rutinas-tab>
+        }
+
+        <!-- ══ DIETAS ══ -->
+        @if (!loading && activeTab === 'dietas') {
+          <coach-dietas-tab *ngIf="activeTab === 'dietas'" [alumno]="alumnoActivo">
+          </coach-dietas-tab>
+        }
+
+        <!-- ══ EVALUACIONES ══ -->
+        @if (!loading && activeTab === 'evaluaciones') {
+          <coach-evaluaciones-tab *ngIf="activeTab === 'evaluaciones'" [alumno]="alumnoActivo">
+          </coach-evaluaciones-tab>
+        }
+
+        <!-- ══ FOTOS ══ -->
+        @if (!loading && activeTab === 'fotos') {
+          <coach-fotos-tab *ngIf="activeTab === 'fotos'" [alumno]="alumnoActivo"> </coach-fotos-tab>
+        }
+      </div>
+      <!-- /tab content -->
+    }
+    <!-- /alumno activo -->
+  </div>
+  <!-- /panel expediente -->
+</div>

@@ -11,6 +11,7 @@
       <div class="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
         <button
           (click)="activeTab = 'users'"
+            *ngIf="isSuperAdmin"
           class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors shrink-0"
           [ngClass]="
             activeTab === 'users'
@@ -23,6 +24,7 @@
 
         <button
           (click)="activeTab = 'roles'"
+          *ngIf="isSuperAdmin"
           class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors shrink-0"
           [ngClass]="
             activeTab === 'roles'
@@ -35,6 +37,7 @@
 
         <button
           (click)="activeTab = 'subroles'"
+            *ngIf="isSuperAdmin"
           class="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors shrink-0"
           [ngClass]="
             activeTab === 'subroles'

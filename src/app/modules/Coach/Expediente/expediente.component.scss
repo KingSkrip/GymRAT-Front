@@ -1,0 +1,14 @@
+:host { display: contents; }
+
+mat-icon {
+  font-family: 'Material Icons' !important;
+  font-size: inherit;
+  line-height: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.animate-spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

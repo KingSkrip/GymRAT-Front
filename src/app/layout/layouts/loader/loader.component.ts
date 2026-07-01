@@ -1,9 +1,4 @@
-import {
-  Component,
-  Input,
-  OnInit,
-  ViewEncapsulation,
-} from '@angular/core';
+import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,8 +9,8 @@ export type LoaderType =
   | 'subroles'
   | 'table'
   | 'cards'
-    | 'gyms'
-      | 'clientes'
+  | 'gyms'
+  | 'clientes'
   | 'sucursales';
 
 @Component({
@@ -27,7 +22,6 @@ export type LoaderType =
   imports: [CommonModule, MatIconModule],
 })
 export class LoaderComponent implements OnInit {
-
   @Input() type: LoaderType = 'cards';
 
   @Input() items = 6;
@@ -35,10 +29,6 @@ export class LoaderComponent implements OnInit {
   skeletonItems: number[] = [];
 
   ngOnInit(): void {
-    this.skeletonItems = Array.from(
-      { length: this.items },
-      (_, i) => i
-    );
+    this.skeletonItems = Array.from({ length: this.items }, (_, i) => i);
   }
-
 }

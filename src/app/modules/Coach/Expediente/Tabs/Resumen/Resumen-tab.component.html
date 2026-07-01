@@ -1,0 +1,80 @@
+@if (loading) {
+  <!-- aquí tu loader, ej: -->
+  <app-loader type="clientes" [items]="6" />
+} @else {
+
+@if (summary?.current) {
+  <div class="mb-6">
+    <p
+      class="text-xs font-semibold uppercase tracking-widest text-black/60 dark:text-white/60 mb-3"
+    >
+      Última evaluación
+    </p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      @for (
+        m of [
+          { label: 'Peso', val: summary!.current!.weight, unit: 'kg' },
+          { label: '% Grasa', val: summary!.current!.body_fat, unit: '%' },
+          { label: 'Músculo', val: summary!.current!.muscle_mass, unit: 'kg' },
+          { label: 'Agua', val: summary!.current!.water_percentage, unit: '%' },
+          { label: 'IMC', val: summary!.current!.bmi, unit: '' },
+          { label: 'G.Visc.', val: summary!.current!.visceral_fat, unit: '' },
+        ];
+        track m.label
+      ) {
+        <div class="rounded-2xl bg-secondary-400/30 dark:bg-secondary-400/5 p-3.5">
+          <p class="text-xs text-black/60 dark:text-white/60 mb-0.5">{{ m.label }}</p>
+          <p class="text-lg font-bold text-black dark:text-white leading-none">
+            {{ m.val != null ? m.val : '—' }}
+            <span class="font-normal text-xs text-black/60 dark:text-white/60 ml-0.5">{{
+              m.unit
+            }}</span>
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@if (summary?.changes) {
+  <div class="mb-6">
+    <p
+      class="text-xs font-semibold uppercase tracking-widest text-black/60 dark:text-white/60 mb-3"
+    >
+      Cambios totales
+    </p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      @for (
+        c of [
+          { label: 'Peso', val: summary!.changes!.weight, inv: true },
+          { label: '% Grasa', val: summary!.changes!.body_fat, inv: true },
+          { label: 'Músculo', val: summary!.changes!.muscle_mass, inv: false },
+          { label: 'Agua', val: summary!.changes!.water_percentage, inv: false },
+          { label: 'IMC', val: summary!.changes!.bmi, inv: true },
+          { label: 'G.Visc.', val: summary!.changes!.visceral_fat, inv: true },
+        ];
+        track c.label
+      ) {
+        <div class="rounded-2xl border border-black/10 dark:border-white/10 p-3.5">
+          <p class="text-xs text-black/60 dark:text-white/60 mb-0.5">{{ c.label }}</p>
+          <p class="text-lg font-bold leading-none" [ngClass]="changeClass(c.val, c.inv)">
+            {{ getChange(c.val) }}
+          </p>
+        </div>
+      }
+    </div>
+  </div>
+}
+
+@if (!summary?.current) {
+  <div class="flex flex-col items-center justify-center py-20 text-center">
+    <div
+      class="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 flex items-center justify-center mb-4"
+    >
+      <mat-icon class="!text-2xl text-gray-400">bar_chart</mat-icon>
+    </div>
+    <p class="text-sm font-medium text-black dark:text-white mb-1">Sin evaluaciones</p>
+    <p class="text-xs text-gray-400">Registra la primera evaluación para ver el resumen</p>
+  </div>
+}
+}

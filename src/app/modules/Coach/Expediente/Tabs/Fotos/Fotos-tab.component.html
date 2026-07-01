@@ -1,0 +1,134 @@
+<!-- Fotos-tab.component.html -->
+@if (loading) {
+  <app-loader type="clientes" [items]="6" />
+} @else {
+  <p class="text-xs font-semibold uppercase tracking-widest text-black/60 dark:text-white/60 mb-4">
+    Fotos de progreso
+  </p>
+
+  @if (historial.length === 0) {
+    <div class="flex flex-col items-center justify-center py-20 text-center">
+      <div
+        class="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/10 flex items-center justify-center mb-4"
+      >
+        <mat-icon class="!text-2xl text-gray-400">photo_camera</mat-icon>
+      </div>
+      <p class="text-sm font-medium text-black dark:text-white mb-1">Sin fotos registradas</p>
+      <p class="text-xs text-gray-400">Las fotos aparecen ligadas a cada evaluación</p>
+    </div>
+  }
+
+  <div class="grid gap-6">
+    @for (a of historial; track a.id) {
+      <div>
+        <p class="text-xs font-medium text-black/40 dark:text-white/40 mb-2">
+          {{ a.created_at | date: 'dd/MM/yyyy' }}
+        </p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          @for (pos of photoPositions; track pos.key) {
+            <div
+              class="group aspect-[3/4] rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 bg-secondary-400/30 dark:bg-secondary-400/5 relative"
+            >
+              <!-- Foto / placeholder. Click abre el viewer -->
+              @if (getPhoto(a, pos.key)) {
+                <button
+                  type="button"
+                  (click)="openViewer(a, pos.key)"
+                  class="absolute inset-0 w-full h-full"
+                >
+                  <img
+                    [src]="'/storage/' + getPhoto(a, pos.key)"
+                    [alt]="pos.label"
+                    class="w-full h-full object-cover"
+                  />
+                </button>
+                <div
+                  class="absolute bottom-0 left-0 right-0 bg-black/50 py-1 px-2 pointer-events-none"
+                >
+                  <span class="text-[10px] text-white">{{ pos.label }}</span>
+                </div>
+              } @else {
+                <button
+                  type="button"
+                  (click)="openUploadModal(a, pos.key)"
+                  class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 gap-1 w-full h-full"
+                >
+                  <mat-icon class="!text-xl">add_a_photo</mat-icon>
+                  <span class="text-xs">{{ pos.label }}</span>
+                </button>
+              }
+
+              <!-- Acciones (hover) -->
+              <div
+                class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 pointer-events-none"
+              >
+                <button
+                  (click)="openUploadModal(a, pos.key); $event.stopPropagation()"
+                  class="pointer-events-auto w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white text-black transition-colors"
+                  [title]="getPhoto(a, pos.key) ? 'Reemplazar foto' : 'Agregar foto'"
+                >
+                  <mat-icon class="!text-[18px]">{{
+                    getPhoto(a, pos.key) ? 'edit' : 'add_a_photo'
+                  }}</mat-icon>
+                </button>
+
+                @if (getPhoto(a, pos.key)) {
+                  <button
+                    (click)="openViewer(a, pos.key); $event.stopPropagation()"
+                    class="pointer-events-auto w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-white text-black transition-colors"
+                    title="Ver foto"
+                  >
+                    <mat-icon class="!text-[18px]">visibility</mat-icon>
+                  </button>
+
+                  <button
+                    (click)="openDeleteModal(a, pos.key); $event.stopPropagation()"
+                    class="pointer-events-auto w-8 h-8 flex items-center justify-center rounded-full bg-white/90 hover:bg-red-500 hover:text-white text-red-500 transition-colors"
+                    title="Eliminar foto"
+                  >
+                    <mat-icon svgIcon="heroicons_solid:trash" class="!w-4 !h-4"></mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+}
+
+<!-- ══════════════════════════════════════════════════════════════
+     MODALES
+══════════════════════════════════════════════════════════════ -->
+
+<coach-foto-upload-modal
+  [isOpen]="uploadModalOpen"
+  [assessmentId]="uploadAssessmentId"
+  [photoKey]="uploadPhotoKey"
+  [photoLabel]="uploadPhotoLabel"
+  [currentPhotoUrl]="uploadCurrentUrl"
+  (closed)="closeUploadModal()"
+  (uploaded)="onPhotoUploaded($event)"
+/>
+
+<coach-foto-viewer-modal
+  [isOpen]="viewerOpen"
+  [assessment]="viewerAssessment"
+  [activeKey]="viewerActiveKey"
+  [photoPositions]="photoPositions"
+  (closed)="closeViewer()"
+  (keyChange)="onViewerKeyChange($event)"
+  (editRequested)="onViewerEditRequested($event)"
+  (deleteRequested)="onViewerDeleteRequested($event)"
+/>
+
+<coach-foto-delete-modal
+  [isOpen]="deleteModalOpen"
+  [assessmentId]="deleteAssessmentId"
+  [photoKey]="deletePhotoKey"
+  [photoLabel]="deletePhotoLabel"
+  (closed)="closeDeleteModal()"
+  (deleted)="onPhotoDeleted($event)"
+/>

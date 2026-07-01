@@ -1,0 +1,159 @@
+@if (open) {
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+    (click)="onBackdrop($event)"
+  >
+    <div
+      class="bg-white dark:bg-zinc-900 rounded-2xl w-full max-w-lg p-5 max-h-[90vh] overflow-y-auto"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 class="text-center font-extrabold text-black dark:text-white text-base mb-4">
+        {{ editing ? 'Editar evaluación' : 'Nueva evaluación' }}
+      </h3>
+
+      <!-- Fecha y notas -->
+      <div class="grid grid-cols-1 gap-3 mb-4">
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">Fecha</span>
+          <input
+            type="date"
+            [(ngModel)]="form.assessment_date"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+          />
+        </label>
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">Notas</span>
+          <textarea
+            rows="2"
+            [(ngModel)]="form.notes"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white resize-none"
+          ></textarea>
+        </label>
+      </div>
+
+      <!-- Métricas principales -->
+      <p class="text-[10px] font-semibold uppercase tracking-widest text-black/40 dark:text-white/40 mb-1.5">
+        Métricas generales
+      </p>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">Peso (kg)</span>
+          <input
+            type="number"
+            [(ngModel)]="form.weight"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+          />
+        </label>
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">Altura (cm)</span>
+          <input
+            type="number"
+            [(ngModel)]="form.height"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+          />
+        </label>
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">% Grasa</span>
+          <input
+            type="number"
+            [(ngModel)]="form.body_fat"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+          />
+        </label>
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">Músculo (kg)</span>
+          <input
+            type="number"
+            [(ngModel)]="form.muscle_mass"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+          />
+        </label>
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">Agua (%)</span>
+          <input
+            type="number"
+            [(ngModel)]="form.water_percentage"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+          />
+        </label>
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">IMC</span>
+          <input
+            type="number"
+            [(ngModel)]="form.bmi"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+          />
+        </label>
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">G. Visceral</span>
+          <input
+            type="number"
+            [(ngModel)]="form.visceral_fat"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+          />
+        </label>
+        <label class="text-xs">
+          <span class="block mb-1 text-black/60 dark:text-white/60">Edad metabólica</span>
+          <input
+            type="number"
+            [(ngModel)]="form.metabolic_age"
+            class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+          />
+        </label>
+      </div>
+
+      <!-- Medidas -->
+      <p class="text-[10px] font-semibold uppercase tracking-widest text-black/40 dark:text-white/40 mb-1.5">
+        Medidas (cm)
+      </p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-4">
+        @for (f of measurementFields; track f.key) {
+          <label class="text-xs">
+            <span class="block mb-1 text-black/60 dark:text-white/60">{{ f.label }}</span>
+            <input
+              type="number"
+              [ngModel]="getMeasurement(f.key)"
+              (ngModelChange)="setMeasurement(f.key, $event)"
+              class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+            />
+          </label>
+        }
+      </div>
+
+      <!-- Pliegues -->
+      <p class="text-[10px] font-semibold uppercase tracking-widest text-black/40 dark:text-white/40 mb-1.5">
+        Pliegues (mm)
+      </p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-5">
+        @for (f of skinfoldFields; track f.key) {
+          <label class="text-xs">
+            <span class="block mb-1 text-black/60 dark:text-white/60">{{ f.label }}</span>
+            <input
+              type="number"
+              [ngModel]="getSkinfold(f.key)"
+              (ngModelChange)="setSkinfold(f.key, $event)"
+              class="w-full rounded-lg bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 px-2.5 py-2 text-sm text-black dark:text-white"
+            />
+          </label>
+        }
+      </div>
+
+      <div class="flex gap-2">
+        <button
+          (click)="close()"
+          [disabled]="saving"
+          class="flex-1 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm font-medium text-black dark:text-white hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button
+          (click)="onSave()"
+          [disabled]="saving"
+          class="flex-1 py-2.5 rounded-xl bg-primary-500 hover:bg-accent-500 text-sm font-bold text-white disabled:opacity-40 transition-colors"
+        >
+          {{ saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear evaluación' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

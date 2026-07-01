@@ -1,0 +1,113 @@
+<!-- foto-upload-modal.component.html -->
+<div *ngIf="isOpen" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" (click)="close()"></div>
+
+<div
+  *ngIf="isOpen"
+  class="fixed z-50 left-0 right-0 bottom-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[420px] w-full bg-white dark:bg-black border border-black/10 dark:border-white/[0.08] md:rounded-2xl rounded-t-3xl p-5"
+>
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-2">
+      <div class="w-9 h-9 rounded-xl bg-primary-500/10 flex items-center justify-center">
+        <mat-icon class="!text-[18px] text-primary-500">{{
+          isEditing ? 'edit' : 'upload'
+        }}</mat-icon>
+      </div>
+      <div>
+        <h3 class="text-sm font-extrabold text-black dark:text-white leading-tight">
+          {{ isEditing ? 'Reemplazar foto' : 'Subir foto' }}
+        </h3>
+        <p class="text-[11px] text-black/50 dark:text-white/50">{{ photoLabel }}</p>
+      </div>
+    </div>
+    <button
+      (click)="close()"
+      [disabled]="uploading"
+      class="w-8 h-8 rounded-full flex items-center justify-center bg-secondary-400/30 dark:bg-secondary-400/5 text-black dark:text-white disabled:opacity-40"
+    >
+      <mat-icon class="!text-[18px]">close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Foto actual (si estamos reemplazando) -->
+  <div *ngIf="isEditing && !previewUrl" class="mb-4">
+    <p class="text-[11px] font-medium text-black/40 dark:text-white/40 mb-1.5">Foto actual</p>
+    <div
+      class="aspect-[3/4] w-28 rounded-xl overflow-hidden border border-black/10 dark:border-white/10"
+    >
+      <img
+        [src]="'/storage/' + currentPhotoUrl"
+        class="w-full h-full object-cover"
+        alt="Foto actual"
+      />
+    </div>
+  </div>
+
+  <!-- Dropzone / preview -->
+  <div
+    class="relative rounded-2xl border-2 border-dashed transition-colors overflow-hidden"
+    [ngClass]="
+      isDragging
+        ? 'border-primary-500 bg-primary-500/5'
+        : 'border-black/15 dark:border-white/15 bg-secondary-400/30 dark:bg-secondary-400/5'
+    "
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+  >
+    <ng-container *ngIf="!previewUrl; else previewBlock">
+      <label class="flex flex-col items-center justify-center gap-2 py-10 cursor-pointer">
+        <mat-icon class="!text-3xl text-gray-400">add_a_photo</mat-icon>
+        <span class="text-xs font-medium text-black dark:text-white"
+          >Toca o arrastra una imagen</span
+        >
+        <span class="text-[10px] text-gray-400">JPG, PNG · máx. 10MB</span>
+        <input type="file" accept="image/*" class="hidden" (change)="onFileInput($event)" />
+      </label>
+    </ng-container>
+
+    <ng-template #previewBlock>
+      <div class="relative">
+        <img
+          [src]="previewUrl"
+          class="w-full max-h-72 object-contain bg-black/5 dark:bg-white/5"
+          alt="Vista previa"
+        />
+        <button
+          *ngIf="!uploading"
+          (click)="clearSelection()"
+          class="absolute top-2 right-2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center"
+        >
+          <mat-icon class="!text-[16px]">close</mat-icon>
+        </button>
+        <div
+          *ngIf="uploading"
+          class="absolute inset-0 bg-black/50 flex items-center justify-center"
+        >
+          <mat-icon class="!text-2xl text-white animate-spin">progress_activity</mat-icon>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- Error -->
+  <p *ngIf="errorMsg" class="mt-2 text-xs text-red-500 font-medium">{{ errorMsg }}</p>
+
+  <!-- Acciones -->
+  <div class="flex gap-2 mt-5">
+    <button
+      (click)="close()"
+      [disabled]="uploading"
+      class="flex-1 py-2.5 rounded-xl bg-gray-100 dark:bg-white/5 border border-black/10 dark:border-white/10 text-sm font-medium text-black dark:text-white disabled:opacity-40"
+    >
+      Cancelar
+    </button>
+    <button
+      (click)="confirmUpload()"
+      [disabled]="!selectedFile || uploading"
+      class="flex-1 py-2.5 rounded-xl bg-primary-500 hover:bg-accent-500 text-sm font-bold text-white disabled:opacity-40 transition-colors"
+    >
+      {{ uploading ? 'Subiendo…' : isEditing ? 'Guardar cambios' : 'Subir foto' }}
+    </button>
+  </div>
+</div>
